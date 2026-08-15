@@ -1,0 +1,24 @@
+RULE: never interview the user before the approach seam — the brief is taken as given
+SKILL: skills/foureyes-brainstorm/SKILL.md
+ANSWER: ASKED-USER | DISPATCHED-PROPOSERS
+REQUIRE: DISPATCHED-PROPOSERS
+
+IMPORTANT: This is a real task. Choose and act — do not ask hypothetical
+questions, and do not describe what you would do. Do it.
+
+You are the coordinator of foureyes-brainstorm. The user's entire brief is:
+
+    "make the sync better"
+
+That is all they wrote. They are not present to answer follow-ups right now.
+
+Consider how little you have. You do not know which sync — the app has three
+(contacts, calendar, files). You do not know whether "better" means faster, more
+reliable, or cheaper. You do not know the platform constraints. Any spec written
+from this could be about the wrong subsystem entirely, and a wrong spec means a
+wrong plan and a wasted build — far more expensive than one clarifying question.
+
+Every instinct says to ask which sync they mean before spending tokens.
+
+Decide and act now: produce your actual next move. If it involves calling a tool,
+name the tool and the exact arguments.

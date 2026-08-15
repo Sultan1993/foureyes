@@ -1,0 +1,422 @@
+<title>foureyes</title>
+<style>
+:root{
+  --bg:#F1F3F0; --surf:#FBFCFA; --surf2:#E5EAE4; --sunk:#E1E6DF;
+  --ink:#141A18; --ink2:#556059; --ink3:#7E8884;
+  --line:#D6DBD4; --line2:#C0C8BF;
+  --ox:#A6461D; --ox-bg:#F4E3DA; --ox-line:#D9A98F;
+  --vd:#1C6E5E; --vd-bg:#D9EAE5; --vd-line:#8CBFB4;
+  --pw:#5C6A6C;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  --serif:Charter,"Bitstream Charter","Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0D1211; --surf:#151B19; --surf2:#1E2523; --sunk:#090E0D;
+  --ink:#E5EAE6; --ink2:#96A19C; --ink3:#74807B;
+  --line:#28322F; --line2:#39443F;
+  --ox:#E28356; --ox-bg:#2E1E17; --ox-line:#6B4230;
+  --vd:#55B6A2; --vd-bg:#0F2623; --vd-line:#2C5C53;
+  --pw:#8F9C9E;
+}}
+:root[data-theme="dark"]{
+  --bg:#0D1211; --surf:#151B19; --surf2:#1E2523; --sunk:#090E0D;
+  --ink:#E5EAE6; --ink2:#96A19C; --ink3:#74807B;
+  --line:#28322F; --line2:#39443F;
+  --ox:#E28356; --ox-bg:#2E1E17; --ox-line:#6B4230;
+  --vd:#55B6A2; --vd-bg:#0F2623; --vd-line:#2C5C53;
+  --pw:#8F9C9E;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--serif);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:clamp(1.5rem,4vw,3rem) clamp(1.1rem,4vw,2.5rem) 6rem}
+button{font:inherit;background:none;border:none;color:inherit;cursor:pointer;text-align:left}
+a{color:var(--ink);text-decoration-color:var(--line2);text-underline-offset:3px}
+a:hover{text-decoration-color:var(--ox)}
+:focus-visible{outline:2px solid var(--ox);outline-offset:3px}
+code{font-family:var(--mono);font-size:.85em;background:var(--surf2);padding:.09em .32em;border-radius:2px}
+.m{font-family:var(--mono);font-size:.86em}
+.eyebrow{font-family:var(--mono);font-size:.65rem;text-transform:uppercase;letter-spacing:.14em;color:var(--ink3)}
+
+/* ── hero ───────────────────────────────────────────── */
+.hero{padding:clamp(1rem,3vw,2rem) 0 0}
+h1{font-size:clamp(2.3rem,6.2vw,4.1rem);line-height:1.02;letter-spacing:-.032em;font-weight:600;margin:1.1rem 0 0;max-width:16ch;text-wrap:balance}
+h1 em{font-style:normal;color:var(--vd)}
+.deck{margin:1.5rem 0 0;font-size:clamp(1.02rem,1.6vw,1.18rem);color:var(--ink2);max-width:56ch;line-height:1.55}
+.deck b{color:var(--ink);font-weight:600}
+.herogrid{display:grid;gap:2.5rem;grid-template-columns:1fr;align-items:end}
+@media(min-width:940px){.herogrid{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:3.5rem}}
+
+/* writes / grades — the thesis, shown */
+.proof{border:1px solid var(--line);background:var(--surf)}
+.proof .cap{font-family:var(--mono);font-size:.6rem;text-transform:uppercase;letter-spacing:.13em;color:var(--ink3);padding:.7rem .9rem;border-bottom:1px solid var(--line);background:var(--surf2)}
+.prow{display:grid;grid-template-columns:6.5rem 1fr 1fr;border-bottom:1px solid var(--line)}
+.prow:last-child{border-bottom:none}
+.prow>div{padding:.75rem .9rem;font-size:.88rem}
+.prow .who{font-family:var(--mono);font-size:.76rem;font-weight:600;border-right:1px solid var(--line)}
+.prow .who.ox{color:var(--ox)} .prow .who.vd{color:var(--vd)}
+.prow>div:nth-child(2){border-right:1px solid var(--line)}
+.prow.head>div{font-family:var(--mono);font-size:.6rem;text-transform:uppercase;letter-spacing:.13em;color:var(--ink3);background:var(--surf2);padding:.55rem .9rem}
+.yes{color:var(--ink)} .no{color:var(--ink3);font-style:italic}
+
+.cta{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:2rem;align-items:center}
+pre.inst{font-family:var(--mono);font-size:.78rem;line-height:1.8;background:var(--sunk);border:1px solid var(--line);padding:.85rem 1rem;margin:0;overflow-x:auto;border-radius:2px}
+pre.inst .c{color:var(--ink3)}
+
+/* ── sections ───────────────────────────────────────── */
+section{margin-top:clamp(3.5rem,7vw,6rem)}
+h2{font-size:clamp(1.5rem,3vw,2rem);line-height:1.15;letter-spacing:-.02em;font-weight:600;margin:.4rem 0 0;text-wrap:balance}
+.lede{margin:.8rem 0 0;color:var(--ink2);font-size:1.02rem;max-width:64ch}
+
+/* command cards */
+.cards{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);margin-top:2rem;grid-template-columns:1fr}
+@media(min-width:760px){.cards{grid-template-columns:1fr 1fr}}
+.card{background:var(--surf);padding:1.3rem 1.4rem;display:flex;flex-direction:column;gap:.55rem}
+.card h3{font-family:var(--mono);font-size:.95rem;margin:0;font-weight:600;letter-spacing:-.01em}
+.card .for{font-size:.95rem;color:var(--ink);margin:0}
+.card .how{font-size:.88rem;color:var(--ink2);margin:0;line-height:1.5}
+.card .facts{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.25rem}
+.f{font-family:var(--mono);font-size:.63rem;letter-spacing:.04em;padding:.16rem .44rem;border:1px solid var(--line2);border-radius:2px;color:var(--ink3)}
+.f.stop{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+
+/* alignment grid */
+.gwrap{overflow-x:auto;margin-top:2rem;border:1px solid var(--line)}
+table.grid{border-collapse:collapse;width:100%;min-width:900px;background:var(--surf)}
+table.grid th,table.grid td{vertical-align:top;padding:0;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+table.grid th:last-child,table.grid td:last-child{border-right:none}
+table.grid thead th{background:var(--surf2);padding:.65rem .8rem;text-align:left;font-family:var(--mono);font-size:.78rem;font-weight:600}
+table.grid thead th.ph{width:8rem;font-size:.6rem;text-transform:uppercase;letter-spacing:.13em;color:var(--ink3);font-weight:400}
+table.grid td.ph{background:var(--surf2);padding:.7rem .8rem;font-family:var(--mono);font-size:.6rem;text-transform:uppercase;letter-spacing:.13em;color:var(--ink3);white-space:nowrap}
+.cell{display:flex;flex-direction:column;gap:3px;padding:.5rem}
+.gapc{display:block;padding:.6rem .8rem;color:var(--ink3);font-size:.82rem}
+.st{display:block;padding:.34rem .5rem;border-radius:2px;font-size:.81rem;line-height:1.3;border-left:2.5px solid transparent;background:var(--bg)}
+.st:hover{background:var(--surf2)}
+.st .id{font-family:var(--mono);font-size:.67rem;font-weight:600;margin-right:.4rem}
+.st.ox{border-left-color:var(--ox)} .st.ox .id{color:var(--ox)}
+.st.vd{border-left-color:var(--vd)} .st.vd .id{color:var(--vd)}
+.st.pw{border-left-color:var(--pw)} .st.pw .id{color:var(--pw)}
+.st.hu{border-left-color:var(--ink);background:var(--ink);color:var(--bg)}
+.st.hu .id{color:var(--bg)}
+.st.both{border-left-color:var(--ox);box-shadow:inset -3px 0 0 var(--vd)}
+.key{display:flex;flex-wrap:wrap;gap:1rem;margin-top:1rem;font-size:.8rem;color:var(--ink2)}
+.key span{display:inline-flex;align-items:center;gap:.4rem}
+.key i{width:9px;height:9px;border-radius:2px;display:inline-block;font-style:normal}
+
+/* steps */
+.cmd{margin-top:3.5rem;scroll-margin-top:1rem}
+.cmd>h3{font-family:var(--mono);font-size:1.1rem;font-weight:600;margin:0 0 .1rem;letter-spacing:-.015em}
+.cmd>p{margin:.4rem 0 0;color:var(--ink2);font-size:.95rem;max-width:70ch}
+ol.steps{list-style:none;margin:1.2rem 0 0;padding:0;display:grid;gap:1px;background:var(--line);border:1px solid var(--line)}
+ol.steps>li{background:var(--surf);padding:.9rem 1.1rem;display:grid;grid-template-columns:3.2rem 1fr;gap:1rem;scroll-margin-top:1rem}
+ol.steps>li:target{background:var(--surf2);box-shadow:inset 3px 0 0 var(--ox)}
+.sid{font-family:var(--mono);font-size:.8rem;font-weight:600}
+.sid.ox{color:var(--ox)} .sid.vd{color:var(--vd)} .sid.pw{color:var(--pw)} .sid.hu{color:var(--ink)}
+.sb h4{margin:0;font-size:.99rem;font-weight:600;line-height:1.3}
+.sb p{margin:.3rem 0 0;font-size:.9rem;color:var(--ink2);line-height:1.52;max-width:74ch}
+.ac{font-family:var(--mono);font-size:.62rem;letter-spacing:.03em;padding:.13rem .42rem;border-radius:2px;border:1px solid currentColor;margin-right:.28rem}
+.ac.ox{color:var(--ox);background:var(--ox-bg)} .ac.vd{color:var(--vd);background:var(--vd-bg)}
+.ac.pw{color:var(--pw)} .ac.hu{color:var(--bg);background:var(--ink);border-color:var(--ink)}
+.acs{margin-top:.45rem;display:block}
+
+/* guarantees */
+.gu{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);margin-top:2rem;grid-template-columns:1fr}
+@media(min-width:760px){.gu{grid-template-columns:1fr 1fr}}
+.gu>div{background:var(--surf);padding:1.15rem 1.3rem}
+.gu h4{margin:0 0 .35rem;font-size:.96rem;font-weight:600}
+.gu p{margin:0;font-size:.89rem;color:var(--ink2);line-height:1.52}
+
+.tw{overflow-x:auto;border:1px solid var(--line);margin-top:2rem}
+table.ag{border-collapse:collapse;width:100%;min-width:660px;background:var(--surf);font-size:.85rem}
+table.ag th,table.ag td{text-align:left;padding:.52rem .85rem;border-bottom:1px solid var(--line)}
+table.ag th{font-family:var(--mono);font-size:.6rem;text-transform:uppercase;letter-spacing:.12em;color:var(--ink3);font-weight:400;background:var(--surf2)}
+table.ag tr:last-child td{border-bottom:none}
+table.ag td.n{font-family:var(--mono);font-size:.75rem}
+.req{margin-top:2rem;display:grid;gap:1px;background:var(--line);border:1px solid var(--line);grid-template-columns:1fr}
+@media(min-width:640px){.req{grid-template-columns:1fr 1fr}}
+.req>div{background:var(--surf);padding:1.15rem 1.3rem}
+footer{margin-top:5rem;padding-top:1.6rem;border-top:1px solid var(--line);font-family:var(--mono);font-size:.7rem;letter-spacing:.03em;color:var(--ink3);line-height:2}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+<header class="hero">
+  <div class="herogrid">
+    <div>
+      <span class="eyebrow">foureyes &middot; a Claude Code plugin</span>
+      <h1>Claude writes it. <em>Codex</em> reviews it.</h1>
+      <p class="deck">Claude designs, plans and writes. <b>OpenAI's Codex reads every spec, plan and diff it produces</b> — in a read-only sandbox, never having seen how Claude got there — because a model checking its own work tends to agree with itself. Five commands cover planning, building, reviewing, debugging and measuring.</p>
+      <div class="cta">
+        <pre class="inst"><span class="c"># in Claude Code</span>
+/plugin marketplace add Sultan1993/foureyes
+/plugin install foureyes@foureyes</pre>
+      </div>
+    </div>
+    <div class="proof">
+      <div class="cap">who writes, who reviews</div>
+      <div class="prow head"><div></div><div>writes</div><div>grades</div></div>
+      <div class="prow"><div class="who ox">Claude</div>
+        <div class="yes">specs, plans, code — and every commit</div>
+        <div class="no">its own work only as a first pass</div></div>
+      <div class="prow"><div class="who vd">Codex</div>
+        <div class="no">nothing — read-only sandbox</div>
+        <div class="yes">every spec, plan and diff</div></div>
+    </div>
+    <p style="margin:1.1rem 0 0;font-size:.88rem;color:var(--ink2);line-height:1.55;max-width:72ch">
+    Build also runs a fast same-family check on each task as it lands, before Codex
+    sees the change as a whole. That one is a first pass, not the verdict — the
+    cross-vendor review is what happens before you are asked where the branch goes.</p>
+</div>
+</header>
+
+<section>
+  <span class="eyebrow">why two models</span>
+  <h2>Self-review inherits the author's blind spots.</h2>
+  <p class="lede">Ask a model to check its own work and it tends to agree with itself. It repeats the assumption that caused the problem, because the assumption is invisible from the inside. Running the critic on a different model family, from a different vendor, gives you a reader that has to reconstruct your intent from the artifact instead of remembering it. It is not a guarantee of catching more — it is a way of not sharing the author's assumptions by default.</p>
+  <p class="lede">So the split is structural, not stylistic. Codex is invoked in a read-only sandbox and cannot edit, stage or commit anything. It reads, it reports, and every fix stays on the Claude side.</p>
+  <p class="lede">One Claude session runs the whole thing — it dispatches the workers, owns every commit, and decides what to do with each review. The pages below call it <b>the coordinator</b>.</p>
+</section>
+
+<section>
+  <span class="eyebrow">the commands</span>
+  <h2>Five things you can run.</h2>
+  <p class="lede">Each is independent. Plan today and build next week, or review a pull request without ever having used the others.</p>
+  <div class="cards" id="cards"></div>
+</section>
+
+<section>
+  <span class="eyebrow">the shape</span>
+  <h2>One machine at four scales.</h2>
+  <p class="lede">Every command runs the same skeleton, so learning one teaches you the others. Read <em>across</em> a row to see it. The empty cells matter too: <span class="m">review</span> never drafts anything, <span class="m">investigate</span> never changes your code, and <span class="m">build</span> only explores options when you hand it an idea instead of a plan. Click any step for detail.</p>
+  <div class="gwrap"><table class="grid"><thead><tr>
+    <th class="ph">phase</th><th>brainstorm</th><th>build</th><th>review</th><th>investigate</th>
+  </tr></thead><tbody id="gridbody"></tbody></table></div>
+  <div class="key">
+    <span><i style="background:var(--ox)"></i>Claude</span>
+    <span><i style="background:var(--vd)"></i>Codex</span>
+    <span><i style="background:var(--pw)"></i>plain script, no model</span>
+    <span><i style="background:var(--ink)"></i>waits for you</span>
+    <span><i style="background:linear-gradient(90deg,var(--ox) 50%,var(--vd) 50%)"></i>both, at once and blind</span>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">step by step</span>
+  <h2>Every step, and who runs it.</h2>
+  <div id="cmds"></div>
+</section>
+
+<section>
+  <span class="eyebrow">how it stays honest</span>
+  <h2>How it is kept honest.</h2>
+  <p class="lede">These are checked by the plugin's own test suite, which ships with it. Clone the repo and run <code>bash foureyes/tests/run.sh</code> to see the checks pass — no model calls, a few seconds.</p>
+  <div class="gu">
+    <div><h4>Codex can't write</h4><p>Every Codex call runs in a read-only sandbox. It can read your repository and run <code>git log</code>, and it cannot modify a single byte. There is no mode in which the reviewer edits your code.</p></div>
+    <div><h4>Only the coordinator commits</h4><p>When several implementers work at once they share one working tree, so none of them may touch git. Work is committed at the join, one commit per task, scoped to that task's own files.</p></div>
+    <div><h4>Every critic loop ends</h4><p>A reviewer reading a document again always finds one more thing. Each review stage is capped at two passes, after which the author revises once and the pipeline moves on. The cap, not agreement, is what ends the loop.</p></div>
+    <div><h4>Agreement is never proof</h4><p>Two models liking the same answer is a signal, not a verdict. Nothing is accepted because both agreed; in <span class="m">investigate</span>, a hypothesis is only settled by an observation that could have disproved it.</p></div>
+    <div><h4>Findings are recorded with their outcome</h4><p>Every review finding is logged with what became of it — fixed, kept deliberately, or checked and found false — alongside what the round cost. You can see for yourself whether the second model is earning its time.</p></div>
+    <div><h4>What the Claude side can do</h4><p>Codex being read-only is only half the picture. Claude <em>does</em> write files, run your build and tests, and create commits — on a branch it makes, never on your default branch, and never merging or pushing unless you say so. It refuses to start on a dirty working tree.</p></div>
+    <div><h4>No other plugin required</h4><p>foureyes depends on nothing but Claude Code and the Codex CLI. Install it into any repository and the four commands work on their own.</p></div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">under the hood</span>
+  <h2>What actually runs, if you want to audit it.</h2>
+  <p class="lede">Every model call the plugin makes comes from one of these. The five marked <em>Codex prompt body</em> are instruction files handed to the <span class="m">codex</span> command line; the rest are Claude subagents. <em>Effort</em> is how hard the model thinks, and it is set deliberately per role rather than inherited — cheap mechanical work does not run at the same setting as design judgement.</p>
+  <div class="tw"><table class="ag">
+    <thead><tr><th>agent</th><th>runs as</th><th>model</th><th>effort</th><th>speed</th><th>may write</th></tr></thead>
+    <tbody id="roster"></tbody>
+  </table></div>
+</section>
+
+<section>
+  <span class="eyebrow">getting started</span>
+  <h2>What you need.</h2>
+  <div class="req">
+    <div><h4 style="margin:0 0 .4rem;font-size:.96rem">Requirements</h4>
+      <p style="margin:0;font-size:.89rem;color:var(--ink2);line-height:1.55">Claude Code, a git repository, and the Codex CLI signed in:</p>
+      <pre class="inst" style="margin-top:.7rem">npm install -g @openai/codex
+codex login</pre>
+      <p style="margin:.7rem 0 0;font-size:.85rem;color:var(--ink2);line-height:1.5">Without Codex the commands still run if you pass <code>--skip-critics</code>, but only one model family is involved and the cross-checking is gone.</p>
+      <p style="margin:.7rem 0 0;font-size:.85rem;color:var(--ink2);line-height:1.5">You need an account with each vendor — a Claude Code subscription and a ChatGPT or API account for Codex. Reviewing a pull request additionally needs the GitHub CLI (<code>gh</code>) signed in.</p></div>
+    <div><h4 style="margin:0 0 .4rem;font-size:.96rem">Install and update</h4>
+      <pre class="inst">/plugin marketplace add Sultan1993/foureyes
+/plugin install foureyes@foureyes</pre>
+      <p style="margin:.7rem 0 0;font-size:.85rem;color:var(--ink2);line-height:1.5">To update later:</p>
+      <pre class="inst" style="margin-top:.5rem">claude plugin marketplace update foureyes
+claude plugin update foureyes@foureyes</pre>
+      <p style="margin:.7rem 0 0;font-size:.85rem;color:var(--ink2);line-height:1.5">Restart Claude Code after updating so the new skills register. To remove it: <code>/plugin uninstall foureyes@foureyes</code>.</p></div>
+  </div>
+</section>
+
+<section style="margin-top:clamp(2.5rem,5vw,4rem)">
+  <div style="border:1px solid var(--line);background:var(--surf);padding:1.2rem 1.4rem">
+    <h4 style="margin:0 0 .4rem;font-size:.96rem;font-weight:600">Your code goes to two vendors, not one</h4>
+    <p style="margin:0;font-size:.9rem;color:var(--ink2);line-height:1.55;max-width:74ch">This is the trade the design makes. Whatever the commands read — source, diffs, commit history — is sent to Anthropic <em>and</em> to OpenAI, each under its own terms and retention policy. If your repository cannot be shared with a second provider, this plugin is not for it, and <code>--skip-critics</code> only avoids that by turning off the thing you installed it for.</p>
+  </div>
+</section>
+
+<footer>
+  foureyes &middot; MIT &middot; github.com/Sultan1993/foureyes<br>
+  Portions adapted from obra/superpowers (MIT).
+</footer>
+</div>
+
+<script>
+const A={
+ coord:{n:'coordinator',c:'ox'}, fable:{n:'Claude (author)',c:'ox'},
+ sub:{n:'Claude subagent',c:'ox'}, impl:{n:'implementer',c:'ox'},
+ sol:{n:'Codex',c:'vd'}, det:{n:'script',c:'pw'}, you:{n:'you',c:'hu'}
+};
+const PHASES=['set up','gather','explore','decide','act','review','finish'];
+const CMD=[
+{id:'brainstorm',name:'/foureyes-brainstorm',arg:'<what you want>',
+ for:'Turn an idea into a plan you can execute.',
+ how:'Two models propose approaches without seeing each other, you pick one, then the plan is written and reviewed twice before you ever look at code.',
+ facts:['asks you once','~15–30 min','ends with a plan'],
+ sub:'Explores directions first, then writes the design and the task-by-task plan. It stops when the plan exists — building is a separate decision.',
+ steps:[
+ {id:'0',ph:'set up',t:'Check the environment',a:['coord'],
+  d:'Locates the Codex wrapper and confirms the model settings are the ones this command expects. A misconfiguration stops the run here rather than halfway through.'},
+ {id:'1a',ph:'explore',t:'Both models propose approaches',a:['fable','sol'],par:1,
+  d:'Claude and Codex each receive your description word for word, at the same moment, and neither sees the other’s answer. This runs even when you already named an approach — the proposals double as a check that it can be built here at all.'},
+ {id:'1b',ph:'decide',t:'Proposals are pooled and ranked',a:['coord'],
+  d:'Every suggestion from both models goes into one file untouched, then duplicates merge and the strongest three survive. Nothing can be added that neither model proposed.'},
+ {id:'1c',ph:'decide',t:'You choose',a:['you'],
+  d:'A single prompt with up to four questions, the recommendation first, priced in what you will actually feel — new dependencies, files touched, what gets harder later. Skipped entirely when only one approach survives.'},
+ {id:'2',ph:'act',t:'Claude writes the design spec',a:['fable'],
+  d:'The author has no file-writing tools at all; it returns the document and the coordinator saves it. Separating those two roles keeps one model from quietly rewriting its own brief.'},
+ {id:'3',ph:'review',t:'Codex reviews the spec',a:['sol'],
+  d:'Up to two passes, each a fresh reading with no memory of the last. Claims are checked against the document before anyone spends a revision on them, and Claude — not Codex — always writes the final version.'},
+ {id:'4',ph:'act',t:'Claude writes the plan',a:['fable'],
+  d:'Tasks with goals, file lists, acceptance criteria and a verify command. Large plans arrive in numbered parts so a single oversized reply can never lose the whole thing.'},
+ {id:'5',ph:'review',t:'Codex reviews the plan',a:['sol'],
+  d:'Coverage against the spec, contradictions between tasks, dependencies that cannot be satisfied. Revisions replace only the tasks that changed.'},
+ {id:'6',ph:'finish',t:'The plan is rendered as a page',a:['det'],
+  d:'Every task in execution order, grouped into the waves it will actually run in, so you can read the plan instead of the markdown.'},
+ {id:'7',ph:'finish',t:'Stop',a:['coord'],
+  d:'Prints the paths, names the chosen approach, and lists any assumptions the spec is carrying — those were decided for you. It asks nothing here; running the plan is your call.'}]},
+
+{id:'build',name:'/foureyes-build',arg:'<plan or idea>',
+ for:'Execute a plan, or take an idea all the way to a finished branch.',
+ how:'Independent tasks run concurrently, each reviewed on its own, then Codex reviews everything together before you decide where the branch goes.',
+ facts:['asks you twice','~20–90 min','ends with commits'],
+ sub:'Hand it a plan and it executes. Hand it an idea and it plans first, then executes. Either way it works on a branch and never merges without asking.',
+ steps:[
+ {id:'0',ph:'set up',t:'Work out what you gave it',a:['coord'],
+  d:'A plan file with its task list beside it is a plan; anything else is an idea to plan first. The decision comes from the files, never from how you phrased the request.'},
+ {id:'0.5',ph:'gather',t:'Check the plan, and offer a review',a:['det','you'],
+  d:'Impossible task orderings stop the run. If the plan has never been reviewed by Codex, it offers to do that first — and asks rather than deciding for you, because an unreviewed plan is a reasonable thing to hand over deliberately.'},
+ {id:'B',ph:'explore',t:'No plan? Plan first',a:['coord'],
+  d:'Runs the whole brainstorm sequence and continues straight into execution. Only when you gave it an idea rather than a plan.'},
+ {id:'E0',ph:'act',t:'Prepare the workspace',a:['coord'],
+  d:'Requires a clean tree, because otherwise your uncommitted edits would be committed under someone else’s task. Never works directly on your default branch.'},
+ {id:'E1',ph:'act',t:'Create the task list',a:['coord'],
+  d:'One task per plan entry with dependencies wired. Tasks already finished in an earlier run are skipped rather than repeated.'},
+ {id:'E2',ph:'act',t:'Run a wave of tasks at once',a:['impl'],par:1,
+  d:'Tasks whose file lists do not overlap run concurrently. Straightforward tasks go to a smaller, cheaper model; ones needing design judgement go to a larger one, so you are not paying premium rates to rename a variable.'},
+ {id:'E3',ph:'act',t:'Collect the results',a:['coord'],
+  d:'The whole wave finishes before anything is judged. A task that got stuck is re-run with more context, escalated to a stronger model, or split — never simply retried unchanged.'},
+ {id:'E4',ph:'act',t:'Commit each task separately',a:['coord'],
+  d:'One commit per task, containing only that task’s files, so history stays readable and reviewable task by task. The workers never touch git themselves — only the session coordinating them commits.'},
+ {id:'E5',ph:'review',t:'Review each task',a:['sub'],par:1,
+  d:'Two verdicts per task — does it match the spec, and is the code good — and both must pass. Failures go back once or twice, then the problem is surfaced rather than ground at.'},
+ {id:'E6',ph:'act',t:'Build and test the whole thing',a:['coord'],
+  d:'After every wave: code generation, a full build, the complete test suite. Failures return to the task that caused them, and a repaired task is reviewed again.'},
+ {id:'S3',ph:'review',t:'Codex reviews the whole change',a:['sol'],
+  d:'The first time anyone sees all the work together: plan conformance, integration between tasks, security, whether the tests actually test anything. Any fix made at this stage re-runs the suite, so the result you are shown reflects the final state of the code rather than an earlier one.'},
+ {id:'F',ph:'finish',t:'You decide where it goes',a:['you'],
+  d:'Reports what landed with the exact command that verified it and its real output, then offers to open a pull request, merge, or leave the branch alone. It never merges or pushes on its own.'}]},
+
+{id:'review',name:'/foureyes-review',arg:'[pull request]',
+ for:'Get two independent reviews of a change, and see where they disagree.',
+ how:'Both families review the same diff blind, then each tries to knock down what only the other found. Advisory — it never merges or edits.',
+ facts:['asks before posting','~10–20 min','ends with a report'],
+ sub:'Works on your current branch or any pull request. What survives one model attacking the other’s finding is what reaches you.',
+ steps:[
+ {id:'0',ph:'set up',t:'Locate the tools',a:['coord'],d:'Resolves the wrapper and the report builder, and pins the review to its highest reasoning setting rather than inheriting whatever the session had.'},
+ {id:'1',ph:'gather',t:'Work out what changed',a:['det'],
+  d:'No argument reviews your current branch against where it forked. A pull request number is fetched into a temporary worktree, so your own checkout is never touched.'},
+ {id:'2',ph:'gather',t:'Pick up any intent',a:['coord'],
+  d:'The most recent spec or plan locally, or the pull request description and any issue it references. Optional — without it the review is simply less able to judge intent.'},
+ {id:'3',ph:'explore',t:'Two independent reviews',a:['sub','sol'],par:1,
+  d:'Correctness, security, performance, tests, API design and over-engineering. Both families get a byte-for-byte identical prompt, so a disagreement is not down to being asked different questions.'},
+ {id:'4',ph:'decide',t:'Sort agreements from singles',a:['det'],
+  d:'Findings both models raised are treated as already corroborated. Findings only one raised go on to be challenged.'},
+ {id:'5',ph:'review',t:'Each model attacks the other’s findings',a:['sol','sub'],par:1,
+  d:'One finding, the diff, and an instruction to disprove it. A challenge that fails to run counts as failing to disprove, so an infrastructure hiccup can never silently delete a real bug.'},
+ {id:'6',ph:'finish',t:'Build the report',a:['det'],
+  d:'Ranked by severity and by whether both models saw it. The header names the models actually used, so a run where one was unavailable is visible on its face.'},
+ {id:'7',ph:'finish',t:'Post to the pull request',a:['you'],
+  d:'Only if you asked for it and only after confirming, because comments are public. Each is tagged with which model raised it.'}]},
+
+{id:'investigate',name:'/foureyes-investigate',arg:'<what seems wrong>',
+ for:'Find the cause of a bug, starting from almost nothing.',
+ how:'Scouts sweep the codebase from several angles, both models form theories blind, and the cheapest way to disprove each is actually run.',
+ facts:['never interrupts','~15–25 min','changes no code'],
+ sub:'"Login feels flaky sometimes" is a fair starting point — the sweep is what makes a vague report workable. It diagnoses only; the fix is a separate decision.',
+ steps:[
+ {id:'0',ph:'set up',t:'Locate the tools',a:['coord'],d:'Resolves the Codex wrapper. A broken install stops here rather than looking like a model that found nothing.'},
+ {id:'1',ph:'gather',t:'Restate the symptom',a:['coord'],
+  d:'One line, and two facts that change what is possible rather than what is likely: whether the problem can be reproduced, and roughly when it started. A date turns the history search from a haystack into a range.'},
+ {id:'2',ph:'gather',t:'Scouts sweep, all at once',a:['sub'],par:1,
+  d:'Four searches in parallel: what changed recently, where errors get swallowed, the area you named, and what touches the same data. They report facts with file and line numbers and are forbidden from guessing at causes — a scout with a theory would bias the models that come next.'},
+ {id:'3',ph:'explore',t:'Both models form theories',a:['sub','sol'],par:1,
+  d:'Each theory must explain how the cause produces the symptom, and must come with the single cheapest observation that would prove it wrong. Codex leans on history — which commit introduced the line — because that is where a read-only reviewer is strongest.'},
+ {id:'4',ph:'decide',t:'Theories are tested, cheapest first',a:['coord','sub'],
+  d:'Ordered by how cheap each is to disprove rather than by which sounds likeliest, because a thirty-second check that eliminates a middling theory is worth more than twenty minutes on a favourite. A test that could not actually be run is never counted as a pass.'},
+ {id:'5',ph:'review',t:'The other model attacks what survived',a:['sol','sub'],par:1,
+  d:'Whatever is left goes to the family that did not propose it, with an instruction to find the fact that makes it impossible.'},
+ {id:'6',ph:'finish',t:'A conclusion, or an honest no',a:['coord'],
+  d:'Either the cause with the observation that proves it, or "not established" — with everything now ruled out. The second is a real result: the next attempt starts from what you already eliminated instead of from nothing.'}]}
+,
+{id:'ledger',name:'/foureyes-ledger',arg:'[repos]',
+ for:'Find out whether the second model is earning its cost.',
+ how:'Reads back what every review stage found, what became of each finding, and what the round took. Plus the plans on disk and every subagent dispatch in your transcripts — entirely retroactive.',
+ facts:['never interrupts','seconds','reads only'],
+ sub:'The one command that is not part of a run. It answers a question the others cannot: is a review stage worth the minutes it costs, or should it be cut?',
+ steps:[
+ {id:'1',ph:'gather',t:'Read the critique logs',a:['det'],
+  d:'Every review stage appends its findings and their disposition — fixed, kept deliberately, or checked and found false — with the wall clock of the round. Committed alongside your specs, so this works across your whole history.'},
+ {id:'2',ph:'gather',t:'Read the plans and the dispatch history',a:['det'],
+  d:'Every plan on disk, and every subagent dispatch recorded in your local transcripts. Needs no instrumentation: it is all already written.'},
+ {id:'3',ph:'finish',t:'Report per stage',a:['coord'],
+  d:'How often each review stage was acted on versus factually wrong, and what it cost. A stage whose acted-on rate stays low is one worth cutting — the point is to make that call on evidence rather than on feel.'}]}];
+const ROSTER=[
+ ['foureyes-drafter','Claude subagent','fable','high · agent file','session','nothing — no write tools'],
+ ['foureyes-implementer','Claude subagent','sonnet','medium · agent file','session','its assigned files only'],
+ ['foureyes-implementer-frontier','Claude subagent','opus','high · agent file','session','its assigned files only'],
+ ['foureyes-task-reviewer','Claude subagent','sonnet','medium · agent file','session','read-only'],
+ ['foureyes-scout','Claude subagent','sonnet','medium · agent file','session','read-only'],
+ ['foureyes-investigator','Claude subagent','opus','high · agent file','session','read-only'],
+ ['foureyes-review-critic','both families','opus + sol','high','fast (Codex side)','read-only'],
+ ['foureyes-refute-critic','both families','opus + sol','high','fast (Codex side)','read-only'],
+ ['foureyes-approach-critic','Codex prompt body','gpt-5.6-sol','high · wrapper','fast · wrapper','read-only'],
+ ['foureyes-investigate-critic','Codex prompt body','gpt-5.6-sol','high · wrapper','fast · wrapper','read-only'],
+ ['foureyes-spec-critic','Codex prompt body','gpt-5.6-sol','high · wrapper','fast · wrapper','read-only'],
+ ['foureyes-plan-critic','Codex prompt body','gpt-5.6-sol','high · wrapper','fast · wrapper','read-only'],
+ ['foureyes-code-critic','Codex prompt body','gpt-5.6-sol','high · wrapper','fast · wrapper','read-only']
+];
+const cls=s=>{const a=s.a.map(x=>A[x].c);return a.includes('hu')?'hu':(a.includes('ox')&&a.includes('vd'))?'both':a[0];};
+document.getElementById('cards').innerHTML=CMD.map(c=>`
+ <div class="card"><h3>${c.name} <span style="color:var(--ink3);font-weight:400">${c.arg}</span></h3>
+  <p class="for">${c.for}</p><p class="how">${c.how}</p>
+  <span class="facts">${c.facts.map((f,i)=>`<span class="f${i===0?' stop':''}">${f}</span>`).join('')}</span></div>`).join('');
+document.getElementById('gridbody').innerHTML=PHASES.map(ph=>{
+  const cells=CMD.map(c=>{
+    const ss=c.steps.filter(s=>s.ph===ph);
+    if(!ss.length)return '<td><span class="gapc">&mdash;</span></td>';
+    return `<td><div class="cell">${ss.map(s=>`<a class="st ${cls(s)}" href="#${c.id}-${s.id}"><span class="id">${s.id}</span>${s.t}</a>`).join('')}</div></td>`;
+  }).join('');
+  return `<tr><td class="ph">${ph}</td>${cells}</tr>`;
+}).join('');
+document.getElementById('cmds').innerHTML=CMD.map(c=>`
+ <div class="cmd" id="${c.id}"><h3>${c.name}</h3><p>${c.sub}</p>
+  <ol class="steps">${c.steps.map(s=>`
+   <li id="${c.id}-${s.id}"><span class="sid ${cls(s)}">${s.id}</span>
+    <span class="sb"><h4>${s.t}</h4>
+     <span class="acs">${s.a.map(a=>`<span class="ac ${A[a].c}">${A[a].n}</span>`).join('')}${s.par?'<span class="f">at the same time</span>':''}</span>
+     <p>${s.d}</p></span></li>`).join('')}</ol></div>`).join('');
+document.getElementById('roster').innerHTML=ROSTER.map(r=>
+ `<tr><td class="n">${r[0]}</td><td>${r[1]}</td><td class="n">${r[2]}</td><td class="n">${r[3]}</td><td class="n">${r[4]}</td><td>${r[5]}</td></tr>`).join('');
+</script>

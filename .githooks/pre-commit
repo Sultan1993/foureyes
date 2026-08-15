@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# Runs the deterministic suites before every commit. ~2s.
+#
+# Lives in a TRACKED directory rather than .git/hooks/ so it is versioned and
+# arrives with a clone. Enable once per checkout:
+#
+#     git config core.hooksPath .githooks
+#
+# Escape hatch: `git commit --no-verify` when you deliberately want a red commit
+# (mid-refactor checkpoint, WIP). That is a decision, not an accident, which is
+# the entire point of the hook.
+#
+# Deliberately NOT run here: tests/pressure/ — it calls the claude CLI and costs
+# real money per run. run.sh's allowlist already excludes it; this comment is a
+# reminder not to "helpfully" add it.
+set -u
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+out="$(bash "$HERE/../tests/run.sh" 2>&1)"; rc=$?
+[ "$rc" -eq 0 ] && exit 0
+
+echo "$out" | sed -n '/^--- summary ---$/,$p'
+cat >&2 <<'MSG'
+
+pre-commit: the deterministic suites are red — commit blocked.
+
+  see the failure:  bash tests/run.sh
+  commit anyway:    git commit --no-verify
+MSG
+exit 1

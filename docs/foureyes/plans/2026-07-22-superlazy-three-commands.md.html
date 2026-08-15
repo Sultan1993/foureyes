@@ -1,0 +1,234 @@
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>superlazy-cc 1.6.0 — three-command restructure — implementation plan</title>
+<style>
+:root{--bg:#f5f7fa;--sf:#fff;--sf2:#eef1f6;--bd:#d7dde6;--ink:#1a2029;--soft:#54606f;--faint:#8791a0;
+--mech:#1f9d68;--std:#2560c4;--fro:#7c53e6;--bad:#cc4444;--mono:ui-monospace,Menlo,Consolas,monospace}
+@media(prefers-color-scheme:dark){:root{--bg:#0d1117;--sf:#161c25;--sf2:#1c232e;--bd:#2a3441;--ink:#e7ecf3;--soft:#9aa6b6;--faint:#647084;--mech:#43c78c;--std:#5b8cf0;--fro:#a689f7;--bad:#e5706b}}
+:root[data-theme="light"]{--bg:#f5f7fa;--sf:#fff;--sf2:#eef1f6;--bd:#d7dde6;--ink:#1a2029;--soft:#54606f;--faint:#8791a0;--mech:#1f9d68;--std:#2560c4;--fro:#7c53e6;--bad:#cc4444}
+:root[data-theme="dark"]{--bg:#0d1117;--sf:#161c25;--sf2:#1c232e;--bd:#2a3441;--ink:#e7ecf3;--soft:#9aa6b6;--faint:#647084;--mech:#43c78c;--std:#5b8cf0;--fro:#a689f7;--bad:#e5706b}
+*{box-sizing:border-box}
+body{margin:0 auto;max-width:1180px;background:var(--bg);color:var(--ink);font:15px/1.62 system-ui,-apple-system,sans-serif;padding:40px 24px 72px}
+a{color:var(--std)}
+h1{font-size:27px;line-height:1.25;margin:0 0 6px;letter-spacing:-.01em}
+h3{font-size:12.5px;text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono);margin:0 0 14px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.wnum{color:var(--ink);font-weight:700}.wmeta{color:var(--faint);text-transform:none;letter-spacing:0}
+.sub{color:var(--soft);font-family:var(--mono);font-size:12.5px;margin-bottom:24px;word-break:break-all}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:30px}
+.stat{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:9px 15px}
+.stat b{font-size:19px;display:block;line-height:1.2}.stat span{font-size:11px;color:var(--faint);font-family:var(--mono)}
+.brief{background:var(--sf);border:1px solid var(--bd);border-left:3px solid var(--std);border-radius:10px;padding:4px 20px;margin-bottom:34px}
+.brief h4{font-size:14px;margin:14px 0 6px}
+.wave{margin-bottom:34px}.wave.bad .wnum{color:var(--bad)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px;align-items:start}
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:15px 17px 5px}
+.card header{border-bottom:1px solid var(--bd);padding-bottom:10px;margin-bottom:12px}
+.card h4{margin:0 0 7px;font-size:15px;line-height:1.35}
+.meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.after{font-family:var(--mono);font-size:10.5px;color:var(--faint)}.after.free{opacity:.65}
+.blk{margin-bottom:14px}
+.blk h5{margin:0 0 5px;font:600 10.5px/1 var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--faint)}
+.blk p{margin:0 0 7px}.blk ul,.blk ol{margin:0 0 7px;padding-left:20px}.blk li{margin:2px 0}
+.blk :last-child{margin-bottom:0}
+.crit li{color:var(--soft)}
+.files code{display:inline-block;margin:0 4px 4px 0}
+pre.code{background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:9px 11px;overflow-x:auto;max-height:260px;overflow-y:auto;margin:0 0 7px}
+pre.code code{background:none;padding:0;font-size:11.5px;line-height:1.5;white-space:pre}
+code{font-family:var(--mono);font-size:.88em;background:color-mix(in srgb,var(--bd) 45%,transparent);padding:1px 5px;border-radius:4px;word-break:break-word}
+.chip{font-family:var(--mono);font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
+.chip.mechanical{color:var(--mech);background:color-mix(in srgb,var(--mech) 14%,transparent)}
+.chip.standard{color:var(--std);background:color-mix(in srgb,var(--std) 14%,transparent)}
+.chip.frontier{color:var(--fro);background:color-mix(in srgb,var(--fro) 14%,transparent)}
+.chip.bad{color:var(--bad);background:color-mix(in srgb,var(--bad) 14%,transparent)}
+details.checks{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:12px 18px;margin-top:10px}
+details.checks summary{cursor:pointer;font:600 11.5px/1 var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--faint)}
+details.checks ul{margin:12px 0 2px;padding-left:20px}
+details.checks li{margin:4px 0;color:var(--soft)}
+details.checks b{color:var(--bad);font-family:var(--mono);font-size:12.5px}
+details.checks .ok{color:var(--mech)}
+</style>
+<h1>superlazy-cc 1.6.0 — three-command restructure — implementation plan</h1>
+<div class="sub">docs/superpowers/plans/2026-07-22-superlazy-three-commands.md &nbsp;·&nbsp; spec: docs/superpowers/specs/2026-07-22-superlazy-three-commands-design.md</div>
+<div class="stats">
+  <div class="stat"><b>9</b><span>tasks</span></div>
+  <div class="stat"><b>2</b><span>waves</span></div>
+  <div class="stat"><b style="color:var(--mech)">3</b><span>mechanical</span></div>
+  <div class="stat"><b style="color:var(--std)">6</b><span>standard</span></div>
+  <div class="stat"><b style="color:var(--fro)">0</b><span>frontier</span></div>
+</div>
+<div class="brief"><p><strong>Goal:</strong> Implement the approved spec: <code>superlazy-brainstorm</code> (new), <code>superlazy-build</code> (plan input + verify/re-bless), <code>superlazy-review</code> (Opus default), with hash-bearing approvals written only by <code>codex-critic.sh</code>.</p>
+<p><strong>Architecture:</strong> coordinator-driven skills (no Workflow tool — its sandbox cannot run Codex); one bash wrapper (<code>codex-critic.sh</code>) is the sole approval-writer; one PreToolUse hook gates execution; pure-node lib for the plan visualization. <strong>Tech stack:</strong> bash + jq + python3 (fence parsing), node:test, no new dependencies. <strong>User decisions honored:</strong> Sol is the only critic; Fable authors via subagent; no user-override in brainstorm; effort policy high-first/medium-re-review. <strong>Execution:</strong> each task is executed by an agentic worker at its <code>modelTier</code>, commits its own scoped change, and runs its Verify command before completion.</p>
+<p><strong>Test policy:</strong> every wave-1 task ships its own runnable check (stub-based shell tests or <code>node:test</code>); no task's tests depend on a sibling's files. The integration task at the end runs everything plus the static grep matrix. Tests live in <code>superlazy-cc/tests/</code>. The Codex CLI is stubbed via a fake <code>codex</code> on PATH — no live Sol calls in tests.</p>
+<p><strong>Cross-task contracts (pinned; wave tasks write blind):</strong></p>
+<ul>
+<li>Marker JSON: <code>spec-critic.passed</code> = <code>{&quot;specPath&quot;,&quot;specHash&quot;}</code>;</li>
+</ul>
+<p>  <code>plan-critic.passed</code> = <code>{&quot;planPath&quot;,&quot;planHash&quot;,&quot;tasksHash&quot;,&quot;specPath&quot;,&quot;specHash&quot;}</code>;   <code>code-critic.passed</code> = <code>{}</code>. Hashes = <code>shasum -a 256</code>, hex, per-file (no   concatenation). Paths repo-root-relative (<code>git rev-parse --show-toplevel</code>).</p>
+<ul>
+<li>Sidecar <code>&lt;plan&gt;.md.approved.json</code> =</li>
+</ul>
+<p>  <code>{&quot;planHash&quot;,&quot;tasksHash&quot;,&quot;specPath&quot;,&quot;specHash&quot;,&quot;commit&quot;,&quot;seams&quot;:[&quot;spec&quot;,&quot;plan&quot;]}</code>.</p>
+<ul>
+<li>Marker semantics: EMPTY file = legacy existence-only; non-empty must parse</li>
+</ul>
+<p>  with all fields else treated as ABSENT (deny).</p>
+<ul>
+<li>Script env: <code>MARKER_DIR</code> (opt-in markers), <code>SPEC_PATH</code> (spec mode + plan</li>
+</ul>
+<p>  mode), <code>PLAN_PATH</code> (plan mode). Modes: <code>spec|plan|code|verify|review|refute</code>;   <code>verify [--spec-only] &lt;plan.md&gt;</code>; exit 3 = validation failed.</p>
+<ul>
+<li>Clean = <code>^VERDICT: pass</code> token AND zero <code>^- \[Critical\]</code> AND zero</li>
+</ul>
+<p>  <code>^- \[Important\]</code> lines.</p>
+<ul>
+<li>Seam modes pin <code>-m gpt-5.6-sol</code> (ignore <code>CODEX_CRITIC_MODEL</code>); review/refute</li>
+</ul>
+<p>  honor it.</p>
+<ul>
+<li>plan-viz CLI: <code>node plan-viz.mjs &lt;plan.md&gt; [--json]</code>; HTML to</li>
+</ul>
+<p>  <code>&lt;plan.md&gt;.html</code>; <code>--json</code> emits <code>{stats, waves, problems}</code> to stdout.</p>
+<h4>Tasks</h4></div>
+
+<section class="wave">
+  <h3><span class="wnum">Wave 1</span>
+    <span class="wmeta">8 tasks · run in parallel</span></h3>
+  <div class="grid"><article class="card" id="task-0">
+  <header>
+    <h4>Task 1: Fable drafter agent</h4>
+    <div class="meta">
+      <span class="chip mechanical">mechanical</span>
+      <span class="after free">no dependencies</span>
+    </div>
+  </header>
+  <div class="blk"><h5>Goal</h5><p><code>superlazy-cc/agents/superlazy-drafter.md</code> — Fable drafter subagent.</p></div>
+  <div class="blk"><h5>Files</h5><p class="files"><code>superlazy-cc/agents/superlazy-drafter.md</code></p></div>
+  <div class="blk"><h5>Steps</h5><p>Frontmatter: <code>name: superlazy-drafter</code>, <code>description</code> (drafts specs and parallel-ready plans for superlazy-brainstorm; returns CONTENT, never writes), <code>model: fable</code>, <code>tools: Read, Grep, Glob, WebSearch, mcp__context7__resolve-library-id, mcp__context7__query-docs</code>. Body: you are the DRAFTER — return the requested artifact as your final message (spec markdown, or plan markdown + tasks array); plan output format: plan starts with <code>Spec: &lt;path&gt;</code> line; every task block carries the four headers + <code>json:metadata</code> fence with <code>files</code>, <code>modelTier</code> (mechanical|standard|frontier; tie-break = spec completeness), non-blank <code>verifyCommand</code>, non-empty <code>acceptanceCriteria</code>; subjects ≤ 60 chars; tasks file-disjoint, real <code>blockedBy</code> only.</p></div>
+  <div class="blk"><h5>Done when</h5><ul class="crit"><li>model: fable</li><li>no write tools</li><li>exact mcp tool names</li><li>content-return + format contract in body</li></ul></div>
+  <div class="blk"><h5>Verify</h5><pre class="code"><code>grep checks per Verify</code></pre></div>
+</article><article class="card" id="task-1">
+  <header>
+    <h4>Task 2: codex-critic.sh — capture, markers, verify modes</h4>
+    <div class="meta">
+      <span class="chip standard">standard</span>
+      <span class="after free">no dependencies</span>
+    </div>
+  </header>
+  <div class="blk"><h5>Goal</h5><p>Rewrite the wrapper per the interface contract; add stub-based tests.</p></div>
+  <div class="blk"><h5>Files</h5><p class="files"><code>superlazy-cc/scripts/codex-critic.sh</code> <code>superlazy-cc/tests/codex-critic.test.sh</code> <code>superlazy-cc/tests/stubs/codex</code></p></div>
+  <div class="blk"><h5>Steps</h5><p>(0) TDD: write <code>tests/codex-critic.test.sh</code> cases FIRST against the current script and run them — the marker/verify cases MUST fail (red) before any script change; implement; re-run the same command until green. (1) review/refute remain BYTE-PERFECT pass-through via <code>exec</code> — no capture (command substitution strips trailing newlines); regression test 8d compares output bytes via <code>cmp</code> against a stub payload with no trailing newline. Seam modes capture (they must parse after printing); trailing-newline normalization there is acceptable because only the VERDICT lines are parsed. (2) Seam modes (<code>spec|plan|code</code>): pin <code>-m gpt-5.6-sol</code>; self-invalidate first (spec → rm spec+plan markers + sidecar if PLAN_PATH known; plan → rm plan marker + sidecar; code → rm code marker); capture output (<code>out=$(codex ...)</code>), print verbatim; parse clean = pass token + zero counts; on clean+MARKER_DIR: spec writes <code>{specPath,specHash}</code> marker; plan REQUIRES spec marker whose specHash matches current SPEC_PATH bytes, runs schema validation on the PLAN MARKDOWN's task fences (canonical TaskCreate source: modelTier valid, files array, verifyCommand non-blank, acceptanceCriteria non-empty) PLUS plan/tasks equivalence (count equal, each tasks.json fence byte-equal to its plan counterpart; violations → stderr, not clean), then writes sidecar FIRST, plan marker LAST (mktemp same dir + mv -f). (3) <code>verify &lt;plan&gt;</code>: rm both markers; validate sidecar planHash/tasksHash/specPath/specHash; ok → write both markers from sidecar, <code>VERIFIED</code>, exit 0 (commit drift → stderr warn); fail → exit 3. <code>--spec-only</code>: rm spec marker; validate spec fields only; mint spec marker or exit 3. (4) Tests: PATH-prepend <code>tests/stubs/codex</code> (prints canned VERDICT from <code>$CODEX_STUB_VERDICT</code> file, records argv to <code>$CODEX_STUB_ARGS</code>); implement spec acceptance cases 1–17 incl. 7b divergence, model-pin (case 11), and effort/search propagation (case 11b).</p></div>
+  <div class="blk"><h5>Done when</h5><ul class="crit"><li>matrix cases 1-17 + 8d byte-identity pass</li><li>self-invalidation</li><li>strict pass-token clean</li><li>sidecar-then-marker order</li><li>verify + --spec-only</li><li>model pin for seam modes</li></ul></div>
+  <div class="blk"><h5>Verify</h5><pre class="code"><code>bash superlazy-cc/tests/codex-critic.test.sh</code></pre></div>
+</article><article class="card" id="task-2">
+  <header>
+    <h4>Task 3: gate hook — hash validation</h4>
+    <div class="meta">
+      <span class="chip standard">standard</span>
+      <span class="after free">no dependencies</span>
+    </div>
+  </header>
+  <div class="blk"><h5>Goal</h5><p><code>superlazy-build-gate.sh</code> validates hash-bearing plan markers.</p></div>
+  <div class="blk"><h5>Files</h5><p class="files"><code>superlazy-cc/hooks/superlazy-build-gate.sh</code> <code>superlazy-cc/tests/build-gate.test.sh</code></p></div>
+  <div class="blk"><h5>Steps</h5><p>TDD: write <code>tests/build-gate.test.sh</code> cases 18–22 FIRST and run them — the hash/binding cases MUST fail against the unmodified hook (red); implement; re-run until green. In the execution arm (<code>*subagent-driven-development*|*executing-plans*</code>): after the <code>-f</code> check, read the marker; empty/whitespace-only → allow (legacy); non-empty → must parse as JSON with planPath/planHash/tasksHash/specPath/specHash (jq), else DENY &quot;corrupt approval marker&quot;; recompute sha256 of the three files (paths relative to repo root; missing file → deny) and deny on any mismatch with a message naming the changed file; ALSO parse the structured <code>planPath=&lt;path&gt;</code> argument from tool_input (never substring search) with CARDINALITY EXACTLY ONE — zero tokens deny, two-or-more tokens deny even if one matches (duplicates are ambiguous); then canonicalize and require exact equality vs marker planPath (approved-A/executed-B incl. filename-extension, both-paths, and duplicate-token cases). Keep all other behavior identical. Tests: crafted-stdin invocations (existing repo test pattern): spec cases 18–22 (intact→allow; plan/tasks/spec byte flip→deny each; empty legacy→allow; corrupt JSON / missing field→deny; planPath= arg naming B / extending A's filename / missing / DUPLICATED (2+ tokens, even identical) → deny; exactly one exact-match token → allow).</p></div>
+  <div class="blk"><h5>Done when</h5><ul class="crit"><li>hash recompute + deny on mismatch incl. spec</li><li>invocation-path binding with cardinality exactly one</li><li>empty marker legacy allow</li><li>malformed marker deny</li><li>cases 18-22 incl. duplicate-token denials pass</li></ul></div>
+  <div class="blk"><h5>Verify</h5><pre class="code"><code>bash superlazy-cc/tests/build-gate.test.sh</code></pre></div>
+</article><article class="card" id="task-3">
+  <header>
+    <h4>Task 4: plan-viz — generator + tests</h4>
+    <div class="meta">
+      <span class="chip standard">standard</span>
+      <span class="after free">no dependencies</span>
+    </div>
+  </header>
+  <div class="blk"><h5>Goal</h5><p>Pure-node plan visualizer with deterministic detectors.</p></div>
+  <div class="blk"><h5>Files</h5><p class="files"><code>superlazy-cc/skills/superlazy-brainstorm/lib/plan-viz.mjs</code> <code>superlazy-cc/skills/superlazy-brainstorm/lib/plan-viz.test.mjs</code></p></div>
+  <div class="blk"><h5>Steps</h5><p>TDD: write <code>plan-viz.test.mjs</code> fixtures FIRST; <code>node --test</code> MUST fail with module-not-found (red); implement <code>plan-viz.mjs</code>; re-run until green. Input plan.md + <code>&lt;plan&gt;.md.tasks.json</code>. Parse each task's <code>json:metadata</code> fence from its description (missing/unparseable fence = problem <code>no-metadata</code>). Detectors (exact spec semantics): Kahn wave layering over blockedBy; unknown ref → problem <code>unknown-dep</code>, edge ignored; Kahn leftovers → problem <code>cycle</code>, &quot;unschedulable&quot; group; frontier &gt; 30% of tasks → problem <code>frontier-heavy</code>; same-wave file overlap after normalization (trim, <code>\\</code>→<code>/</code>, strip leading <code>./</code>, collapse <code>//</code>) → problem <code>file-overlap</code>; missing/blank verifyCommand → <code>no-verify</code>; missing/empty acceptanceCriteria → <code>no-criteria</code>. <code>--json</code> → <code>{stats:{tasks,waves,tiers:{...}}, waves:[[ids]], problems:[...]}</code>. HTML: self-contained (inline CSS only, both themes via prefers-color-scheme + data-theme), header stats, wave columns with task cards (goal excerpt, files, tier chip, verify), problems panel; write to <code>&lt;plan&gt;.md.html</code>, print the path. Tests (node:test): fixture-driven — one fixture per detector (incl. 31%-flags / 30%-doesn't boundary), wave-layering correctness, <code>--json</code> shape.</p></div>
+  <div class="blk"><h5>Done when</h5><ul class="crit"><li>all detectors per pinned semantics</li><li>Kahn waves + cycle handling</li><li>--json test surface</li><li>self-contained dual-theme HTML</li></ul></div>
+  <div class="blk"><h5>Verify</h5><pre class="code"><code>node --test superlazy-cc/skills/superlazy-brainstorm/lib/plan-viz.test.mjs</code></pre></div>
+</article><article class="card" id="task-4">
+  <header>
+    <h4>Task 5: superlazy-review — Opus default</h4>
+    <div class="meta">
+      <span class="chip mechanical">mechanical</span>
+      <span class="after free">no dependencies</span>
+    </div>
+  </header>
+  <div class="blk"><h5>Goal</h5><p>Flip the Claude side to Opus at every layer that matters.</p></div>
+  <div class="blk"><h5>Files</h5><p class="files"><code>superlazy-cc/agents/superlazy-review-critic.md</code> <code>superlazy-cc/agents/superlazy-refute-critic.md</code> <code>superlazy-cc/skills/superlazy-review/SKILL.md</code> <code>superlazy-cc/skills/superlazy-review/lib/review-synth.mjs</code></p></div>
+  <div class="blk"><h5>Steps</h5><p>Both agent frontmatters <code>model: sonnet</code> → <code>model: opus</code>. SKILL: every Agent dispatch passes <code>model: &lt;--claude-model or opus&gt;</code> explicitly (never rely on frontmatter); meta.json default <code>claudeModel</code> → <code>&quot;opus&quot;</code>; flag doc line updated. review-synth.mjs fallback <code>'sonnet'</code> → <code>'opus'</code>.</p></div>
+  <div class="blk"><h5>Done when</h5><ul class="crit"><li>frontmatters opus</li><li>explicit model passing</li><li>fallback opus</li><li>existing tests green</li></ul></div>
+  <div class="blk"><h5>Verify</h5><pre class="code"><code>greps + node --test review-synth.test.mjs</code></pre></div>
+</article><article class="card" id="task-5">
+  <header>
+    <h4>Task 6: plan-critic — tier-assignment audit</h4>
+    <div class="meta">
+      <span class="chip mechanical">mechanical</span>
+      <span class="after free">no dependencies</span>
+    </div>
+  </header>
+  <div class="blk"><h5>Goal</h5><p>Add the tier audit dimension to the plan critic prompt.</p></div>
+  <div class="blk"><h5>Files</h5><p class="files"><code>superlazy-cc/agents/superlazy-plan-critic.md</code></p></div>
+  <div class="blk"><h5>Steps</h5><p>Add a &quot;Tier-assignment audit&quot; check: every task's <code>modelTier</code> against its steps — <code>frontier</code> where steps are complete = wasted money (Important); <code>mechanical</code> where steps require judgment not captured = silent quality loss (Critical); tie-break = spec completeness wins; blanket assignments in either direction are findings.</p></div>
+  <div class="blk"><h5>Done when</h5><ul class="crit"><li>audit dimension with both directions and tie-break</li></ul></div>
+  <div class="blk"><h5>Verify</h5><pre class="code"><code>grep tier + spec completeness</code></pre></div>
+</article><article class="card" id="task-6">
+  <header>
+    <h4>Task 7: superlazy-brainstorm SKILL</h4>
+    <div class="meta">
+      <span class="chip standard">standard</span>
+      <span class="after free">no dependencies</span>
+    </div>
+  </header>
+  <div class="blk"><h5>Goal</h5><p>Coordinator instructions for the new command.</p></div>
+  <div class="blk"><h5>Files</h5><p class="files"><code>superlazy-cc/skills/superlazy-brainstorm/SKILL.md</code></p></div>
+  <div class="blk"><h5>Steps</h5><p>Frontmatter (name, description incl. hard-stop semantics + <code>--continue</code> + <code>--skip-critics</code>). Body per spec §1: announce; requirements Q&amp;A upfront; run-dir init (slug mutex family-scan rules, session binding, gitignore) + <code>CLAUDE_CODE_SUBAGENT_MODEL</code> preflight; <code>--skip-critics</code> branch (no run dir, Fable still drafts, no markers/sidecar, loud announce); resolve <code>WRAP</code>; effort policy: first pass of each seam <code>CODEX_CRITIC_EFFORT=high</code>, re-review rounds <code>medium</code>, user-exported value wins; drafter dispatch spec → coordinator writes file → Seam 1 loop (<code>MARKER_DIR=&lt;run&gt; SPEC_PATH=&lt;spec&gt; &quot;$WRAP&quot; spec</code>, loop until marker exists; findings → re-dispatch drafter with findings); plan drafting (Spec: line, fence schema, ≤60 subjects) → coordinator writes plan + tasks.json, NO TaskCreate → Seam 2 loop (<code>MARKER_DIR=&lt;run&gt; PLAN_PATH=&lt;plan&gt; SPEC_PATH=&lt;spec&gt; &quot;$WRAP&quot; plan</code>); plan-viz generation + print path (non-normative MAY publish via Artifact); end: print all paths; standalone → <code>touch .done</code> + STOP (never AskUserQuestion); <code>--continue</code> → return control to build, run left active. VERDICT parser section (pass token + counts; NEEDS-HUMAN → surface stderr + stop).</p></div>
+  <div class="blk"><h5>Done when</h5><ul class="crit"><li>preflight</li><li>seam loops via MARKER_DIR</li><li>hard stop + .done</li><li>--continue + --skip-critics</li><li>no TaskCreate/AskUserQuestion</li></ul></div>
+  <div class="blk"><h5>Verify</h5><pre class="code"><code>wiring greps + zero TaskCreate</code></pre></div>
+</article><article class="card" id="task-7">
+  <header>
+    <h4>Task 8: superlazy-build SKILL — plan input, verify, re-bless</h4>
+    <div class="meta">
+      <span class="chip standard">standard</span>
+      <span class="after free">no dependencies</span>
+    </div>
+  </header>
+  <div class="blk"><h5>Goal</h5><p>Rewrite build around the trust ladder.</p></div>
+  <div class="blk"><h5>Files</h5><p class="files"><code>superlazy-cc/skills/superlazy-build/SKILL.md</code></p></div>
+  <div class="blk"><h5>Steps</h5><p>Inputs: optional plan path, <code>--spec</code>, <code>--skip-critics</code>, <code>--serial</code>. Plan resolution ladder per spec (tasks.json presence → PLAN; announce branch taken). <code>--skip-critics</code> two-branch bypass, fully spelled: LOUD announce; NO run dir created (gate dormant by its no-active-run rule); BRIEF branch → invoke brainstorm with BOTH flags <code>--continue --skip-critics</code> (Fable still authors; no markers, no sidecar); PLAN branch → skip verify AND re-bless entirely; both branches skip Seam 3; state on announce that nothing is approved so a later non-skip build re-critiques (bypass defers review, never forges it). Run-dir (non-skip): slug-family mutex scan, first-absent allocation, .done rules. With plan: <code>MARKER_DIR=&lt;run&gt; &quot;$WRAP&quot; verify &lt;plan&gt;</code>; exit 3 → re-bless (<code>verify --spec-only</code> → plan critic; spec changed → spec critic then plan critic; spec resolver: sidecar → <code>Spec:</code> line → <code>--spec</code> → STOP). Without plan: invoke Skill <code>superlazy-cc:superlazy-brainstorm</code> with <code>--continue</code> (replaces Step 1 + old OVERRIDE prose at :90/:109 — DELETE both). REMOVE Step 0.5 seam-tracker TaskCreate. Keep Steps 5–7 (execution, Seam 3 via <code>MARKER_DIR</code> so code marker writes, finish) intact including wave policy; execution materializes nothing — sdd owns TaskCreate, and the sdd Skill invocation MUST carry the structured <code>planPath=&lt;repo-relative&gt;</code> token (gate parses + exact-matches it). Update VERDICT parser to pass-token semantics. Effort policy: first pass per seam high, re-reviews medium, user-exported <code>CODEX_CRITIC_EFFORT</code> wins.</p></div>
+  <div class="blk"><h5>Done when</h5><ul class="crit"><li>trust ladder + announce</li><li>verify/re-bless wiring</li><li>brainstorm delegation with --continue --skip-critics propagation</li><li>two-branch bypass: no run dir, no critic calls, no forged approval</li><li>no OVERRIDE prose</li><li>no TaskCreate</li><li>run lifecycle rules</li></ul></div>
+  <div class="blk"><h5>Verify</h5><pre class="code"><code>wiring greps + OVERRIDE/tracker absence</code></pre></div>
+</article></div>
+</section>
+<section class="wave">
+  <h3><span class="wnum">Wave 2</span>
+    <span class="wmeta">1 task</span></h3>
+  <div class="grid"><article class="card" id="task-8">
+  <header>
+    <h4>Task 9: integration — version, README, full matrix</h4>
+    <div class="meta">
+      <span class="chip standard">standard</span>
+      <span class="after">after <a href="#task-0">Task 1: Fable drafter agent</a>, <a href="#task-1">Task 2: codex-critic.sh — capture, markers, verify modes</a>, <a href="#task-2">Task 3: gate hook — hash validation</a>, <a href="#task-3">Task 4: plan-viz — generator + tests</a>, <a href="#task-4">Task 5: superlazy-review — Opus default</a>, <a href="#task-5">Task 6: plan-critic — tier-assignment audit</a>, <a href="#task-6">Task 7: superlazy-brainstorm SKILL</a>, <a href="#task-7">Task 8: superlazy-build SKILL — plan input, verify, re-bless</a></span>
+    </div>
+  </header>
+  <div class="blk"><h5>Goal</h5><p>Ship-ready branch: metadata + docs + everything green.</p></div>
+  <div class="blk"><h5>Files</h5><p class="files"><code>superlazy-cc/.claude-plugin/plugin.json</code> <code>README.md</code></p></div>
+  <div class="blk"><h5>Steps</h5><p>plugin.json → <code>&quot;version&quot;: &quot;1.6.0&quot;</code>, description mentions the three commands. README: three-command structure, quick-start per command, approval sidecar explanation, model table (Fable/Sol/sonnet/opus), escape valves. Then run EVERYTHING — the barrier re-executes every prior task's own Verify command verbatim (Tasks 1–8), then the four suites. The full static matrix is therefore the UNION of the per-task Verify commands, not a summary of them.</p></div>
+  <div class="blk"><h5>Done when</h5><ul class="crit"><li>1.6.0</li><li>README three commands</li><li>all suites green</li><li>Tasks 1-8 Verify commands re-executed at the barrier</li></ul></div>
+  <div class="blk"><h5>Verify</h5><pre class="code"><code>the literal ordered barrier command in this task's Verify block (Tasks 1-8 verifies chained, then the four suites, then version/README greps; prints BARRIER-GREEN)</code></pre></div>
+</article></div>
+</section>
+<div class="brief"><h4>Waves</h4>
+<ul>
+<li>Wave 1 (parallel, file-disjoint): T1–T8 — every cross-task name they</li>
+</ul>
+<p>  reference (script env/modes, marker filenames, plan-viz CLI, planPath=   token) is pinned in the contracts header, so they write blind.</p>
+<ul>
+<li>Wave 2 (barrier): T9 — integration, full matrix, version, README.</li>
+</ul>
+<h4>Commit policy (I3, partial)</h4>
+<p>Each task commits its own scoped change (<code>git add &lt;task files&gt; &amp;&amp; git commit</code>) after its Verify command passes. Tests are written alongside the code they verify (test files are listed in each task's Files); red/green detail beyond that is deliberately not restated here — the Verify commands are the executable acceptance layer.</p>
+<h4>Out of scope (post-plan, user-gated)</h4>
+<p>Push, plugin publish, and the 7-branch e2e run — they require the published 1.6.0 plugin and the user's session.</p></div>
+<details class="checks">
+  <summary>Structural checks (0)</summary>
+  <ul><li class="ok">none — plan is structurally clean</li></ul>
+</details>

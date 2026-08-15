@@ -1,0 +1,388 @@
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Implementation plan</title>
+<style>
+:root{--bg:#f5f7fa;--sf:#fff;--sf2:#eef1f6;--bd:#d7dde6;--ink:#1a2029;--soft:#54606f;--faint:#8791a0;
+--mech:#1f9d68;--std:#2560c4;--fro:#7c53e6;--bad:#cc4444;--mono:ui-monospace,Menlo,Consolas,monospace}
+@media(prefers-color-scheme:dark){:root{--bg:#0d1117;--sf:#161c25;--sf2:#1c232e;--bd:#2a3441;--ink:#e7ecf3;--soft:#9aa6b6;--faint:#647084;--mech:#43c78c;--std:#5b8cf0;--fro:#a689f7;--bad:#e5706b}}
+:root[data-theme="light"]{--bg:#f5f7fa;--sf:#fff;--sf2:#eef1f6;--bd:#d7dde6;--ink:#1a2029;--soft:#54606f;--faint:#8791a0;--mech:#1f9d68;--std:#2560c4;--fro:#7c53e6;--bad:#cc4444}
+:root[data-theme="dark"]{--bg:#0d1117;--sf:#161c25;--sf2:#1c232e;--bd:#2a3441;--ink:#e7ecf3;--soft:#9aa6b6;--faint:#647084;--mech:#43c78c;--std:#5b8cf0;--fro:#a689f7;--bad:#e5706b}
+*{box-sizing:border-box}
+body{margin:0 auto;max-width:1180px;background:var(--bg);color:var(--ink);font:15px/1.62 system-ui,-apple-system,sans-serif;padding:40px 24px 72px}
+a{color:var(--std)}
+h1{font-size:27px;line-height:1.25;margin:0 0 6px;letter-spacing:-.01em}
+h3{font-size:12.5px;text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono);margin:0 0 14px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.wnum{color:var(--ink);font-weight:700}.wmeta{color:var(--faint);text-transform:none;letter-spacing:0}
+.sub{color:var(--soft);font-family:var(--mono);font-size:12.5px;margin-bottom:24px;word-break:break-all}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:30px}
+.stat{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:9px 15px}
+.stat b{font-size:19px;display:block;line-height:1.2}.stat span{font-size:11px;color:var(--faint);font-family:var(--mono)}
+.brief{background:var(--sf);border:1px solid var(--bd);border-left:3px solid var(--std);border-radius:10px;padding:4px 20px;margin-bottom:34px}
+.brief h4{font-size:14px;margin:14px 0 6px}
+.wave{margin-bottom:34px}.wave.bad .wnum{color:var(--bad)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px;align-items:start}
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:15px 17px 5px}
+.card header{border-bottom:1px solid var(--bd);padding-bottom:10px;margin-bottom:12px}
+.card h4{margin:0 0 7px;font-size:15px;line-height:1.35}
+.meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.after{font-family:var(--mono);font-size:10.5px;color:var(--faint)}.after.free{opacity:.65}
+.blk{margin-bottom:14px}
+.blk h5{margin:0 0 5px;font:600 10.5px/1 var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--faint)}
+.blk p{margin:0 0 7px}.blk ul,.blk ol{margin:0 0 7px;padding-left:20px}.blk li{margin:2px 0}
+.blk :last-child{margin-bottom:0}
+.crit li{color:var(--soft)}
+.files code{display:inline-block;margin:0 4px 4px 0}
+pre.code{background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:9px 11px;overflow-x:auto;max-height:260px;overflow-y:auto;margin:0 0 7px}
+pre.code code{background:none;padding:0;font-size:11.5px;line-height:1.5;white-space:pre}
+code{font-family:var(--mono);font-size:.88em;background:color-mix(in srgb,var(--bd) 45%,transparent);padding:1px 5px;border-radius:4px;word-break:break-word}
+.chip{font-family:var(--mono);font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
+.chip.mechanical{color:var(--mech);background:color-mix(in srgb,var(--mech) 14%,transparent)}
+.chip.standard{color:var(--std);background:color-mix(in srgb,var(--std) 14%,transparent)}
+.chip.frontier{color:var(--fro);background:color-mix(in srgb,var(--fro) 14%,transparent)}
+.chip.bad{color:var(--bad);background:color-mix(in srgb,var(--bad) 14%,transparent)}
+details.checks{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:12px 18px;margin-top:10px}
+details.checks summary{cursor:pointer;font:600 11.5px/1 var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--faint)}
+details.checks ul{margin:12px 0 2px;padding-left:20px}
+details.checks li{margin:4px 0;color:var(--soft)}
+details.checks b{color:var(--bad);font-family:var(--mono);font-size:12.5px}
+details.checks .ok{color:var(--mech)}
+</style>
+<h1>Implementation plan</h1>
+<div class="sub">/Users/sultan/Development/lazypowers/docs/superpowers/plans/2026-08-05-test-entry-point.md &nbsp;·&nbsp; spec: docs/superpowers/specs/2026-08-05-test-entry-point-design.md</div>
+<div class="stats">
+  <div class="stat"><b>4</b><span>tasks</span></div>
+  <div class="stat"><b>3</b><span>waves</span></div>
+  <div class="stat"><b style="color:var(--mech)">4</b><span>mechanical</span></div>
+  <div class="stat"><b style="color:var(--std)">0</b><span>standard</span></div>
+  <div class="stat"><b style="color:var(--fro)">0</b><span>frontier</span></div>
+</div>
+<div class="brief"><h4>Cross-Task Contracts</h4>
+<ul>
+<li><strong>Runner path (Task 1 -&gt; Task 2):</strong> <code>superlazy-cc/tests/run.sh</code> — Task 1 creates it at exactly this repo-relative path; Task 2's workflow invokes it verbatim as <code>run: bash superlazy-cc/tests/run.sh</code>. Any rename breaks both tasks.</li>
+<li><strong>Invocation form:</strong> CI calls <code>bash superlazy-cc/tests/run.sh</code>, never <code>./…/run.sh</code> — the run must not depend on the exec bit surviving checkout. Task 1 still sets <code>chmod +x</code>.</li>
+<li><strong>Exit-code contract (Task 1 -&gt; Task 2/CI):</strong> <code>0</code> = all four suites passed; <code>1</code> = at least one suite failed; <code>2</code> = preflight failure (<code>node</code> not on <code>PATH</code>, stderr, before any suite runs). The GitHub check goes red/green on this exit code alone; no output parsing anywhere.</li>
+<li><strong>Node floor:</strong> the Node suites rely on <code>node --test &lt;file&gt;</code> accepting explicit file paths and exiting 1 on any failing test — Node v20+ behavior (spec-verified). CI satisfies this via <code>node-version: 'lts/*'</code> on <code>actions/setup-node@v7</code>.</li>
+<li><strong>Test policy (shared verification, no shared build unit):</strong> the deliverables are a standalone bash script and a standalone YAML file — no compilation unit. Each wave-1 task verifies only its own file. The combined acceptance battery (keep-going injection, change isolation) runs solely in barrier Task 3. Only Task 3 may touch <code>superlazy-cc/tests/codex-critic.test.sh</code>, temporarily, and must restore it with <code>git checkout --</code> before finishing. No task ever modifies <code>.github/workflows/release-please.yml</code>.</li>
+<li><strong>Verification idiom (every task, every block):</strong> an assertion block must exit nonzero when its assertion fails. The pattern <code>&lt;asserts&gt; &amp;&amp; echo 'X: PASS' || echo 'X: FAIL'</code> is FORBIDDEN — <code>echo</code> exits 0 in both branches, so a failed assertion still reports success to the shell. Use <code>if &lt;asserts&gt;; then echo 'X: PASS'; else echo 'X: FAIL' &gt;&amp;2; &lt;evidence&gt;; exit 1; fi</code>.</li>
+<li><strong>Acceptance records (executor commit contract):</strong> the executor commits one commit per task, path-scoped to that task's <code>files</code>, and treats an empty task diff as a defect. Task 3 restores its temporary injection byte-identically by design, so its committable artifact is a durable acceptance record: <code>docs/superpowers/acceptance/2026-08-05-test-entry-point-barrier.txt</code> (written only by Task 3). Task 4's is <code>docs/superpowers/acceptance/2026-08-05-test-entry-point-ci.txt</code>. Nothing else writes under <code>docs/superpowers/acceptance/</code>. The records double as preserved evidence of the destructive checks, which previously vanished with the shell session.</li>
+<li><strong>Library-claim provenance:</strong> <code>actions/checkout@v7</code> (v7.0.1, 2026-07-20) and <code>actions/setup-node@v7</code> (v7.0.0, 2026-07-14, <code>node-version</code> unchanged from v6, <code>lts/*</code> resolves to latest LTS) were verified against the GitHub releases API and cross-checked via Context7 during spec drafting, and survived two critic rounds; this plan copies them verbatim and introduces no new library claims.</li>
+<li><strong>Waves:</strong> Wave 1 = Tasks 1 and 2 (file-disjoint, concurrent). Wave 2 = Task 3 (barrier, in-worktree). Post-join = Task 4 — coordinator-owned, executed AFTER the per-task commits exist and are pushed. Task 4 is NEVER dispatched to an implementer: implementers never commit or push, and every one of its observations requires real commits, a real push, and GitHub actually running the workflow.</li>
+<li><strong>Spec criterion 6 is Task 4, not an aside.</strong> It cannot be observed from a worktree. It is carried as a real task with exact commands so it cannot be silently dropped; Task 2's byte-equality to the verified YAML is the local proxy, not the coverage.</li>
+</ul>
+<h4>Global Constraints</h4>
+<ul>
+<li>Exactly two new files: <code>superlazy-cc/tests/run.sh</code> and <code>.github/workflows/test.yml</code>. &quot;Nothing else in the repo changes; <code>.github/workflows/release-please.yml</code> remains byte-identical.&quot;</li>
+<li>Pressure exclusion is structural: excluded &quot;by never appearing in the runner's allowlist — not conditionally&quot;; &quot;no <code>--with-pressure</code> flag, no env toggle, no conditional.&quot;</li>
+<li>&quot;No suite discovery (<code>find</code>/glob)&quot; — &quot;no <code>find</code>, no glob, no directory scan, no flag, no environment toggle.&quot;</li>
+<li>Runner style: <code>#!/usr/bin/env bash</code>, <code>set -u</code> (no <code>set -e</code>), <code>BASH_SOURCE</code>-relative paths, <code>PASS</code>/<code>FAIL</code> counters, final <code>[ &quot;$FAIL&quot; -eq 0 ]</code>; Bash-3.2-safe.</li>
+<li>Exit codes: <code>0</code> all passed; <code>1</code> any suite failed; <code>2</code> preflight — <code>node</code> not on <code>PATH</code> — stderr, before any suite runs.</li>
+<li>&quot;No grouped Node invocation&quot; — one <code>node --test</code> per <code>.mjs</code>; sequential, four invocations, four summary lines.</li>
+<li>Summary format: <code>--- summary ---</code> banner, one <code>  ok  - &lt;name&gt;</code> / <code>  FAIL - &lt;name&gt;</code> line per suite, trailing <code>run.sh: N passed, M failed</code>.</li>
+<li>Workflow style matches <code>release-please.yml</code>: minimal, two-space indent, explicit <code>permissions</code>, <code>ubuntu-latest</code>, no comments; <code>permissions: contents: read</code>; no login, no secrets.</li>
+<li>Action versions: <code>actions/checkout@v7</code>, <code>actions/setup-node@v7</code>, <code>node-version: 'lts/*'</code>; no <code>cache:</code> input.</li>
+<li>Triggers: <code>pull_request</code> (all PRs) plus <code>push</code> to <code>branches: [main]</code>.</li>
+<li>No <code>package.json</code>/<code>npm test</code>; no CLI options on run.sh; no machine-readable output; no CI matrix, caching, concurrency groups, or lint job.</li>
+<li>No changes to <code>release-please.yml</code>, no README/docs updates.</li>
+<li>Implementer discipline: never commit; never write any repo file outside the task's <code>files</code> list (temp files go in <code>mktemp</code> dirs outside the repo).</li>
+</ul></div>
+
+<section class="wave">
+  <h3><span class="wnum">Wave 1</span>
+    <span class="wmeta">2 tasks · run in parallel</span></h3>
+  <div class="grid"><article class="card" id="task-0">
+  <header>
+    <h4>Task 1: Create superlazy-cc/tests/run.sh (suite aggregator)</h4>
+    <div class="meta">
+      <span class="chip mechanical">mechanical</span>
+      <span class="after free">no dependencies</span>
+    </div>
+  </header>
+  <div class="blk"><h5>Goal</h5><p>Add the single deterministic entry point that runs all four suites keep-going, prints the per-suite summary, and exits 0/1/2 per the contract.</p></div>
+  <div class="blk"><h5>Files</h5><p class="files"><code>superlazy-cc/tests/run.sh</code></p></div>
+  <div class="blk"><h5>Steps</h5><ol>
+<li>Red: confirm the entry point does not exist yet — <code>bash superlazy-cc/tests/run.sh</code> must fail (127). Confirm the four suite files exist.</li>
+<li>Create <code>superlazy-cc/tests/run.sh</code> with exactly this content (behavior and output shape are the contract; do not restructure):</li>
+</ol>
+<pre class="code"><code>#!/usr/bin/env bash
+# Runs every DETERMINISTIC suite in superlazy-cc: two bash suites plus two
+# node --test suites. The list below is an explicit allowlist — the
+# pressure suite (tests/pressure/run.sh) is deliberately absent: it calls the
+# claude CLI and costs real money, so it must be impossible to trigger from
+# here. Do not add discovery (find/glob); add new suites to this list by hand.
+set -u
+HERE=&quot;$(cd &quot;$(dirname &quot;${BASH_SOURCE[0]}&quot;)&quot; &amp;&amp; pwd)&quot;
+
+command -v node &gt;/dev/null || { echo &quot;ERROR: node not found on PATH&quot; &gt;&amp;2; exit 2; }
+
+PASS=0; FAIL=0; RESULTS=()
+run_suite() { # name cmd...
+  local name=&quot;$1&quot;; shift
+  echo &quot;=== $name ===&quot;
+  if &quot;$@&quot;; then PASS=$((PASS+1)); RESULTS+=(&quot;  ok  - $name&quot;)
+  else            FAIL=$((FAIL+1)); RESULTS+=(&quot;  FAIL - $name&quot;)
+  fi
+  echo
+}
+
+run_suite &quot;codex-critic.test.sh&quot;    bash &quot;$HERE/codex-critic.test.sh&quot;
+run_suite &quot;prose-contracts.test.sh&quot; bash &quot;$HERE/prose-contracts.test.sh&quot;
+run_suite &quot;plan-viz.test.mjs&quot;       node --test &quot;$HERE/../skills/superlazy-brainstorm/lib/plan-viz.test.mjs&quot;
+run_suite &quot;review-synth.test.mjs&quot;   node --test &quot;$HERE/../skills/superlazy-review/lib/review-synth.test.mjs&quot;
+
+echo &quot;--- summary ---&quot;
+printf '%s\n' &quot;${RESULTS[@]}&quot;
+echo &quot;run.sh: $PASS passed, $FAIL failed&quot;
+[ &quot;$FAIL&quot; -eq 0 ]</code></pre>
+<ol>
+<li><code>chmod +x superlazy-cc/tests/run.sh</code> (the coordinator commits — you do not).</li>
+<li>Green — happy path (criterion 1), ONE invocation from the repo root:</li>
+</ol>
+<pre class="code"><code>out=&quot;$(bash superlazy-cc/tests/run.sh 2&gt;&amp;1)&quot;; status=$?
+if [ &quot;$status&quot; -eq 0 ] \
+  &amp;&amp; printf '%s\n' &quot;$out&quot; | grep -qF -- '--- summary ---' \
+  &amp;&amp; printf '%s\n' &quot;$out&quot; | grep -qF '  ok  - codex-critic.test.sh' \
+  &amp;&amp; printf '%s\n' &quot;$out&quot; | grep -qF '  ok  - prose-contracts.test.sh' \
+  &amp;&amp; printf '%s\n' &quot;$out&quot; | grep -qF '  ok  - plan-viz.test.mjs' \
+  &amp;&amp; printf '%s\n' &quot;$out&quot; | grep -qF '  ok  - review-synth.test.mjs' \
+  &amp;&amp; printf '%s\n' &quot;$out&quot; | grep -qF 'run.sh: 4 passed, 0 failed'; then
+  echo 'HAPPY-PATH: PASS'
+else
+  echo 'HAPPY-PATH: FAIL' &gt;&amp;2; printf '%s\n' &quot;$out&quot;; exit 1
+fi</code></pre>
+<ol>
+<li>cwd-independence (criterion 2), ONE invocation:</li>
+</ol>
+<pre class="code"><code>REPO=&quot;$(git rev-parse --show-toplevel)&quot;
+if (cd / &amp;&amp; bash &quot;$REPO/superlazy-cc/tests/run.sh&quot; &gt; /dev/null 2&gt;&amp;1); then
+  echo 'CWD-INDEPENDENCE: PASS'
+else echo 'CWD-INDEPENDENCE: FAIL' &gt;&amp;2; exit 1; fi</code></pre>
+<ol>
+<li>Structural exclusion (criterion 4), ONE invocation:</li>
+</ol>
+<pre class="code"><code>if [ &quot;$(grep -c pressure superlazy-cc/tests/run.sh)&quot; -eq 1 ] \
+  &amp;&amp; [ &quot;$(grep -c '^run_suite ' superlazy-cc/tests/run.sh)&quot; -eq 4 ] \
+  &amp;&amp; test -z &quot;$(grep '^run_suite ' superlazy-cc/tests/run.sh | grep -vE 'bash &quot;|node --test ')&quot;; then
+  echo 'EXCLUSION: PASS'
+else echo 'EXCLUSION: FAIL' &gt;&amp;2; exit 1; fi</code></pre>
+<ol>
+<li>Missing-node preflight (criterion 5), ONE invocation:</li>
+</ol>
+<pre class="code"><code>SHADOW=&quot;$(mktemp -d)&quot;
+ln -s &quot;$(command -v dirname)&quot; &quot;$SHADOW/dirname&quot;
+out=&quot;$(PATH=&quot;$SHADOW&quot; /bin/bash superlazy-cc/tests/run.sh 2&gt;&quot;$SHADOW/stderr.txt&quot;)&quot;
+status=$?
+if [ &quot;$status&quot; -eq 2 ] &amp;&amp; [ -z &quot;$out&quot; ] \
+  &amp;&amp; grep -qF 'ERROR: node not found on PATH' &quot;$SHADOW/stderr.txt&quot;; then
+  echo 'PREFLIGHT: PASS'; rm -rf &quot;$SHADOW&quot;
+else echo 'PREFLIGHT: FAIL' &gt;&amp;2; cat &quot;$SHADOW/stderr.txt&quot; &gt;&amp;2; rm -rf &quot;$SHADOW&quot;; exit 1; fi</code></pre>
+<ol>
+<li>If any block prints FAIL: report which block and paste its captured output; touch no file other than <code>superlazy-cc/tests/run.sh</code>.</li>
+</ol></div>
+  <div class="blk"><h5>Done when</h5><ul class="crit"><li>run.sh exists with exec bit, matches spec reference implementation behavior and output shape</li><li>Full run: four suites, four ok summary lines, 'run.sh: 4 passed, 0 failed', exit 0</li><li>Identical result invoked from / via absolute path</li><li>grep -c pressure = 1; four run_suite lines, all bash or node --test; no discovery</li><li>node shadowed off PATH: 'ERROR: node not found on PATH' on stderr, exit 2, no suite runs</li><li>No set -e; keep-going run_suite structure records failures without short-circuiting</li></ul></div>
+  <div class="blk"><h5>Verify</h5><pre class="code"><code>test -x superlazy-cc/tests/run.sh &amp;&amp; bash superlazy-cc/tests/run.sh &amp;&amp; [ &quot;$(grep -c pressure superlazy-cc/tests/run.sh)&quot; -eq 1 ]</code></pre></div>
+</article><article class="card" id="task-1">
+  <header>
+    <h4>Task 2: Create .github/workflows/test.yml (CI wiring)</h4>
+    <div class="meta">
+      <span class="chip mechanical">mechanical</span>
+      <span class="after free">no dependencies</span>
+    </div>
+  </header>
+  <div class="blk"><h5>Goal</h5><p>Add the GitHub Actions workflow that runs the aggregator on every PR and every push to main, byte-identical to the spec's verified YAML.</p></div>
+  <div class="blk"><h5>Files</h5><p class="files"><code>.github/workflows/test.yml</code></p></div>
+  <div class="blk"><h5>Steps</h5><ol>
+<li>Red: confirm <code>test ! -e .github/workflows/test.yml</code>.</li>
+<li>Create <code>.github/workflows/test.yml</code> with exactly this content (two-space indent, no comments, no trailing whitespace, single trailing newline):</li>
+</ol>
+<pre class="code"><code>name: test
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 'lts/*'
+      - run: bash superlazy-cc/tests/run.sh</code></pre>
+<ol>
+<li>Green — byte-compare against the contract content:</li>
+</ol>
+<pre class="code"><code>if diff .github/workflows/test.yml - &lt;&lt;'EOF'
+name: test
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 'lts/*'
+      - run: bash superlazy-cc/tests/run.sh
+EOF
+then echo 'CONTENT: PASS'; else echo 'CONTENT: FAIL' &gt;&amp;2; exit 1; fi</code></pre>
+<ol>
+<li>Confirm the sibling workflow is untouched, honest exit:</li>
+</ol>
+<pre class="code"><code>if git diff --quiet HEAD -- .github/workflows/release-please.yml; then
+  echo 'RELEASE-PLEASE: UNTOUCHED'
+else echo 'RELEASE-PLEASE: MODIFIED' &gt;&amp;2; exit 1; fi</code></pre>
+<ol>
+<li>Do NOT add <code>cache:</code> to setup-node, no secrets, no extra steps, no comments. Touch no file other than <code>.github/workflows/test.yml</code>.</li>
+</ol></div>
+  <div class="blk"><h5>Done when</h5><ul class="crit"><li>test.yml byte-identical to the spec YAML: push-to-main + pull_request triggers, contents: read, ubuntu-latest, checkout@v7, setup-node@v7 with node-version 'lts/*', run: bash superlazy-cc/tests/run.sh</li><li>No cache: input, no secrets, no comments, no extra jobs or steps</li><li>release-please.yml byte-identical to HEAD</li></ul></div>
+  <div class="blk"><h5>Verify</h5><pre class="code"><code>grep -qF 'run: bash superlazy-cc/tests/run.sh' .github/workflows/test.yml &amp;&amp; grep -qF 'actions/checkout@v7' .github/workflows/test.yml &amp;&amp; grep -qF 'actions/setup-node@v7' .github/workflows/test.yml &amp;&amp; git diff --quiet HEAD -- .github/workflows/release-please.yml</code></pre></div>
+</article></div>
+</section>
+<section class="wave">
+  <h3><span class="wnum">Wave 2</span>
+    <span class="wmeta">1 task</span></h3>
+  <div class="grid"><article class="card" id="task-2">
+  <header>
+    <h4>Task 3: Barrier: keep-going + change-isolation verification gate</h4>
+    <div class="meta">
+      <span class="chip mechanical">mechanical</span>
+      <span class="after">after <a href="#task-0">Task 1: Create superlazy-cc/tests/run.sh (suite aggregator)</a>, <a href="#task-1">Task 2: Create .github/workflows/test.yml (CI wiring)</a></span>
+    </div>
+  </header>
+  <div class="blk"><h5>Goal</h5><p>Prove the destructive and cross-file criteria — keep-going under an injected suite failure (criterion 3), integrated happy path + wall time (criteria 1, 8), and change isolation (criterion 7) — as a pure verification gate: no file created, no commit produced, the tree left byte-identical to how the wave left it.</p></div>
+  <div class="blk"><h5>Files</h5><p>none — this is a <code>files: []</code> verification gate. Per the executor contract it produces NO commit and that is correct; the executor asserts <code>git status</code> shows nothing from this task, and the coordinator checks the <code>AC:</code> evidence lines instead of dispatching a task reviewer. The previous revision's acceptance-record file is deleted from the plan entirely: it existed only to satisfy the old nonempty-commit rule and violated the spec's &quot;exactly two new files&quot; contract.</p>
+<p><strong>Criterion 7, restored unscoped — with one honest translation.</strong> The spec's literal post-commit form (&quot;<code>git diff --name-only main...HEAD</code> lists exactly those two paths&quot;) assumed a branch dedicated to this plan. The actual branch predates the plan and legitimately carries the approach-seam work plus plan/spec docs. The unscoped *spirit* — nothing this plan delivered beyond the two files, verified with no path filter that could hide an artifact — is asserted at the commit level instead: each delivery commit's full <code>diff-tree</code> must list exactly its one file, no commit anywhere in <code>main..HEAD</code> may touch <code>docs/superpowers/acceptance</code>, <code>release-please.yml</code> must be byte-identical to main, and the gate must leave a zero footprint. Nothing is scoped away; the sweep runs over the whole branch history.</p></div>
+  <div class="blk"><h5>Steps</h5><ol>
+<li>Baseline snapshot, clean-target precondition (refuse to inject into a dirty target — staged AND unstaged), integrated happy path + wall time (criteria 1, 8), ONE invocation:</li>
+</ol>
+<pre class="code"><code>set -u
+SNAP=&quot;${TMPDIR:-/tmp}/superlazy-gate3-status-$(git rev-parse --short HEAD).txt&quot;
+git status --porcelain &gt; &quot;$SNAP&quot;
+T=superlazy-cc/tests/codex-critic.test.sh
+if git diff --quiet -- &quot;$T&quot; &amp;&amp; git diff --cached --quiet -- &quot;$T&quot;; then
+  echo 'PRECONDITION: PASS (target clean, staged and unstaged)'
+else
+  echo 'PRECONDITION: FAIL — target has local changes; refusing to inject' &gt;&amp;2
+  git status --porcelain -- &quot;$T&quot; &gt;&amp;2; exit 1
+fi
+start=$(date +%s); out=&quot;$(bash superlazy-cc/tests/run.sh 2&gt;&amp;1)&quot;; status=$?
+secs=$(( $(date +%s) - start ))
+if [ &quot;$status&quot; -eq 0 ] \
+  &amp;&amp; printf '%s\n' &quot;$out&quot; | grep -qF '  ok  - codex-critic.test.sh' \
+  &amp;&amp; printf '%s\n' &quot;$out&quot; | grep -qF '  ok  - prose-contracts.test.sh' \
+  &amp;&amp; printf '%s\n' &quot;$out&quot; | grep -qF '  ok  - plan-viz.test.mjs' \
+  &amp;&amp; printf '%s\n' &quot;$out&quot; | grep -qF '  ok  - review-synth.test.mjs' \
+  &amp;&amp; printf '%s\n' &quot;$out&quot; | grep -qF 'run.sh: 4 passed, 0 failed' \
+  &amp;&amp; [ &quot;$secs&quot; -le 60 ]; then
+  echo &quot;AC: integrated run green — PROVEN BY bash superlazy-cc/tests/run.sh -&gt; exit 0, 'run.sh: 4 passed, 0 failed', four ok lines, ${secs}s wall&quot;
+else
+  echo 'HAPPY-PATH: FAIL' &gt;&amp;2; printf '%s\n' &quot;$out&quot; &gt;&amp;2; exit 1
+fi</code></pre>
+<ol>
+<li>Keep-going under failure (criterion 3), non-destructive by construction — original bytes saved to <code>mktemp</code> outside the repo BEFORE the append, restoration by content (never <code>git checkout --</code>, which in a shared worktree could discard unrelated changes), restoration proven by <code>git hash-object</code> equality, <code>trap</code> restores even on interrupt. ONE invocation:</li>
+</ol>
+<pre class="code"><code>set -u
+T=superlazy-cc/tests/codex-critic.test.sh
+SAVE=&quot;$(mktemp -d)&quot;
+cp &quot;$T&quot; &quot;$SAVE/orig&quot;
+H0=&quot;$(git hash-object &quot;$SAVE/orig&quot;)&quot;
+restore() { cat &quot;$SAVE/orig&quot; &gt; &quot;$T&quot;; }
+trap 'restore' EXIT
+echo 'exit 1' &gt;&gt; &quot;$T&quot;
+out=&quot;$(bash superlazy-cc/tests/run.sh 2&gt;&amp;1)&quot;; status=$?
+restore
+trap - EXIT
+if [ &quot;$(git hash-object &quot;$T&quot;)&quot; = &quot;$H0&quot; ] &amp;&amp; git diff --quiet HEAD -- &quot;$T&quot;; then
+  echo &quot;AC: non-destructive restoration — PROVEN BY git hash-object equal before/after ($H0) and empty git diff HEAD -- $T&quot;
+else
+  echo 'RESTORE: retrying from saved bytes' &gt;&amp;2
+  restore
+  if [ &quot;$(git hash-object &quot;$T&quot;)&quot; = &quot;$H0&quot; ]; then
+    echo &quot;AC: non-destructive restoration — PROVEN BY git hash-object equal after re-restore ($H0)&quot;
+  else
+    echo 'RESTORE: FAIL — hash mismatch persists; saved bytes kept at' &quot;$SAVE/orig&quot; &gt;&amp;2; exit 1
+  fi
+fi
+rm -rf &quot;$SAVE&quot;
+if [ &quot;$status&quot; -eq 1 ] \
+  &amp;&amp; printf '%s\n' &quot;$out&quot; | grep -qF '  FAIL - codex-critic.test.sh' \
+  &amp;&amp; printf '%s\n' &quot;$out&quot; | grep -qF 'run.sh: 3 passed, 1 failed' \
+  &amp;&amp; printf '%s\n' &quot;$out&quot; | grep -qF '=== prose-contracts.test.sh ===' \
+  &amp;&amp; printf '%s\n' &quot;$out&quot; | grep -qF '=== plan-viz.test.mjs ===' \
+  &amp;&amp; printf '%s\n' &quot;$out&quot; | grep -qF '=== review-synth.test.mjs ==='; then
+  echo &quot;AC: keep-going under injected failure — PROVEN BY exit 1, 'run.sh: 3 passed, 1 failed', 'FAIL - codex-critic.test.sh', all three remaining banners in captured output&quot;
+else
+  echo 'KEEP-GOING: FAIL' &gt;&amp;2; printf '%s\n' &quot;$out&quot; &gt;&amp;2; exit 1
+fi</code></pre>
+<ol>
+<li>Change isolation at the commit level (criterion 7, unscoped), ONE invocation:</li>
+</ol>
+<pre class="code"><code>set -u
+c_run=&quot;$(git rev-list -n 1 HEAD -- superlazy-cc/tests/run.sh)&quot;
+c_yml=&quot;$(git rev-list -n 1 HEAD -- .github/workflows/test.yml)&quot;
+t_run=&quot;$(git diff-tree --no-commit-id --name-only -r &quot;$c_run&quot;)&quot;
+t_yml=&quot;$(git diff-tree --no-commit-id --name-only -r &quot;$c_yml&quot;)&quot;
+if [ &quot;$t_run&quot; = &quot;superlazy-cc/tests/run.sh&quot; ] &amp;&amp; [ &quot;$t_yml&quot; = &quot;.github/workflows/test.yml&quot; ]; then
+  echo &quot;AC: delivery commits touch exactly their own file — PROVEN BY git diff-tree -r $c_run -&gt; '$t_run'; git diff-tree -r $c_yml -&gt; '$t_yml'&quot;
+else
+  echo 'ISOLATION: FAIL — a delivery commit carries extra paths' &gt;&amp;2
+  printf '%s\n' &quot;$t_run&quot; &quot;$t_yml&quot; &gt;&amp;2; exit 1
+fi
+if git diff --quiet main...HEAD -- .github/workflows/release-please.yml \
+  &amp;&amp; [ ! -e docs/superpowers/acceptance ] \
+  &amp;&amp; [ -z &quot;$(git log --format= --name-only main..HEAD -- docs/superpowers/acceptance)&quot; ]; then
+  echo 'AC: release-please untouched and no acceptance artifacts — PROVEN BY empty git diff main...HEAD -- .github/workflows/release-please.yml; test ! -e docs/superpowers/acceptance; empty git log --name-only main..HEAD -- docs/superpowers/acceptance'
+else
+  echo 'ARTIFACT-CHECK: FAIL' &gt;&amp;2
+  git log --oneline --name-only main..HEAD -- docs/superpowers/acceptance &gt;&amp;2; exit 1
+fi</code></pre>
+<ol>
+<li>Zero gate footprint (the executor's <code>files: []</code> assertion, proven from inside), ONE invocation:</li>
+</ol>
+<pre class="code"><code>set -u
+SNAP=&quot;${TMPDIR:-/tmp}/superlazy-gate3-status-$(git rev-parse --short HEAD).txt&quot;
+now=&quot;$(git status --porcelain)&quot;
+if [ &quot;$now&quot; = &quot;$(cat &quot;$SNAP&quot;)&quot; ] \
+  &amp;&amp; ! printf '%s\n' &quot;$now&quot; | grep -qE 'superlazy-cc/tests/|\.github/workflows/'; then
+  echo 'AC: zero gate footprint — PROVEN BY git status --porcelain identical to the step-1 snapshot and free of superlazy-cc/tests/ and .github/workflows/ paths'
+else
+  echo 'FOOTPRINT: FAIL' &gt;&amp;2; diff &quot;$SNAP&quot; &lt;(printf '%s\n' &quot;$now&quot;) &gt;&amp;2; rm -f &quot;$SNAP&quot;; exit 1
+fi
+rm -f &quot;$SNAP&quot;</code></pre>
+<ol>
+<li>Failure protocol: every block exits nonzero on failure by construction, and step 2's trap plus content-restore guarantee the target is clean even on failure paths. Report which block failed with its captured output. Do NOT edit <code>run.sh</code> or <code>test.yml</code> — out of scope; a suite failure attributes to Task 1 or Task 2. Emit no <code>AC:</code> line for anything unproven.</li>
+</ol></div>
+  <div class="blk"><h5>Done when</h5><ul class="crit"><li>integrated run green: exit 0, 'run.sh: 4 passed, 0 failed', four ok lines, wall time &lt;= 60s</li><li>keep-going under injected failure: exit 1, 'FAIL - codex-critic.test.sh', 'run.sh: 3 passed, 1 failed', remaining three suite banners present</li><li>non-destructive restoration: clean-target precondition, bytes saved outside the repo, restored by content with git hash-object equality, target byte-identical to HEAD</li><li>delivery commits touch exactly their own file: diff-tree of each delivery commit lists exactly one path</li><li>release-please untouched and no acceptance artifacts in the tree or anywhere in main..HEAD</li><li>zero gate footprint: git status --porcelain identical before and after, free of delivery paths</li></ul></div>
+  <div class="blk"><h5>Verify</h5><pre class="code"><code>bash -c 'set -u; T=superlazy-cc/tests/codex-critic.test.sh; git diff --quiet -- &quot;$T&quot; || exit 1; git diff --cached --quiet -- &quot;$T&quot; || exit 1; bash superlazy-cc/tests/run.sh &gt;/dev/null 2&gt;&amp;1 || exit 1; S=$(mktemp -d); cp &quot;$T&quot; &quot;$S/orig&quot;; H0=$(git hash-object &quot;$S/orig&quot;); trap &quot;cat \&quot;$S/orig\&quot; &gt; \&quot;$T\&quot;; rm -rf \&quot;$S\&quot;&quot; EXIT; echo &quot;exit 1&quot; &gt;&gt; &quot;$T&quot;; out=$(bash superlazy-cc/tests/run.sh 2&gt;&amp;1); s=$?; cat &quot;$S/orig&quot; &gt; &quot;$T&quot;; [ &quot;$(git hash-object &quot;$T&quot;)&quot; = &quot;$H0&quot; ] || exit 1; [ &quot;$s&quot; -eq 1 ] || exit 1; printf &quot;%s\n&quot; &quot;$out&quot; | grep -qF &quot;run.sh: 3 passed, 1 failed&quot; || exit 1; git diff --quiet HEAD -- &quot;$T&quot; || exit 1; c1=$(git rev-list -n 1 HEAD -- superlazy-cc/tests/run.sh); c2=$(git rev-list -n 1 HEAD -- .github/workflows/test.yml); [ &quot;$(git diff-tree --no-commit-id --name-only -r &quot;$c1&quot;)&quot; = superlazy-cc/tests/run.sh ] || exit 1; [ &quot;$(git diff-tree --no-commit-id --name-only -r &quot;$c2&quot;)&quot; = .github/workflows/test.yml ] || exit 1; git diff --quiet main...HEAD -- .github/workflows/release-please.yml || exit 1; test ! -e docs/superpowers/acceptance || exit 1; [ -z &quot;$(git log --format= --name-only main..HEAD -- docs/superpowers/acceptance)&quot; ]'</code></pre></div>
+</article></div>
+</section>
+<section class="wave">
+  <h3><span class="wnum">Wave 3</span>
+    <span class="wmeta">1 task</span></h3>
+  <div class="grid"><article class="card" id="task-3">
+  <header>
+    <h4>Task 4: Post-join CI gate (COORDINATOR-OWNED)</h4>
+    <div class="meta">
+      <span class="chip mechanical">mechanical</span>
+      <span class="after">after <a href="#task-2">Task 3: Barrier: keep-going + change-isolation verification gate</a></span>
+    </div>
+  </header>
+  <div class="blk"><h5>Goal</h5><p>Prove spec criterion 6 against GitHub itself: the <code>test</code> check appears on a real PR and is green with no secrets; a seeded failing test turns a check red at the <code>run: bash superlazy-cc/tests/run.sh</code> step; after merge, the workflow runs green on main's merge commit.</p></div>
+  
+  <div class="blk"><h5>Steps</h5><p>(full copy-pasteable blocks — preconditions + push + PR; bounded-poll green check with <code>statusCheckRollup</code> assertion and a no-<code>secrets.</code> grep; throwaway-worktree seeded-red probe with a cleanup <code>trap</code> that closes the PR and deletes the branch on every exit path; self-arming post-merge clause; zero-footprint assertion. Every value derived by a command in the block that uses it; polling bounded at 40x15s for run discovery and 60x10s for completion.)</p>
+<p><strong>The post-merge criterion is self-arming.</strong> The merge is a human decision that happens after this gate completes, so no command run at gate time can observe main's merge commit. The honest contract: before the merge the block reports the check PENDING and armed; the <code>verifyCommand</code>'s conditional enforces the main-run assertion automatically the moment <code>gh pr view</code> reports MERGED. That is a stated weaker contract, not a concealment.</p></div>
+  <div class="blk"><h5>Done when</h5><ul class="crit"><li>test check green on the real PR head: run conclusion success for the PR head sha; statusCheckRollup lists test=SUCCESS</li><li>no secrets: zero secrets. references in test.yml and the green run needed none</li><li>seeded red at the run.sh step: probe run conclusion failure with 'run.sh: 3 passed, 1 failed' in --log-failed; probe PR closed unmerged, probe branch deleted, feature branch untouched</li><li>post-merge main run green: self-arming verify clause enforces a success run for mergeCommit.oid once the PR reports MERGED</li><li>gate leaves no commit and no footprint: empty git status --porcelain, HEAD == pushed branch tip, no probe worktree</li></ul></div>
+  <div class="blk"><h5>Verify</h5><pre class="code"><code>bash -c 'set -u; BR=feat/approach-seam-and-self-contained; PROBE=ci-red-probe-2026-08-05-test-entry-point; git fetch origin &gt;/dev/null 2&gt;&amp;1 || exit 1; sha=$(git rev-parse &quot;origin/$BR&quot; 2&gt;/dev/null || git rev-parse HEAD); ok=$(gh run list --workflow=test.yml --branch &quot;$BR&quot; --limit 20 --json headSha,conclusion --jq &quot;[.[] | select(.headSha == \&quot;$sha\&quot; and .conclusion == \&quot;success\&quot;)] | length&quot;); [ &quot;${ok:-0}&quot; -ge 1 ] || exit 1; red=$(gh run list --workflow=test.yml --branch &quot;$PROBE&quot; --limit 10 --json conclusion --jq &quot;[.[] | select(.conclusion == \&quot;failure\&quot;)] | length&quot;); [ &quot;${red:-0}&quot; -ge 1 ] || exit 1; state=$(gh pr view &quot;$BR&quot; --json state --jq .state 2&gt;/dev/null); if [ &quot;$state&quot; = &quot;MERGED&quot; ]; then m=$(gh pr view &quot;$BR&quot; --json mergeCommit --jq .mergeCommit.oid); g=$(gh run list --workflow=test.yml --branch main --limit 30 --json headSha,conclusion --jq &quot;[.[] | select(.headSha == \&quot;$m\&quot; and .conclusion == \&quot;success\&quot;)] | length&quot;); [ &quot;${g:-0}&quot; -ge 1 ] || exit 1; fi'</code></pre></div>
+</article></div>
+</section>
+
+<details class="checks">
+  <summary>Structural checks (0)</summary>
+  <ul><li class="ok">none — plan is structurally clean</li></ul>
+</details>

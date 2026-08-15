@@ -1,0 +1,13 @@
+{
+  "name": "foureyes",
+  "owner": {
+    "name": "Sultan1993"
+  },
+  "plugins": [
+    {
+      "name": "foureyes",
+      "source": "./"
+    }
+  ],
+  "description": "Pairs Claude with OpenAI Codex so the model that writes your code never reviews it."
+}

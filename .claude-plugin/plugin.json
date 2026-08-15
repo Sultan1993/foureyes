@@ -1,0 +1,20 @@
+{
+  "name": "foureyes",
+  "description": "Pairs Claude with OpenAI Codex so the model that writes your code never reviews it. Planning, building, code review and debugging \u2014 each cross-checked by a second model family in a read-only sandbox.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Sultan1993"
+  },
+  "keywords": [
+    "code-review",
+    "cross-model",
+    "codex",
+    "planning",
+    "debugging",
+    "tdd",
+    "workflow"
+  ],
+  "homepage": "https://github.com/Sultan1993/foureyes",
+  "repository": "https://github.com/Sultan1993/foureyes",
+  "license": "MIT"
+}
