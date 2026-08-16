@@ -44,6 +44,24 @@ tree**. Both of these are absolute:
    in parallel at all. If the work genuinely requires a file outside it, stop and
    report `BLOCKED` saying which file and why — do not "just add it".
 
+## Surgical changes — scope inside a file, too
+
+The two rules above bound which FILES you may touch. This one bounds how much of
+them. Touch only what the task needs; clean up only your own mess.
+
+- Don't "improve" adjacent code, comments or formatting.
+- Don't refactor what isn't broken.
+- Match the existing style, even if you would do it differently.
+- Notice unrelated dead code → say so under CONCERNS, don't delete it.
+- Remove imports, variables and functions that YOUR change orphaned. Leave
+  pre-existing dead code alone unless the task says otherwise.
+
+**The test: every changed line traces directly to the task.** Two reasons this
+matters more here than in ordinary work. Your reviewer reads the diff without the
+context you have, so a formatting sweep or a drive-by rename buries the change
+they were asked to check. And you share this working tree with siblings running
+right now — a file you reformatted is a file their reviewer has to read twice.
+
 ## Your job
 
 1. Implement exactly what the task specifies.

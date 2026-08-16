@@ -383,6 +383,12 @@ check "27c frontier runs high" \
 # Two implementer files exist ONLY because effort cannot vary per dispatch. If
 # their bodies drift, the wave-safety rules differ by tier and nothing else notices.
 bodyof() { python3 -c "import sys;s=open(sys.argv[1]).read();print(s[s.index(chr(10)+chr(45)*3+chr(10),3)+5:],end='')" "$1"; }
+# Rule 2 bounds which FILES may be touched; nothing bounded how much of a file.
+# An implementer allowed to edit auth.ts could reformat the whole thing, burying
+# the change its reviewer was asked to check — and forcing a sibling's reviewer
+# to read the same file twice, since they share the tree.
+check "27i implementers are bounded inside a file, not just across files" \
+  'grep -qi "Surgical changes" "$AG/foureyes-implementer.md" && has "$AG/foureyes-implementer.md" "every changed line traces directly to the task"'
 check "27d the two implementer bodies are byte-identical" \
   '[ "$(bodyof "$AG/foureyes-implementer.md")" = "$(bodyof "$AG/foureyes-implementer-frontier.md")" ]'
 # A JSON routing file cannot override frontmatter-pinned effort, so honouring one
