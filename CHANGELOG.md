@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/Sultan1993/foureyes/compare/v1.0.1...v1.0.2) (2026-08-23)
+
+
+### Bug Fixes
+
+* **brainstorm:** decide the mode before the report so --continue never stalls ([b3cf13f](https://github.com/Sultan1993/foureyes/commit/b3cf13f2063d9625d6bda8cc3c21c0ee0bb586e4))
+
 ## [1.0.1](https://github.com/Sultan1993/foureyes/compare/v1.0.0...v1.0.1) (2026-08-16)
 
 
