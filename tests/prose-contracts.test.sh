@@ -163,6 +163,24 @@ check "14b it asks rather than deciding" \
 check "14c it never invokes brainstorm from that branch" \
   'grep -A12 "Has Sol ever read this plan" "$BD" | grep -q "never invoke brainstorm"'
 
+echo "--- inline brainstorm hands back instead of stopping ---"
+# build invokes brainstorm with --continue and goes straight to execution. Step 7
+# used to be titled "Hard stop" with the --continue exception as its LAST bullet,
+# so the model read a whole section framed as stopping before reaching the one
+# line saying not to, and paused for HTML approval mid-build anyway. The mode has
+# to be decided BEFORE the report. 14e is the assertion that actually bites: it
+# fails the moment the branch drifts back below the report body.
+s7()  { sed -n '/^## Step 7/,$p' "$BS"; }
+s7n() { s7 | grep -n -i -e "$1" | head -1 | cut -d: -f1; }
+check "14d build invokes brainstorm with --continue" \
+  'grep -A2 "Invoke Skill .foureyes:foureyes-brainstorm" "$BD" | grep -q -e "--continue"'
+check "14e brainstorm picks the mode before writing the report" \
+  'a=$(s7n "--continue"); b=$(s7n "print the paths"); [ -n "$a" ] && [ -n "$b" ] && [ "$a" -lt "$b" ]'
+check "14f the --continue branch forbids asking" \
+  'has "$BS" "ask NOTHING"'
+check "14g standalone still stops" \
+  's7 | grep -qi "standalone.*STOP"'
+
 echo "--- run dirs never land in the worktree ---"
 # Both tools write run artifacts inside the git dir: this plugin ships no
 # .gitignore into consumer repos, so a worktree path leaves a stray directory in

@@ -520,8 +520,19 @@ reads — a contract Fable believed it set and did not, which is worse than a
 missing one because it looks handled. It / `no-verify` / `no-criteria` / `bad-tier` are Fable's to
 fix. Nothing blocks here, but shipping an unreported problem is not an option.
 
-## Step 7 — Hard stop
-Print the paths: spec, plan, tasks.json, HTML, the critique log, and the
+## Step 7 — Report, then stop or hand back
+
+**Decide the mode before you write the report.** The report is identical either
+way; only the ending differs.
+
+- **`--continue`** — you are inside `foureyes-build`. Report, return the plan path
+  to the caller, and go straight on to execution. Ask NOTHING. Do not wait for
+  the user to read the HTML: build's Step E is next, and pausing here is the one
+  thing `--continue` exists to prevent.
+- **standalone** — report, then STOP. Never ask a question here; the user reads
+  the HTML and runs `foureyes-build <plan>` when they are ready.
+
+The report, in both modes: print the paths: spec, plan, tasks.json, HTML, the critique log, and the
 approaches file if the seam ran. Report this run's tally in one line —
 `Sol: <n> raised, <n> fixed, <n> rejected, <n> intentional, <n> open` — counted
 from the lines you just wrote. It costs nothing and it is the only feedback that
@@ -532,7 +543,3 @@ on `final` or `conclude`, say so plainly and list what Sol still had open — th
 user is deciding whether to build, and they need to know what went unaddressed.
 If Sol never ran at this seam (a failed `approach` call), say that too: the menu
 came from one model.
-
-- standalone: STOP. Never ask a question here; the user reviews the HTML and
-  runs `foureyes-build <plan>` when they are ready.
-- `--continue`: return the plan path to the caller and keep going.
