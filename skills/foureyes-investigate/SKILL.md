@@ -48,6 +48,17 @@ looks exactly like a model that found nothing. Run it with the Bash tool's own
 `run_in_background`, never by appending `&` inside a backgrounded call — the
 child dies with the outer shell and leaves an empty file.
 
+**Transient failures retry themselves — three attempts, then degrade, never ask.**
+A timeout, an empty return, a transport/API error, or a model-unavailable error is
+transient: re-run the SAME call up to two more times (3 attempts in total), saying
+in one line that you are retrying, before treating it as failed. Only then do the
+failure rules apply — and those rules degrade and continue; they do not pause for
+the user. This pipeline is often left unattended, and a question at minute three
+is a run that did nothing. Never retry a call that ran and returned an answer,
+however bad — a verdict, a status, a malformed draft is content, and the content
+rules govern it. Never retry a deterministic failure the same way: an
+output-token-maximum overflow fails identically on every attempt.
+
 `--skip-critics`: Sol never runs, Fable hypothesises alone, and you say plainly
 that the conclusion rests on one model.
 
@@ -105,7 +116,8 @@ PROPOSE. Both emit the same template, so Step 4 is a copy rather than a rewrite.
 Say in one line that Sol is thinking and may take a few minutes; a silent
 terminal reads as a hang.
 
-Failure is not symmetric:
+Failure is not symmetric (and every branch below applies only after Step 0's
+three attempts):
 - **Sol fails, times out, or returns nothing usable** → continue with Fable alone
   and say so. Name a timeout AS a timeout; filing it under "the critic failed"
   hides the systematic loss of the second model.

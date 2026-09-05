@@ -37,10 +37,22 @@ LEDGER=$(ls -d ~/.claude/plugins/cache/*/foureyes/*/scripts/sol-ledger.mjs 2>/de
   `"$WRAP"` call. The default is 120s and a `high`-effort review of a real diff
   routinely exceeds it — and a timeout arrives as a tool error with no `VERDICT`
   and no `GATE:` line, so without this the review looks like it merely failed.
-  If a call really does hit 10 minutes, say so and offer `--skip-critics`.
+  If a call really does hit 10 minutes, retry per the rule below; after the
+  third attempt, finish that review without Sol, say so, and label it one-model.
   Run it with the Bash tool's own `run_in_background`, never by appending `&` inside
   a backgrounded call — the child dies with the outer shell, leaving an empty output
   file that looks like a critic which returned nothing.
+- **Transient failures retry themselves — three attempts, then degrade, never ask.**
+  A timeout, an empty return, a transport/API error, or a model-unavailable error is
+  transient: re-run the SAME call up to two more times (3 attempts in total), saying
+  in one line that you are retrying, before treating it as failed. Only then do the
+  failure rules apply — and those rules degrade and continue; they do not pause for
+  the user. This pipeline is often left unattended, and a question at minute three
+  is a run that did nothing. Never retry a call that ran and returned an answer,
+  however bad — a verdict, a status, a malformed draft is content, and the content
+  rules govern it. Never retry a deterministic failure the same way: an
+  output-token-maximum overflow fails identically on every attempt.
+  This covers implementer dispatches too — see the E3 table.
 - If either resolution above prints nothing, that is a broken install, not a
   failed critic: STOP and say the plugin path did not resolve. Note that shell
   state does not survive between Bash calls — these are paths you READ once and
@@ -222,6 +234,7 @@ says it is stuck, something has to change):
 | `DONE_WITH_CONCERNS` | read the concerns. Correctness or scope → resolve before review. Observation ("this file is getting large") → note it and review |
 | `NEEDS_CONTEXT` | supply what was missing, re-dispatch the same task |
 | `BLOCKED` | context problem → re-dispatch with more context. Needs more reasoning → re-dispatch one tier up. Too large → split the task. Plan is wrong → STOP and surface to the user |
+| _no status_ — tool error, timeout, empty return | transient, not stuck: re-dispatch the same task unchanged, up to 3 attempts in total (the retry rule above). Nothing on the third → handle as `BLOCKED` |
 
 Statuses are handled per task, but you handle them at the JOIN — let the whole
 wave return first. Stopping the moment one task reports `BLOCKED` abandons

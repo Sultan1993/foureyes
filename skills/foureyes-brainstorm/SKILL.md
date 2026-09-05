@@ -154,12 +154,23 @@ which means you must read the verdict body yourself rather than trust the gate.
    tool maximum). The default is 120s and a `high`-effort call with `--search`
    routinely exceeds it — and a timeout arrives as a tool error, with no
    `VERDICT` and no `GATE:` line, so without this it silently looks like a critic
-   that failed. If a call really does hit 10 minutes, say so and offer
-   `--skip-critics`; do not retry it silently.
+   that failed. If a call really does hit 10 minutes, that is a transient
+   failure: retry it per 3c (announced, never silent), and after the third
+   attempt continue without Sol exactly as `--skip-critics` does, saying so.
    Run it with the Bash tool's own `run_in_background`, never by appending `&`
    inside a backgrounded call — the child dies with the outer shell and you get a
    completed task with an empty output file, which looks exactly like a critic that
    returned nothing. (Cost two wasted Codex calls in a live run.)
+3c. **Transient failures retry themselves — three attempts, then degrade, never ask.**
+   A timeout, an empty return, a transport/API error, or a model-unavailable error is
+   transient: re-run the SAME call up to two more times (3 attempts in total), saying
+   in one line that you are retrying, before treating it as failed. Only then do the
+   failure rules apply — and those rules degrade and continue; they do not pause for
+   the user. This pipeline is often left unattended, and a question at minute three
+   is a run that did nothing. Never retry a call that ran and returned an answer,
+   however bad — a verdict, a status, a malformed draft is content, and the content
+   rules govern it. Never retry a deterministic failure the same way: an
+   output-token-maximum overflow fails identically on every attempt.
 4. `--skip-critics`: announce that Sol will not run, then do Steps 1, 2, 4, 6, 7
    and skip Steps 3 and 5. Fable still authors everything. At Step 1, Fable
    proposes alone and you rank its set — the seam survives with one proposer, and
@@ -226,7 +237,8 @@ which means you must read the verdict body yourself rather than trust the gate.
    itself. This is the ONE permitted override of that pin — what item 1 forbids is
    drafting on another model SILENTLY, and an announced fallback is the opposite of
    that. Malformed output is NOT unavailability: re-dispatch once on Fable, and
-   only treat a second failure as unavailable.
+   only treat a second failure as unavailable. A timeout or an API error is
+   transient and gets 3c's three attempts on Fable before the fallback fires.
    **The fallback is one level deep.** If the drafter is still unusable after it —
    Opus also unavailable, timed out, or malformed on its retry — STOP. There is no
    third model to try, and no amount of proposals substitutes for an author.
@@ -283,10 +295,11 @@ interchangeable — Fable also authors every later artifact:
   no entries at all): continue with Fable's set alone exactly as `--skip-critics`
   does, and tell the user Sol did not run. The `GATE:` table above governs the DOC
   seams and does not apply here — a seam with no gate cannot be stopped by one.
-- **Sol times out**: name it AS a timeout, offer `--skip-critics`, and let the
-  user decide whether to spend the wait. Never file a timeout under "the critic
-  failed" — that hides a systematic loss of the second model behind a one-line
-  notice.
+- **Sol times out**: retry per Step 0.3c. If the third attempt also times out,
+  name it AS a timeout and continue with Fable's set alone as `--skip-critics`
+  does — do not wait for the user to choose. Never file a timeout under "the
+  critic failed" — that hides a systematic loss of the second model behind a
+  one-line notice.
 - **Fable fails** — unavailable, timed out, or malformed twice: fall back to Opus
   per Step 0.5, announced. Never proceed Sol-only on the assumption Fable comes
   back; it is the author of Steps 2 and 4.

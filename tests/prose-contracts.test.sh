@@ -181,6 +181,21 @@ check "14f the --continue branch forbids asking" \
 check "14g standalone still stops" \
   's7 | grep -qi "standalone.*STOP"'
 
+echo "--- transient failures retry, then degrade — never wait on the user ---"
+# The pipeline is left unattended. A timed-out Sol call used to be handed back as
+# "offer --skip-critics" — a question nobody was there to answer, so the run did
+# nothing. 16a is the rule; 16b is the assertion that bites: it fails the moment
+# a skill drifts back to offering the flag instead of retrying and continuing.
+for f in "$BS" "$BD" "$RV" "$IV"; do
+  n=$(basename "$(dirname "$f")")
+  check "16a $n carries the three-attempt retry rule" \
+    'has "$f" "3 attempts in total"'
+  check "16b $n never offers --skip-critics as a timeout response" \
+    '! has "$f" "offer .--skip-critics"'
+done
+check "16c build retries a silent implementer before calling it blocked" \
+  'grep -q "^| _no status_.*3 attempts in total" "$BD"'
+
 echo "--- run dirs never land in the worktree ---"
 # Both tools write run artifacts inside the git dir: this plugin ships no
 # .gitignore into consumer repos, so a worktree path leaves a stray directory in

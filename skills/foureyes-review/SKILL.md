@@ -47,8 +47,21 @@ tool maximum). The default is 120s; a `high`-effort review of a real diff, and
 refutations that re-read the code, routinely exceed it. A timeout arrives as a
 tool error with no verdict at all, so without this a slow Codex silently turns a
 two-model review into a one-model review — the exact thing this skill exists to
-prevent. If a call genuinely hits 10 minutes, report it as a timeout; never drop
-Sol's side and present the result as cross-model.
+prevent. If a call genuinely hits 10 minutes, retry per the rule below; if the
+third attempt also fails, report it as a timeout and finish with the Claude side
+alone, labelled one-model — never present that as cross-model, and never stop
+to ask.
+
+**Transient failures retry themselves — three attempts, then degrade, never ask.**
+A timeout, an empty return, a transport/API error, or a model-unavailable error is
+transient: re-run the SAME call up to two more times (3 attempts in total), saying
+in one line that you are retrying, before treating it as failed. Only then do the
+failure rules apply — and those rules degrade and continue; they do not pause for
+the user. This pipeline is often left unattended, and a question at minute three
+is a run that did nothing. Never retry a call that ran and returned an answer,
+however bad — a verdict, a status, a malformed draft is content, and the content
+rules govern it. Never retry a deterministic failure the same way: an
+output-token-maximum overflow fails identically on every attempt.
 
 ## Step 1 — Resolve the change + run dir
 LOCAL (no numeric arg):
@@ -123,7 +136,7 @@ FINDING: <the finding JSON>
 
 (Use the SAME `--claude-model` / `--codex-model` choices as Step 3 so each side is consistent between review and refute.)
 Run them in parallel (batch the calls). Parse each → `{refuted, reason}`.
-- If a refuter call errors or is unparseable → treat as NOT refuted (keep the finding; conservative on infra failure), and note it.
+- If a refuter call still errors or is unparseable after the retry rule's three attempts → treat as NOT refuted (keep the finding; conservative on infra failure), and note it.
 Write `$RUN/refutations.json` = `{ "<id>": {refuted, reason}, ... }`.
 
 ## Step 6 — Synthesize + deliver
