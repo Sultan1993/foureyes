@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.3](https://github.com/Sultan1993/foureyes/compare/v1.0.2...v1.0.3) (2026-09-05)
+
+
+### Bug Fixes
+
+* **skills:** retry transient agent failures three times before degrading, never ask ([a279c30](https://github.com/Sultan1993/foureyes/commit/a279c30d4987ea01f36c72e8ab7d3820d3dad7a8))
+
 ## [1.0.2](https://github.com/Sultan1993/foureyes/compare/v1.0.1...v1.0.2) (2026-08-23)
 
 
