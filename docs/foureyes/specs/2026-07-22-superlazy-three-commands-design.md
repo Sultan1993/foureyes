@@ -11,10 +11,10 @@ labour between models, moving control-flow reliability out of fragile SKILL pros
 and into script-enforced ordering, tool restrictions, and verifiable artifacts.
 
 - **Fable** authors the spec and plan (the frontier planner).
-- **Sol** (Codex `gpt-5.6-sol`) is the *only* critic, gating all three seams.
-- **Execution model is per-task**, decided by Fable and audited by Sol, routed via
+- **Astra** (Codex `gpt-5.6-sol`) is the *only* critic, gating all three seams.
+- **Execution model is per-task**, decided by Fable and audited by Astra, routed via
   `docs/superpowers/model-routing.json` (mechanical/standard → Sonnet, frontier → Opus).
-- **Opus + Sol** is the one fixed frontier pair, used only in review.
+- **Opus + Astra** is the one fixed frontier pair, used only in review.
 
 ## Threat model — what is enforced vs what is convention
 
@@ -126,7 +126,7 @@ Internal `--continue` flag: suppresses the hard stop; used only when
   **auto re-bless** composition (see Plan resolution): `verify --spec-only` to
   carry forward the spec approval when the spec is unchanged, then one
   `codex-critic.sh plan` pass; if the spec changed too, the spec seam re-runs
-  first (two Sol calls, still no Fable). Never brainstorm when `tasks.json`
+  first (two Astra calls, still no Fable). Never brainstorm when `tasks.json`
   exists. Build creates **no native tasks of any kind** — the execution stage
   (sdd) is the single task-creation owner. This REMOVES current build's
   Step 0.5 ("Create three native seam-gate tasks", `SKILL.md:85-86`): the
@@ -198,14 +198,14 @@ marker MUST parse as JSON with all required fields — corrupt JSON, missing
 fields, or unknown shapes are treated as NO marker (deny), never downgraded to
 existence-only. Corruption cannot buy authorization.
 
-**Seam modes pin Sol.** For `spec`/`plan`/`code` the model is hard-pinned to
+**Seam modes pin Astra.** For `spec`/`plan`/`code` the model is hard-pinned to
 `gpt-5.6-sol` — `CODEX_CRITIC_MODEL` is **ignored** for these modes (an
 inherited environment variable must not silently move the seams to another
-model; "Sol is the only critic" is a brief requirement, not a default).
+model; "Astra is the only critic" is a brief requirement, not a default).
 `review`/`refute` keep the env override — `foureyes-review`'s `--codex-model`
 flag depends on it. The test stub asserts the `-m` argument it receives.
 
-**Effort policy (wall-clock control).** A high-effort Sol round runs 5–9
+**Effort policy (wall-clock control).** A high-effort Astra round runs 5–9
 minutes; looping at all-high makes brainstorm too slow. Policy: each seam's
 FIRST pass runs at `high` (the broad adversarial sweep), re-review rounds run
 at `medium` (the what-changed note narrows the question). The coordinator sets
@@ -288,7 +288,7 @@ Critic modes (`spec`/`plan`/`code`):
   against the existing sidecar (ignoring the plan/tasks hashes, which are
   known-stale). On match it mints the hash-bearing `spec-critic.passed` alone —
   carrying the *spec's* approval forward from the old sidecar because the spec
-  bytes are provably the ones Sol approved — exit 0. No sidecar, or spec
+  bytes are provably the ones Astra approved — exit 0. No sidecar, or spec
   missing/changed → exit 3, nothing further written.
 - These modes exist so the fast path needs **no LLM call** while marker-writing
   stays inside the one trusted script.
@@ -367,12 +367,12 @@ build <arg>
         └─ exit 3 (stale/missing/legacy) ──► RE-BLESS:
               ├─ verify --spec-only OK   (sidecar exists, spec unchanged)
               │     ──► spec marker minted from the old approval
-              │     ──► codex-critic.sh plan (one Sol call)
+              │     ──► codex-critic.sh plan (one Astra call)
               │           ├─ clean ──► sidecar + plan marker ──► execute
               │           └─ findings ──► surface, do not execute
               ├─ verify --spec-only fails, spec locatable (resolver below)
               │     ──► spec changed too (or no prior approval to carry forward):
-              │         codex-critic.sh spec, then codex-critic.sh plan (two Sol
+              │         codex-critic.sh spec, then codex-critic.sh plan (two Astra
               │         calls — still no Fable, no interactive brainstorm)
               └─ spec not locatable ──► STOP: report that re-bless needs the spec;
                     offer --spec <path> or a fresh brainstorm. Never guess.
@@ -388,7 +388,7 @@ build <arg>
 The re-bless composition is why `plan` mode's spec-marker precondition is
 satisfiable in a fresh session: `verify --spec-only` supplies the spec marker
 when the spec bytes are provably the previously-approved ones; otherwise the
-spec seam genuinely re-runs. A re-bless never costs more than two Sol calls and
+spec seam genuinely re-runs. A re-bless never costs more than two Astra calls and
 never drops to Fable or the interactive flow.
 
 ## Plan visualization — `plan-viz.mjs` (deterministic semantics)
@@ -420,14 +420,14 @@ Pinned semantics:
 | Condition | Behavior |
 |---|---|
 | Stale/missing/legacy sidecar, `tasks.json` present | Re-bless: spec-only verify + one plan-critic call — never brainstorm |
-| Spec changed since approval | Spec seam re-runs, then plan seam (two Sol calls, no Fable) |
+| Spec changed since approval | Spec seam re-runs, then plan seam (two Astra calls, no Fable) |
 | Spec missing during re-bless | Stop with instructions (`--spec` or brainstorm); never execute unreviewed |
 | No `tasks.json` | Treat as brief → brainstorm |
 | Commit drift | Warn only |
 | `NEEDS-HUMAN` / non-pass verdict / schema violation | Self-invalidation already cleared stale approvals; nothing new written → cannot advance |
 | Interrupted between sidecar and marker writes | Sidecar exists, marker absent → in-session execution stays blocked; a fresh `verify` re-validates and mints cleanly |
 | Drafter returns malformed content | Coordinator rejects, re-dispatches |
-| Sol never converges in brainstorm | No sidecar → user stops; later build re-critiques |
+| Astra never converges in brainstorm | No sidecar → user stops; later build re-critiques |
 | Artifact publish unavailable/denied | Local HTML path printed; publish is best-effort |
 
 ## Environment (verified live)
@@ -569,9 +569,9 @@ Static wiring (grep, matching repo precedent):
 End-to-end (post-publish; the coordinator-level branches that greps cannot
 prove). One toy feature, then walk every deterministic plan-resolution branch:
 1. `foureyes-brainstorm` → triplet + HTML + hard stop (no execution occurred)
-2. `foureyes-build <plan>` untouched → announce "verified", no Sol call before
+2. `foureyes-build <plan>` untouched → announce "verified", no Astra call before
    execution, Seam 3 runs
-3. edit one plan byte → build → announce "re-blessing", exactly one Sol plan
+3. edit one plan byte → build → announce "re-blessing", exactly one Astra plan
    call, fresh sidecar, executes
 4. delete the sidecar → build → re-bless path: spec located via the plan doc's
    `Spec:` line (resolver step 2), spec seam re-runs (no sidecar for
@@ -585,20 +585,20 @@ prove). One toy feature, then walk every deterministic plan-resolution branch:
 5. `foureyes-build` with a brief (no plan) → brainstorm runs inline, no hard
    stop, executes
 6. `foureyes-build --skip-critics` with a plan → executes with no run dir, no
-   Sol calls, and the plan still has no forged approval afterward
+   Astra calls, and the plan still has no forged approval afterward
 Artifact publish observed but not required for pass. The non-pass critic loop is
-exercised by the stubbed tests (case 3/4), not e2e — forcing a real Sol failure
+exercised by the stubbed tests (case 3/4), not e2e — forcing a real Astra failure
 deterministically is not reliable and is not attempted.
 
 ## Non-goals (YAGNI)
 
 - No defense against a malicious same-OS user; no cryptographic signing (threat
   model: drift, not malice).
-- No re-approval shortcut that bypasses Sol: any byte change Sol did not bless
+- No re-approval shortcut that bypasses Astra: any byte change Astra did not bless
   re-triggers the plan-critic. The only bypass is build's loud `--skip-critics`.
 - No NEW hooks. Script-side ordering + the existing execution gate (modified to
   validate hash-bearing markers) suffice.
-- No parallel-draft-then-merge for Fable/Sol; Fable authors, Sol red-teams.
+- No parallel-draft-then-merge for Fable/Astra; Fable authors, Astra red-teams.
 - plan-viz renders and flags; it does not block anything.
 
 ## Deployment

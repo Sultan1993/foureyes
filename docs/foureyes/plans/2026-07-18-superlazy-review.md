@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers-extended-cc:subagent-driven-development (recommended) or superpowers-extended-cc:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Ship a `foureyes-review` skill in the `foureyes` fork that runs a two-model (Claude + Codex/Sol) adversarial code review of a local diff or GitHub PR and emits a ranked advisory report.
+**Goal:** Ship a `foureyes-review` skill in the `foureyes` fork that runs a two-model (Claude + Codex/Astra) adversarial code review of a local diff or GitHub PR and emits a ranked advisory report.
 
 **Architecture:** Coordinator-driven (same pattern as `foureyes-build`; NOT the Workflow tool — its sandbox can't run Codex). The coordinator runs Claude reviews via the `Agent` tool and Codex reviews via `Bash(codex-critic.sh)`, both in parallel, then delegates all deterministic logic (bucket / rank / render) to a pure, unit-tested node lib. Agreement corroborates; single-model findings are cross-refuted by the other model.
 
@@ -434,7 +434,7 @@ git commit -m "foureyes-review: synthesis lib (bucket/rank/refute/render) + test
 ---
 name: foureyes-review
 description: >
-  Cross-model adversarial code review: Claude and Codex/Sol independently review
+  Cross-model adversarial code review: Claude and Codex/Astra independently review
   a diff (local branch or a GitHub PR), disagreements are refuted by the other
   model, and findings are ranked by severity + cross-model agreement. Advisory
   (never gates or merges). A two-model upgrade over /code-review.
@@ -447,7 +447,7 @@ Claude via the `Agent` tool, Codex via `Bash(codex-critic.sh)`, synthesis via th
 node lib. Do NOT use the Workflow tool (its sandbox can't run Codex).
 
 ## Announce
-"Using foureyes-review for a two-model (Claude + Codex/Sol) code review."
+"Using foureyes-review for a two-model (Claude + Codex/Astra) code review."
 
 ## Inputs
 - No arg → review the current branch vs its base.

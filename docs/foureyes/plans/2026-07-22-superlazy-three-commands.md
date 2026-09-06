@@ -10,7 +10,7 @@ default), with hash-bearing approvals written only by `codex-critic.sh`.
 cannot run Codex); one bash wrapper (`codex-critic.sh`) is the sole
 approval-writer; one PreToolUse hook gates execution; pure-node lib for the
 plan visualization. **Tech stack:** bash + jq + python3 (fence parsing),
-node:test, no new dependencies. **User decisions honored:** Sol is the only
+node:test, no new dependencies. **User decisions honored:** Astra is the only
 critic; Fable authors via subagent; no user-override in brainstorm; effort
 policy high-first/medium-re-review. **Execution:** each task is executed by an
 agentic worker at its `modelTier`, commits its own scoped change, and runs its
@@ -20,7 +20,7 @@ Verify command before completion.
 shell tests or `node:test`); no task's tests depend on a sibling's files. The
 integration task at the end runs everything plus the static grep matrix.
 Tests live in `tests/`. The Codex CLI is stubbed via a fake
-`codex` on PATH — no live Sol calls in tests.
+`codex` on PATH — no live Astra calls in tests.
 
 **Cross-task contracts (pinned; wave tasks write blind):**
 - Marker JSON: `spec-critic.passed` = `{"specPath","specHash"}`;
@@ -255,7 +255,7 @@ medium, user-exported `CODEX_CRITIC_EFFORT` wins.
 **Files:** Modify `foureyes/.claude-plugin/plugin.json`, `README.md`
 **Steps:** plugin.json → `"version": "1.6.0"`, description mentions the three
 commands. README: three-command structure, quick-start per command, approval
-sidecar explanation, model table (Fable/Sol/sonnet/opus), escape valves.
+sidecar explanation, model table (Fable/Astra/sonnet/opus), escape valves.
 Then run EVERYTHING — the barrier re-executes every prior task's own Verify
 command verbatim (Tasks 1–8), then the four suites. The full static matrix is
 therefore the UNION of the per-task Verify commands, not a summary of them.

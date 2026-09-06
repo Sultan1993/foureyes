@@ -1,7 +1,7 @@
 ---
 name: foureyes-review
 description: >
-  Cross-model adversarial code review: Claude and Codex/Sol independently review
+  Cross-model adversarial code review: Claude and Codex/Astra independently review
   a diff (local branch or a GitHub PR), disagreements are refuted by the other
   model, and findings are ranked by severity + cross-model agreement. Advisory
   (never gates or merges). A two-model upgrade over /code-review.
@@ -14,7 +14,7 @@ Claude via the `Agent` tool, Codex via `Bash(codex-critic.sh)`, synthesis via th
 node lib. Do NOT use the Workflow tool (its sandbox can't run Codex).
 
 ## Announce
-"Using foureyes-review for a two-model (Claude + Codex/Sol) code review."
+"Using foureyes-review for a two-model (Claude + Codex/Astra) code review."
 
 ## Inputs
 - No arg → review the current branch vs its base.
@@ -27,10 +27,10 @@ node lib. Do NOT use the Workflow tool (its sandbox can't run Codex).
     (default: **opus**; pass `sonnet` for a cheaper review). Pass it as the
     `Agent` tool's `model` on every review/refute dispatch.
   - `--codex-model <id>` — model for the Codex reviewer/refuter (default
-    `gpt-5.6-sol`). Export as `CODEX_CRITIC_MODEL=<id>` before each
+    `gpt-6-astra`). Export as `CODEX_CRITIC_MODEL=<id>` before each
     `codex-critic.sh` call.
-  Example — Sonnet on Claude's side, Sol on Codex's: `--claude-model sonnet`;
-  default is Opus + Sol
+  Example — Sonnet on Claude's side, Astra on Codex's: `--claude-model sonnet`;
+  default is Opus + Astra
   (leave `--codex-model` at its default).
 
 ## Step 0 — Resolve plugin paths
@@ -110,12 +110,12 @@ CONTEXT:
 <context or "(none)">
 ```
 Run BOTH concurrently (issue the Bash and Agent calls in ONE message):
-- Codex: `cd "$WT" && printf '%s' "$INPUT" | ${CODEX_MODEL:+CODEX_CRITIC_MODEL="$CODEX_MODEL"} "$WRAP" review > "$RUN/codex.out" 2>"$RUN/codex.err"` (set `CODEX_MODEL` from `--codex-model` if given; else omit → wrapper default gpt-5.6-sol).
+- Codex: `cd "$WT" && printf '%s' "$INPUT" | ${CODEX_MODEL:+CODEX_CRITIC_MODEL="$CODEX_MODEL"} "$WRAP" review > "$RUN/codex.out" 2>"$RUN/codex.err"` (set `CODEX_MODEL` from `--codex-model` if given; else omit → wrapper default gpt-6-astra).
 - Claude: `Agent` tool, `subagent_type: foureyes-review-critic`, `prompt` = the INPUT block, and `model: <--claude-model or opus>` — ALWAYS pass the model parameter explicitly (never rely on agent frontmatter resolution). (Its system prompt is the reviewer; the INPUT is the assignment.)
 Parse each result to `{verdict, summary, findings}`:
 - Extract the first `{`…`}` JSON object (strip any stray prose/fence) and `JSON.parse`.
 - If Codex output is not valid JSON (e.g. `VERDICT: NEEDS-HUMAN`) → Codex is DOWN: set `codex = {findings: []}` and `note = "single-model, unverified (Codex unavailable)"`. Do the same defensively for Claude.
-Write `$RUN/claude.json` and `$RUN/codex.json` (each `{findings:[...]}`), and `$RUN/meta.json` = `{target, base, head, claudeModel:<--claude-model or "opus">, codexModel:<--codex-model or "gpt-5.6-sol">, note}` (so the report header names the models actually used).
+Write `$RUN/claude.json` and `$RUN/codex.json` (each `{findings:[...]}`), and `$RUN/meta.json` = `{target, base, head, claudeModel:<--claude-model or "opus">, codexModel:<--codex-model or "gpt-6-astra">, note}` (so the report header names the models actually used).
 
 ## Step 4 — Bucket
 ```bash

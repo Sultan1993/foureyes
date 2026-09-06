@@ -27,12 +27,13 @@ critic="${1:?usage: codex-critic.sh <approach|spec|plan|code|review|refute>}"
 seam=""; case "$critic" in spec|plan|code) seam=1 ;; esac
 
 # --- model config (EDIT HERE) ------------------------------------------------
-# Codex model the critics run on. "gpt-5.6-sol" ("Sol") is the current default
-# on a ChatGPT-account Codex and is verified working. The bare id "sol" and
-# "gpt-5-codex" are NOT accepted on ChatGPT accounts.
+# Codex model the critics run on. "gpt-6-astra" is the current default on a
+# ChatGPT-account Codex and is verified working; it needs Codex CLI >= 0.153
+# (`codex update`) — an older CLI rejects the id with a 400. The skills still
+# call the Codex critic "Astra", after the model; it was "Sol" under gpt-5.6-sol.
 # Override per-run with CODEX_CRITIC_MODEL; set it to empty ("") to let Codex use
 # whatever your account default is (safest if the id changes in a future release).
-MODEL="${CODEX_CRITIC_MODEL-gpt-5.6-sol}"
+MODEL="${CODEX_CRITIC_MODEL-gpt-6-astra}"
 # Live web search. Default ON — lets Codex verify current library APIs, CVEs, and
 # breaking changes as review evidence. Disable with CODEX_CRITIC_SEARCH=0 for
 # faster, offline critic runs. (Context7 MCP, if configured in ~/.codex, is

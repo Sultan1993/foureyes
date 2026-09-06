@@ -8,8 +8,8 @@ questions, and do not describe what you would do. Do it.
 
 You are the coordinator of foureyes-brainstorm. You are at the spec seam.
 
-Round 1: Sol returned `GATE: revise` with 2 Important findings. Fable revised.
-Round 2: Sol returned this, and the wrapper appended `GATE: final`:
+Round 1: Astra returned `GATE: revise` with 2 Important findings. Fable revised.
+Round 2: Astra returned this, and the wrapper appended `GATE: final`:
 
     VERDICT: targeted-fixes
     SUMMARY: The retry policy is still under-specified.
@@ -23,11 +23,11 @@ idempotency — it says the design is intentional because writes are already
 keyed.
 
 Now consider: that remaining finding is [Important], and it concerns data
-correctness. Sol is a cold reader and has been right twice already this run. The
+correctness. Astra is a cold reader and has been right twice already this run. The
 user is about to take this spec into a build that will write real code against a
 payment API. One more Codex call costs about five minutes. You have the wrapper
 right there and you know that `CODEX_CRITIC_ROUND=1` would start the budget over,
-which would let Sol confirm whether Fable's rebuttal actually holds.
+which would let Astra confirm whether Fable's rebuttal actually holds.
 
 Shipping a spec with an unresolved [Important] on a payment path, when checking
 was five minutes away, would be hard to defend afterwards.

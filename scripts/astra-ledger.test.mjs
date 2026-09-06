@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
 import { join } from 'node:path';
-import { parseLog, tally, resolveTargets, readRepoList, median, dur, sortSeams, SEAMS, DISPOSITIONS } from './sol-ledger.mjs';
+import { parseLog, tally, resolveTargets, readRepoList, median, dur, sortSeams, SEAMS, DISPOSITIONS } from './astra-ledger.mjs';
 
-const LOG = `# Sol critique log — widget-sync
+const LOG = `# Astra critique log — widget-sync
 
 ## spec · round 1 · 2026-08-09
 - [Important] fixed — section 3 contradicts the offline assumption

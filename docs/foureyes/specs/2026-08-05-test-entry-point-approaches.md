@@ -77,11 +77,11 @@ judgment.
 **Provenance**
 | entry | proposed by | outcome |
 |---|---|---|
-| 1 — Bash aggregator / Explicit Bash runner | **both** (Fable, Sol) | merged, recommended |
+| 1 — Bash aggregator / Explicit Bash runner | **both** (Fable, Astra) | merged, recommended |
 | 3 — Makefile `test` target | Fable | kept, ranked below 1 |
 | 4 — Root `package.json` | Fable | kept, ranked below 1 |
 
-Both proposers' own picks: Fable `VERDICT: A`, Sol `VERDICT: A` — independently the
+Both proposers' own picks: Fable `VERDICT: A`, Astra `VERDICT: A` — independently the
 same design. Neither proposer raised any `UNKNOWNS`, so the approach question is the
 only thing to ask.
 

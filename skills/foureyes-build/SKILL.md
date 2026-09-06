@@ -3,9 +3,9 @@ name: foureyes-build
 description: >
   Execute an implementation plan. Given a plan path, go straight to execution —
   the plan is the contract, no approval to verify. Without a plan, run
-  foureyes-brainstorm inline (Fable drafts, Sol critiques) and continue into
+  foureyes-brainstorm inline (Fable drafts, Astra critiques) and continue into
   execution. Waves of concurrent subagents, per-task model routing via
-  modelTier, then Sol reviews the diff. Flags: --skip-critics, --serial.
+  modelTier, then Astra reviews the diff. Flags: --skip-critics, --serial.
 ---
 
 # foureyes-build — execute the plan you were handed
@@ -16,29 +16,29 @@ hashes. Reviewing the plan was `foureyes-brainstorm`'s job and the user's;
 your job starts after that.
 
 ## Announce
-"Using foureyes-build to execute <plan> (Sol reviews the diff at the end)."
+"Using foureyes-build to execute <plan> (Astra reviews the diff at the end)."
 
 ## Codex critic — how to run the code seam
 ```bash
 WRAP=$(ls -d ~/.claude/plugins/cache/*/foureyes/*/scripts/codex-critic.sh 2>/dev/null | sort -V | tail -1)
 VIZ=$(ls -d ~/.claude/plugins/cache/*/foureyes/*/skills/foureyes-brainstorm/lib/plan-viz.mjs 2>/dev/null | sort -V | tail -1)
-LEDGER=$(ls -d ~/.claude/plugins/cache/*/foureyes/*/scripts/sol-ledger.mjs 2>/dev/null | sort -V | tail -1)
+LEDGER=$(ls -d ~/.claude/plugins/cache/*/foureyes/*/scripts/astra-ledger.mjs 2>/dev/null | sort -V | tail -1)
 ```
 - Read-only: the wrapper runs `codex exec -s read-only`. All FIXING stays with
   the coordinator.
 - Round budget: pass `CODEX_CRITIC_ROUND` as a literal positive integer (`1`,
-  then `2`) — anything else exits 2 with `VERDICT: NEEDS-HUMAN`. Sol reviews at
+  then `2`) — anything else exits 2 with `VERDICT: NEEDS-HUMAN`. Astra reviews at
   most `CODEX_CRITIC_MAX_ROUNDS` (default 2) times, then you fix what you can
   and finish. Read the trailing `GATE:` line; never reset the round to buy
   passes. Read stderr too: it warns when findings were in a format the wrapper
   could not count, meaning you must read the verdict body yourself.
-- Every round runs at `high` effort. Do not set `CODEX_CRITIC_EFFORT` yourself. Sol also runs at the `fast` service tier by default (priority routing — same thinking, sooner, more per token); a user who wants to stop paying for that exports `CODEX_CRITIC_SPEED=normal`. Never set either yourself.
+- Every round runs at `high` effort. Do not set `CODEX_CRITIC_EFFORT` yourself. Astra also runs at the `fast` service tier by default (priority routing — same thinking, sooner, more per token); a user who wants to stop paying for that exports `CODEX_CRITIC_SPEED=normal`. Never set either yourself.
 - **Pass the Bash tool's `timeout: 600000`** (10 min, the tool maximum) on every
   `"$WRAP"` call. The default is 120s and a `high`-effort review of a real diff
   routinely exceeds it — and a timeout arrives as a tool error with no `VERDICT`
   and no `GATE:` line, so without this the review looks like it merely failed.
   If a call really does hit 10 minutes, retry per the rule below; after the
-  third attempt, finish that review without Sol, say so, and label it one-model.
+  third attempt, finish that review without Astra, say so, and label it one-model.
   Run it with the Bash tool's own `run_in_background`, never by appending `&` inside
   a backgrounded call — the child dies with the outer shell, leaving an empty output
   file that looks like a critic which returned nothing.
@@ -63,9 +63,9 @@ LEDGER=$(ls -d ~/.claude/plugins/cache/*/foureyes/*/scripts/sol-ledger.mjs 2>/de
 
 ## Inputs
 - Optional plan path (any phrasing — detection is artifact-driven, below).
-- `--skip-critics` — Sol never runs, at either stage. Say plainly what that
+- `--skip-critics` — Astra never runs, at either stage. Say plainly what that
   costs when it is passed: the per-task reviewer at E5 is a Claude subagent, so
-  with Sol switched off **nothing in the run crosses model families** — the whole
+  with Astra switched off **nothing in the run crosses model families** — the whole
   premise of this plugin is off, and E5 is the only gate left standing.
 - `--serial` — opt out of wave parallelism.
 
@@ -104,7 +104,7 @@ nothing has ever checked it. This is not a gate — it is looking before you act
   must not share a wave — serialize them at Step E.
 If the file cannot be parsed at all, stop and say so; do not guess at a repair.
 
-**Has Sol ever read this plan?** A plan that came from brainstorm has a sibling
+**Has Astra ever read this plan?** A plan that came from brainstorm has a sibling
 critique log with a `plan` seam entry; one written by hand, by another tool, or
 by an older version has none:
 ```bash
@@ -120,7 +120,7 @@ single `AskUserQuestion` — never decide it yourself, and never invoke brainsto
 | Stop | they will run brainstorm themselves |
 
 Recommended because it is one ~5-minute call against a plan about to spend real
-commits, and because every other Sol pass in this skill happens *after* the code
+commits, and because every other Astra pass in this skill happens *after* the code
 exists. But it is their call: an uncritiqued plan is a normal thing to hand over
 deliberately, and forcing a critic on it would make `foureyes-build <plan>`
 slower than the user asked for. If they pick it, log the round exactly as Step S3
@@ -129,9 +129,9 @@ does below.
 ## Step B — No plan: brainstorm inline, then execute
 Invoke Skill `foureyes:foureyes-brainstorm` with `--continue` and the
 brief (adding `--skip-critics` if it was passed to you). It does NOT interview
-the user: Fable and Sol propose approaches concurrently, the user picks once from
+the user: Fable and Astra propose approaches concurrently, the user picks once from
 the merged menu (or not at all, when one option survives), then Fable drafts the
-spec and plan while Sol critiques each. It generates the HTML and returns the plan
+spec and plan while Astra critiques each. It generates the HTML and returns the plan
 path without stopping. Then go to Step E.
 
 ## Step E — Execute (waves, then a per-task review)
@@ -321,7 +321,7 @@ is.
   against it. **MAX 2 fix rounds**, then record what is open and move on; a
   reviewer that re-reads always finds one more thing. The same rule covers barrier
   repairs at E6: the coordinator commits every fix, and any range the reviewer or
-  Sol will see is rebuilt afterwards.
+  Astra will see is rebuilt afterwards.
 
 **E6 — Barrier after each wave**: codegen/regen, build, full test run. Failures
 go back to the owning task's implementer; MAX 2 repair rounds, then surface.
@@ -329,7 +329,7 @@ Inherently serial tasks stay OUTSIDE waves.
 
 Codegen and formatters write files that belong to no task, so nothing above
 commits them. Commit that output yourself — otherwise the tree is dirty when Step
-S3 captures its range, Sol reviews a diff missing the generated files, and Step F
+S3 captures its range, Astra reviews a diff missing the generated files, and Step F
 reports uncommitted work nobody can explain:
 ```bash
 git status --porcelain            # read it; stage the generated paths BY NAME
@@ -349,7 +349,7 @@ budget applies here too.
 
 When every task is complete, `git rev-parse HEAD` → `HEAD_SHA` for Step S3.
 
-## Step S3 — Sol reviews the diff (≤2 rounds, then finish)
+## Step S3 — Astra reviews the diff (≤2 rounds, then finish)
 Skip entirely under `--skip-critics`.
 ```bash
 printf '%s\n' "WORKTREE: <path>" "BASE_SHA: <sha>" "HEAD_SHA: <sha>" \
@@ -400,12 +400,12 @@ included the LAST change. Carry each task's acceptance criteria through as
 `AC: <criterion> — PROVEN BY <evidence>`, taken from the implementer reports the
 reviewer accepted. Any criterion that reached the end unproven gets listed as
 such; shipping it silently is how "done" stops meaning anything. "Tests pass" without the command that proves it is the
-claim, not the evidence. Report this run's Sol tally in one line — `Sol: <n>
+claim, not the evidence. Report this run's Astra tally in one line — `Astra: <n>
 raised, <n> fixed, <n> rejected, <n> intentional, <n> open` — counted from the
 lines you just wrote, and name the critique log's path. Then ask what to do with it via `AskUserQuestion`:
 **open a PR**, **merge to the parent branch**, or **leave the branch as is**. Do exactly what they pick and nothing more. Never
 merge or push without being asked; the work is theirs to place.
-If Step S3 ended on `final`, repeat Sol's residual findings to the user first —
+If Step S3 ended on `final`, repeat Astra's residual findings to the user first —
 they are shipping with those open and should hear it from you, not discover it.
 
 ## VERDICT parser

@@ -23,7 +23,7 @@ run_suite "codex-critic.test.sh"    bash "$HERE/codex-critic.test.sh"
 run_suite "prose-contracts.test.sh" bash "$HERE/prose-contracts.test.sh"
 run_suite "plan-viz.test.mjs"       node --test "$HERE/../skills/foureyes-brainstorm/lib/plan-viz.test.mjs"
 run_suite "review-synth.test.mjs"   node --test "$HERE/../skills/foureyes-review/lib/review-synth.test.mjs"
-run_suite "sol-ledger.test.mjs"     node --test "$HERE/../scripts/sol-ledger.test.mjs"
+run_suite "astra-ledger.test.mjs"     node --test "$HERE/../scripts/astra-ledger.test.mjs"
 run_suite "pipeline-stats.test.mjs" node --test "$HERE/../scripts/pipeline-stats.test.mjs"
 
 echo "--- summary ---"
