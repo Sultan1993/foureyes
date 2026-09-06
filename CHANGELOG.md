@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/Sultan1993/foureyes/compare/v1.0.3...v1.1.0) (2026-09-06)
+
+
+### Features
+
+* **critic:** move Codex to gpt-6-astra and rename the critic Sol → Astra ([3da3148](https://github.com/Sultan1993/foureyes/commit/3da314839377930096e12ea376bb74ca673d2dae))
+
 ## [1.0.3](https://github.com/Sultan1993/foureyes/compare/v1.0.2...v1.0.3) (2026-09-05)
 
 
