@@ -168,7 +168,7 @@ echo "--- service tier: fast needs BOTH halves or neither ---"
 # priority routing, you are not, and nothing anywhere says so.
 V "${CLEAN[@]}"
 run spec
-check "13a fast is the DEFAULT: both halves present"  'grep -qx "fast_mode" args.txt && grep -qx "service_tier=priority" args.txt'
+check "13a normal is the DEFAULT: neither half sent"  '[ -f args.txt ] && ! grep -qx "fast_mode" args.txt && ! grep -q "service_tier" args.txt'
 run spec CODEX_CRITIC_SPEED=fast
 check "13b fast passes the feature gate"             'grep -qx -- "--enable" args.txt && grep -qx "fast_mode" args.txt'
 check "13c fast passes the tier itself"              'grep -qx "service_tier=priority" args.txt'

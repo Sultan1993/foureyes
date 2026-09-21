@@ -389,13 +389,13 @@ const ROSTER=[
  ['foureyes-task-reviewer','Claude subagent','sonnet','medium · agent file','session','read-only'],
  ['foureyes-scout','Claude subagent','sonnet','medium · agent file','session','read-only'],
  ['foureyes-investigator','Claude subagent','opus','high · agent file','session','read-only'],
- ['foureyes-review-critic','both families','opus + astra','high','fast (Codex side)','read-only'],
- ['foureyes-refute-critic','both families','opus + astra','high','fast (Codex side)','read-only'],
- ['foureyes-approach-critic','Codex prompt body','gpt-6-astra','high · wrapper','fast · wrapper','read-only'],
- ['foureyes-investigate-critic','Codex prompt body','gpt-6-astra','high · wrapper','fast · wrapper','read-only'],
- ['foureyes-spec-critic','Codex prompt body','gpt-6-astra','high · wrapper','fast · wrapper','read-only'],
- ['foureyes-plan-critic','Codex prompt body','gpt-6-astra','high · wrapper','fast · wrapper','read-only'],
- ['foureyes-code-critic','Codex prompt body','gpt-6-astra','high · wrapper','fast · wrapper','read-only']
+ ['foureyes-review-critic','both families','opus + astra','high','session','read-only'],
+ ['foureyes-refute-critic','both families','opus + astra','high','session','read-only'],
+ ['foureyes-approach-critic','Codex prompt body','gpt-6-astra','high · wrapper','normal · wrapper','read-only'],
+ ['foureyes-investigate-critic','Codex prompt body','gpt-6-astra','high · wrapper','normal · wrapper','read-only'],
+ ['foureyes-spec-critic','Codex prompt body','gpt-6-astra','high · wrapper','normal · wrapper','read-only'],
+ ['foureyes-plan-critic','Codex prompt body','gpt-6-astra','high · wrapper','normal · wrapper','read-only'],
+ ['foureyes-code-critic','Codex prompt body','gpt-6-astra','high · wrapper','normal · wrapper','read-only']
 ];
 const cls=s=>{const a=s.a.map(x=>A[x].c);return a.includes('hu')?'hu':(a.includes('ox')&&a.includes('vd'))?'both':a[0];};
 document.getElementById('cards').innerHTML=CMD.map(c=>`

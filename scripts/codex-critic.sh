@@ -49,11 +49,11 @@ ROUND="${CODEX_CRITIC_ROUND:-1}"
 # is the worst place to spend less thinking.
 EFFORT="${CODEX_CRITIC_EFFORT:-high}"
 # Service tier — orthogonal to effort. `fast` buys priority routing: the same
-# thinking, delivered sooner, at a higher price per token. Default ON: every
-# critic here already runs at `high` on a cold read, so latency is the thing
-# worth buying back, and it is the one dial that costs nothing in quality.
-# Set CODEX_CRITIC_SPEED=normal to opt out — it is a real spend, and an account
-# whose model does not advertise `priority` silently gets normal routing anyway.
+# thinking, delivered sooner, at 2.5x the usage on gpt-6-astra (OpenAI's Codex
+# pricing page). Default OFF: a critic runs unattended, so nobody is waiting on
+# the minutes it saves, and on a ChatGPT plan the multiplier is what empties
+# the weekly limit. Set CODEX_CRITIC_SPEED=fast to buy it back for one run.
+# An account whose model does not advertise `priority` gets normal routing anyway.
 #
 # Codex needs BOTH halves and discards the tier without the feature gate:
 #   get_service_tier() returns None whenever fast_mode is disabled,
@@ -65,10 +65,10 @@ EFFORT="${CODEX_CRITIC_EFFORT:-high}"
 # variable. An array here would have killed every normal-speed call — the default
 # path — while the fast path kept working. Same idiom as $SEARCH above.
 SPEED=""
-case "${CODEX_CRITIC_SPEED:-fast}" in
+case "${CODEX_CRITIC_SPEED:-normal}" in
   fast|priority) SPEED="--enable fast_mode -c service_tier=priority" ;;
   normal|default|"") : ;;
-  *) echo "codex-critic: CODEX_CRITIC_SPEED='${CODEX_CRITIC_SPEED}' is not 'fast' or 'normal' — running at NORMAL speed, which is NOT the default. Fix it or unset it." >&2 ;;
+  *) echo "codex-critic: CODEX_CRITIC_SPEED='${CODEX_CRITIC_SPEED}' is not 'fast' or 'normal' — running at normal speed (the default). Fix it or unset it." >&2 ;;
 esac
 # -----------------------------------------------------------------------------
 

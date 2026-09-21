@@ -345,15 +345,17 @@ check "23d no empty-array expansion in the wrapper" \
   '! grep -q "SPEED_ARGS\[@\]" "$WR"'
 check "23e the knob is documented for users" \
   'grep -q "CODEX_CRITIC_SPEED" "$ROOT/README.md"'
-check "23f fast is the default, not opt-in" \
-  'grep -q "CODEX_CRITIC_SPEED:-fast" "$WR"'
+# Fast is 2.5x the usage on gpt-6-astra for the same output, and a critic runs
+# unattended — nobody is waiting on the minutes it saves. It is opt-in.
+check "23f normal is the default; fast is opt-in" \
+  'grep -q "CODEX_CRITIC_SPEED:-normal" "$WR"'
 # SEARCH=0 was recommended for latency on no evidence it was ever dead weight.
 # The drafter has web access; a critic without it reviews from weaker information
 # than the document it is reviewing.
 check "23g search is documented on, and never recommended off" \
   'has "$ROOT/README.md" "CODEX_CRITIC_SEARCH" && ! has "$ROOT/README.md" "SEARCH=0"'
-check "23h both skills say how to opt out of paying for the tier" \
-  'grep -q "CODEX_CRITIC_SPEED=normal" "$BS" && grep -q "CODEX_CRITIC_SPEED=normal" "$BD"'
+check "23h both skills say how to opt in to the tier" \
+  'grep -q "CODEX_CRITIC_SPEED=fast" "$BS" && grep -q "CODEX_CRITIC_SPEED=fast" "$BD"'
 
 echo "--- the misroute is now PREVENTED, not only detected ---"
 # 143 real dispatches sent these to Claude subagents. Assertion 3 was green the
