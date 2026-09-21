@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/Sultan1993/foureyes/compare/v1.1.0...v1.1.1) (2026-09-21)
+
+
+### Bug Fixes
+
+* **critic:** run Astra at the normal service tier by default; effort stays high ([38a1ffb](https://github.com/Sultan1993/foureyes/commit/38a1ffb70464b02e1ab1a8a7bede7fb69849c20d))
+
 ## [1.1.0](https://github.com/Sultan1993/foureyes/compare/v1.0.3...v1.1.0) (2026-09-06)
 
 
