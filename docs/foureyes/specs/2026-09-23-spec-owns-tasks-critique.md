@@ -11,3 +11,7 @@
 - [Important] fixed — Task 8's Verify banned `TASKS-PER-PART`/`spliceTasks`/`plan-critic` from the test source while requiring assertions that name them; and `grep "^## Step 5"` could not match the helper's embedded pattern. Verify now checks the negative assertions exist and uses fixed-string matches on `/^## Step 5/`.
 - [Important] fixed — Task 5's Verify rejected the word `Steps` file-wide while Step 0.5 must name the field to explain the stop. Prohibition scoped to the E2 assignment line (`Verify / Steps` absent); Task 8(e) matches.
 - [Important] fixed — Task 5's metadata still said "old plans still run". Replaced with: a legacy plan stops at Step 0.5 on `has-steps` with a one-line explanation and dispatches nothing.
+
+## code · round 1 · 2026-09-23 · 193s
+- [Critical] fixed — code critic's description and check 1 named spec conformance but not `## Cross-Task Contracts`; both now require every pinned declaration honoured.
+- [Critical] fixed — prose assertion 29e grepped the whole build file, so it passed even when E2 dropped the forwarded sections or has-steps became report-and-continue. Scoped to the E2 section; new 29e2 pins has-steps in Step 0.5's STOP row.
