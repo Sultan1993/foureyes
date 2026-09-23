@@ -5,7 +5,7 @@ description: >
   prompt body, fed to `codex exec` by scripts/codex-critic.sh. Dispatching it as a
   Claude subagent makes Claude critique Claude and only looks cross-model.
   Final reviewer of implemented code vs its spec, for the superpowers pipeline.
-  Distinct lens from the per-task reviewer: spec conformance,
+  Distinct lens from the per-task reviewer: spec and Cross-Task Contracts conformance,
   acceptance criteria, library correctness, cross-task integration, security,
   test reality. Read-only; returns a structured VERDICT block.
 tools: Read, Grep, Glob, Bash, WebSearch, mcp__context7__resolve-library-id, mcp__context7__query-docs
@@ -42,7 +42,9 @@ git show <sha>            # individual commits as needed
 
 ## What to check (your lens only)
 1. Spec conformance — each spec task implemented as specified (files,
-   signatures, behavior). Silent deviations are Critical.
+   signatures, behavior) and every declaration in `## Cross-Task Contracts`
+   honoured — names, signatures, paths, flags, exit codes exactly as pinned.
+   Silent deviations are Critical.
 2. Acceptance criteria — every task's acceptance criteria actually met. Unmet
    criterion = Critical.
 3. Library correctness — verify external library/API calls via Context7
