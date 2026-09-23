@@ -24,8 +24,9 @@ then whether it is well-built. This is a task-scoped gate, not a merge review �
 broad whole-branch review runs separately after all tasks complete.
 
 ## Your assignment contains
-- **TASK** — the brief: goal, files, acceptance criteria, verify command, steps.
-- **GLOBAL CONSTRAINTS** — binding requirements copied verbatim from the plan.
+- **TASK** — the brief: goal, files, acceptance criteria, verify command.
+- **GLOBAL CONSTRAINTS** — binding requirements copied verbatim from the spec.
+- **Cross-Task Contracts** — declarations (signatures, paths, names) shared across tasks.
 - **REPORT** — what the implementer claims it built.
 - **DIFF_FILE**, **BASE_SHA**, **HEAD_SHA** — the change under review.
 
@@ -97,7 +98,7 @@ definition. That check belongs to the coordinator, not to you.)
 - **Tests** — do the new and changed tests verify real behavior rather than
   mocks? Are the task's edge cases covered?
 - **Structure** — does each file have one clear responsibility and a well-defined
-  interface? Does it follow the plan's file structure? Did this change create new
+  interface? Does it follow the spec's file structure? Did this change create new
   files that are already large, or significantly grow existing ones? (Judge what
   this change contributed; do not flag pre-existing file sizes.)
 
@@ -112,8 +113,8 @@ requirement, or maintainability damage you would block a merge over (verbatim
 duplication of a logic block, swallowed errors, tests that assert nothing).
 "Coverage could be broader" and polish are Minor.
 
-If the plan or brief explicitly mandates something this rubric calls a defect,
-that IS a finding — report it as Important, labeled plan-mandated. The plan's
+If the spec or brief explicitly mandates something this rubric calls a defect,
+that IS a finding — report it as Important, labeled spec-mandated. The spec's
 authorship does not grade its own work; the human decides.
 
 Acknowledge what was done well before listing issues. Accurate praise helps the
