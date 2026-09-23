@@ -142,7 +142,7 @@ test('a Codex-only critic sent to a Claude subagent is flagged', async () => {
 });
 
 test('review-critic and refute-critic are NOT misroutes — both families run them', () => {
-  assert.deepEqual(CODEX_ONLY, ['foureyes-spec-critic', 'foureyes-plan-critic', 'foureyes-code-critic']);
+  assert.deepEqual(CODEX_ONLY, ['foureyes-spec-critic', 'foureyes-code-critic']);
   assert.ok(!CODEX_ONLY.includes('foureyes-review-critic'));
   assert.ok(!CODEX_ONLY.includes('foureyes-refute-critic'));
 });

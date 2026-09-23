@@ -19,7 +19,7 @@ only thing that says whether any of them earned it.
 ```bash
 S=$(ls -d ~/.claude/plugins/cache/*/foureyes/*/scripts 2>/dev/null | sort -V | tail -1)
 node "$S/astra-ledger.mjs"     <repo paths, or nothing for the list>   # Astra: value and price
-node "$S/pipeline-stats.mjs" <repo paths, or nothing for cwd>        # plans + dispatch history
+node "$S/pipeline-stats.mjs" <repo paths, or nothing for cwd>        # specs + dispatch history
 ```
 Empty `S` is a broken install: STOP and say the plugin path did not resolve.
 
@@ -29,7 +29,7 @@ sources, and only together do they cover the pipeline:
 | | source | needs |
 |---|---|---|
 | `astra-ledger` | critique logs the seams write | runs since the ledger shipped |
-| `pipeline-stats` | plans on disk + `~/.claude/projects` transcripts | nothing — it is all retroactive |
+| `pipeline-stats` | specs on disk (task sections) + `~/.claude/projects` transcripts | nothing — it is all retroactive |
 
 **With no arguments it reads `~/.claude/foureyes-repos`** — one path per line,
 `#` comments and `~` both fine — and falls back to the current directory if that
@@ -70,7 +70,7 @@ matters — Astra was factually wrong and the round was spent anyway.
   working from stuck. Any non-zero count on `foureyes-drafter` is the failure
   where a user waits forty minutes and gets nothing; the drafter budgets itself
   because the Agent tool has no `timeout` and nothing external can stop it.
-- **The `⚠ Codex-only critic` warning** — `spec`/`plan`/`code` critics must reach
+- **The `⚠ Codex-only critic` warning** — `spec`/`code` critics must reach
   Astra through `codex-critic.sh`. Dispatched as Claude subagents they become
   Claude critiquing Claude, and the run only looked cross-model. `review-critic`
   and `refute-critic` are NOT misroutes: `foureyes-review` sends the identical
@@ -80,7 +80,7 @@ matters — Astra was factually wrong and the round was spent anyway.
 - **Wave width** — if most waves are width 1, the parallelism machinery is
   running one agent at a time and its cost is not being repaid.
 - **Model mix per subagent** — compare against the routing table. Implementers
-  landing on `opus` far more often than plans are tagged `frontier` means either
+  landing on `opus` far more often than tasks are tagged `frontier` means either
   E3 escalation or the tier being ignored; the data cannot tell you which.
 
 ## The one question the summary cannot answer

@@ -3,7 +3,8 @@
 // no model calls, no network, read-only.
 //
 // Two sources, both retroactive:
-//   plans    — every <plan>.md.tasks.json on disk: tier mix, wave width, sizing
+//   specs    — every <spec>.md.tasks.json on disk (and legacy <plan>.md.tasks.json):
+//              tier mix, wave width, sizing
 //   history  — ~/.claude/projects/**.jsonl: every subagent dispatch, its model
 //              parameter, and its wall clock from timestamp deltas
 //
@@ -18,12 +19,12 @@ import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { parseTasks, computeWaves, detectProblems } from '../skills/foureyes-brainstorm/lib/plan-viz.mjs';
 
-const PLAN_DIRS = ['foureyes/plans', 'superpowers/plans'];
+const PLAN_DIRS = ['foureyes/specs', 'superpowers/specs', 'foureyes/plans', 'superpowers/plans'];
 const TIERS = ['mechanical', 'standard', 'frontier'];
 // Seam critics must reach Codex through codex-critic.sh. Dispatched as Claude
 // subagents they become Claude reviewing Claude, which is the one thing this
 // plugin exists to prevent — and it happened 143 times before anyone looked.
-export const CODEX_ONLY = ['foureyes-spec-critic', 'foureyes-plan-critic', 'foureyes-code-critic'];
+export const CODEX_ONLY = ['foureyes-spec-critic', 'foureyes-code-critic'];
 
 // What a subagent's tool_result actually is. Getting this wrong makes the whole
 // history table lie: an async envelope is a DISPATCH receipt, not a result, and
@@ -135,7 +136,7 @@ export async function summariseHistory(root) {
 
 // ----------------------------------------------------------------- main ------
 function reportPlans(s) {
-  console.log(`\n═══ PLANS — ${s.plans} plans, ${s.tasks} tasks ═══\n`);
+  console.log(`\n═══ SPECS (and legacy plans) — ${s.plans} plans, ${s.tasks} tasks ═══\n`);
   console.log('— modelTier mix (the routing contract knows three) —');
   for (const [k, v] of Object.entries(s.tiers).sort((a, b) => b[1] - a[1])) {
     const bad = TIERS.includes(k) || k === '(none)' ? '' : '  ← not in the routing table';
@@ -186,7 +187,7 @@ async function main(args) {
   const roots = args.length ? args : ['.'];
   const files = roots.flatMap((r) => findPlans(r));
   if (files.length) reportPlans(summarisePlans(files));
-  else console.log(`\nNo plans found under ${roots.join(', ')} (looked for *.md.tasks.json under superpowers/plans).`);
+  else console.log(`\nNo specs (and legacy plans) found under ${roots.join(', ')} (looked for *.md.tasks.json under foureyes/specs, superpowers/specs, foureyes/plans, superpowers/plans).`);
 
   const h = await summariseHistory(join(homedir(), '.claude/projects'));
   if (h && h.dispatches) reportHistory(h);

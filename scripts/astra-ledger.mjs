@@ -20,6 +20,8 @@ import { join } from 'node:path';
 
 // Written by this plugin now, and by its previous name before the rename.
 export const DOC_DIRS = ['foureyes', 'superpowers'];
+// 'plan' is retained to parse logs written before 2026-09-23, when the plan seam
+// was retired; no seam writes it anymore.
 export const SEAMS = ['approach', 'investigate', 'spec', 'plan', 'code'];
 export const DISPOSITIONS = ['fixed', 'rejected', 'intentional', 'open'];
 
