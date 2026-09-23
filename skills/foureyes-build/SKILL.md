@@ -1,22 +1,22 @@
 ---
 name: foureyes-build
 description: >
-  Execute an implementation plan. Given a plan path, go straight to execution —
-  the plan is the contract, no approval to verify. Without a plan, run
+  Execute a design spec. Given a spec path, go straight to execution —
+  the spec is the contract, no approval to verify. Without a spec, run
   foureyes-brainstorm inline (Fable drafts, Astra critiques) and continue into
   execution. Waves of concurrent subagents, per-task model routing via
   modelTier, then Astra reviews the diff. Flags: --skip-critics, --serial.
 ---
 
-# foureyes-build — execute the plan you were handed
+# foureyes-build — execute the spec you were handed
 
-You are the COORDINATOR. If the user hands you a plan, that plan is done —
+You are the COORDINATOR. If the user hands you a spec, that spec is done —
 execute it. There is nothing to verify: no approval marker, no sidecar, no
-hashes. Reviewing the plan was `foureyes-brainstorm`'s job and the user's;
+hashes. Reviewing the spec was `foureyes-brainstorm`'s job and the user's;
 your job starts after that.
 
 ## Announce
-"Using foureyes-build to execute <plan> (Astra reviews the diff at the end)."
+"Using foureyes-build to execute <spec> (Astra reviews the diff at the end)."
 
 ## Codex critic — how to run the code seam
 ```bash
@@ -62,7 +62,7 @@ LEDGER=$(ls -d ~/.claude/plugins/cache/*/foureyes/*/scripts/astra-ledger.mjs 2>/
 - Requires the `codex` CLI installed + authenticated (`codex login`).
 
 ## Inputs
-- Optional plan path (any phrasing — detection is artifact-driven, below).
+- Optional spec path (any phrasing — detection is artifact-driven, below).
 - `--skip-critics` — Astra never runs, at either stage. Say plainly what that
   costs when it is passed: the per-task reviewer at E5 is a Claude subagent, so
   with Astra switched off **nothing in the run crosses model families** — the whole
@@ -78,25 +78,28 @@ parallel runs MUST each live in their own git worktree.
 ## Step 0 — Classify the argument (artifact-driven, never phrasing)
 Extract a file path from the argument if present.
 ```
-<X>.md with an <X>.md.tasks.json sibling  →  PLAN   (Step 0.5) — brainstorm is NEVER called
+<X>.md with an <X>.md.tasks.json sibling  →  SPEC   (Step 0.5) — brainstorm is NEVER called
 anything else, or no path                 →  BRIEF  (Step B)
 ```
 Announce which branch you took in one line, so a wrong classification is caught
 immediately.
 
-## Step 0.5 — Read the plan before executing it (PLAN branch only)
+## Step 0.5 — Read the spec before executing it (SPEC branch only)
 ```bash
-node "$VIZ" "<plan path>"    # writes the HTML page, prints structural problems on stderr
+node "$VIZ" "<spec path>"    # writes the HTML page, prints structural problems on stderr
 ```
-A plan handed straight to build may never have been through brainstorm, so
+A spec handed straight to build may never have been through brainstorm, so
 nothing has ever checked it. This is not a gate — it is looking before you act:
 - `cycle` / unschedulable → STOP. Those tasks cannot be ordered, so execution
   would stall or run them in a wrong order. Show the user and stop.
 - `plan-tasks-order-mismatch` / `-count-mismatch` / `-fence-drift` → STOP. The
   markdown and the `.tasks.json` disagree, and you are about to execute the
   JSON. Show the user both versions and let them say which is right.
+- `has-steps` → STOP. The task carries a Steps field that build no longer
+  forwards, so executing it would silently drop content; legacy plans are
+  re-brainstormed, not run.
 - `unknown-key` → the fence sets a field you never read (`wave`, `noCommit`,
-  `serial`…). Report it and IGNORE the field — never honour one, or the plan and
+  `serial`…). Report it and IGNORE the field — never honour one, or the spec and
   the executor disagree about which contract is in force. In particular `wave` is
   advisory: you compute waves yourself from `blockedBy` plus file-disjointness.
 - `no-verify` / `no-criteria` / `bad-tier` / `file-overlap` → report them and
@@ -104,34 +107,34 @@ nothing has ever checked it. This is not a gate — it is looking before you act
   must not share a wave — serialize them at Step E.
 If the file cannot be parsed at all, stop and say so; do not guess at a repair.
 
-**Has Astra ever read this plan?** A plan that came from brainstorm has a sibling
-critique log with a `plan` seam entry; one written by hand, by another tool, or
+**Has Astra ever read this spec?** A spec that came from brainstorm has a sibling
+critique log with a `spec` seam entry; one written by hand, by another tool, or
 by an older version has none:
 ```bash
-ls docs/foureyes/specs/*-critique.md 2>/dev/null | xargs grep -l '^## plan ' 2>/dev/null
+ls docs/foureyes/specs/*-critique.md 2>/dev/null | xargs grep -l '^## spec ' 2>/dev/null
 ```
-If nothing matches this plan's topic slug, say so in one line and **ask** with a
+If nothing matches this spec's topic slug, say so in one line and **ask** with a
 single `AskUserQuestion` — never decide it yourself, and never invoke brainstorm:
 
 | option | what happens |
 |---|---|
-| **Critique it first** (recommended) | run the `plan` seam once at `ROUND=1`, show findings, then continue |
+| **Critique it first** (recommended) | run the `spec` seam once at `ROUND=1`, show findings, then continue |
 | Execute as-is | straight to E0 |
 | Stop | they will run brainstorm themselves |
 
-Recommended because it is one ~5-minute call against a plan about to spend real
+Recommended because it is one ~5-minute call against a spec about to spend real
 commits, and because every other Astra pass in this skill happens *after* the code
-exists. But it is their call: an uncritiqued plan is a normal thing to hand over
-deliberately, and forcing a critic on it would make `foureyes-build <plan>`
+exists. But it is their call: an uncritiqued spec is a normal thing to hand over
+deliberately, and forcing a critic on it would make `foureyes-build <spec>`
 slower than the user asked for. If they pick it, log the round exactly as Step S3
 does below.
 
-## Step B — No plan: brainstorm inline, then execute
+## Step B — No spec: brainstorm inline, then execute
 Invoke Skill `foureyes:foureyes-brainstorm` with `--continue` and the
 brief (adding `--skip-critics` if it was passed to you). It does NOT interview
 the user: Fable and Astra propose approaches concurrently, the user picks once from
 the merged menu (or not at all, when one option survives), then Fable drafts the
-spec and plan while Astra critiques each. It generates the HTML and returns the plan
+spec while Astra critiques it. It generates the HTML and returns the spec
 path without stopping. Then go to Step E.
 
 ## Step E — Execute (waves, then a per-task review)
@@ -168,7 +171,7 @@ one call and `"$FOO"` in the next gets you an empty string, which here means a
 command that silently operates on the wrong range. The `<placeholder>` style used
 throughout this skill is the convention; follow it.
 
-**E1 — Create the task list, once.** Read `<plan>.md.tasks.json` and `TaskCreate`
+**E1 — Create the task list, once.** Read `<spec>.md.tasks.json` and `TaskCreate`
 one native task per entry, carrying its description verbatim, then wire
 `addBlockedBy` from the JSON's `blockedBy`. This is the ONLY place tasks are
 created; a second creator only makes duplicates.
@@ -217,10 +220,11 @@ needs it to detect an implementer that committed. Mark every task of the wave
   reach it — such a file could change the model but not the effort, silently
   producing combinations nobody chose.
 - The `prompt` is the assignment: the task's Goal / Files / Acceptance Criteria /
-  Verify / Steps verbatim, plus the plan's `## Global Constraints` and enough
-  scene-setting to place the task. **Never tell an implementer to read the plan
-  file** — you already hold the text, and reading it burns their context on
-  everything that is not their task.
+  Verify verbatim, plus the spec's `## Global Constraints` verbatim, plus
+  `## Cross-Task Contracts` verbatim, plus the spec's Design subsection(s) that
+  cover the task's files, as scene-setting. **Never tell an implementer to read
+  the spec file** — you already hold the text, and reading it burns their
+  context on everything that is not their task.
 - A wave contains only tasks whose `files` lists are disjoint and which are not in
   each other's `blockedBy` chain. `file-overlap` from Step 0.5 means those tasks
   must not share a wave. Uncertain overlap → serialize.
@@ -233,7 +237,7 @@ says it is stuck, something has to change):
 | `DONE` | go to E4 |
 | `DONE_WITH_CONCERNS` | read the concerns. Correctness or scope → resolve before review. Observation ("this file is getting large") → note it and review |
 | `NEEDS_CONTEXT` | supply what was missing, re-dispatch the same task |
-| `BLOCKED` | context problem → re-dispatch with more context. Needs more reasoning → re-dispatch one tier up. Too large → split the task. Plan is wrong → STOP and surface to the user |
+| `BLOCKED` | context problem → re-dispatch with more context. Needs more reasoning → re-dispatch one tier up. Too large → split the task. Spec is wrong → STOP and surface to the user |
 | _no status_ — tool error, timeout, empty return | transient, not stuck: re-dispatch the same task unchanged, up to 3 attempts in total (the retry rule above). Nothing on the third → handle as `BLOCKED` |
 
 Statuses are handled per task, but you handle them at the JOIN — let the whole
@@ -288,7 +292,7 @@ git status --porcelain    # paths MUST fall inside the union of the wave's files
 
 **E5 — Review each task.** Dispatch `subagent_type: foureyes-task-reviewer`,
 passing `model: sonnet` explicitly (its effort is pinned medium in frontmatter), plus the task brief, the
-plan's `## Global Constraints`, the implementer's report, and
+spec's `## Global Constraints`, `## Cross-Task Contracts`, the implementer's report, and
 `DIFF_FILE=<RUN>/task-<N>.diff` with that task's `<base>`/`<head>`. The diff reaches the
 reviewer as a file so it never enters your context. Reviews of different tasks are
 independent — dispatch them in one message.
@@ -353,7 +357,7 @@ When every task is complete, `git rev-parse HEAD` → `HEAD_SHA` for Step S3.
 Skip entirely under `--skip-critics`.
 ```bash
 printf '%s\n' "WORKTREE: <path>" "BASE_SHA: <sha>" "HEAD_SHA: <sha>" \
-  "PLAN_DOC: <plan path>" "SPEC_DOC: <spec path>" "" "<re-review: what changed>" \
+  "SPEC_DOC: <spec path>" "" "<re-review: what changed>" \
   | CODEX_CRITIC_ROUND=<1,2> "$WRAP" code
 ```
 | `GATE:` | What you do |
@@ -371,7 +375,7 @@ you checked>` and do not spend a fix on it. Facts only — never reject a findin
 because you disagree with its severity or think the code is fine.
 
 **Log every finding and its disposition**, as each round closes, appending to the
-plan's sibling `docs/foureyes/specs/YYYY-MM-DD-<topic>-critique.md` — the same
+spec's sibling `docs/foureyes/specs/YYYY-MM-DD-<topic>-critique.md` — the same
 file brainstorm's seams write, so one feature keeps one log from approach through
 merge. Same grammar, with `code` as the seam:
 ```
@@ -381,9 +385,7 @@ merge. Same grammar, with `code` as the seam:
 The trailing `<n>s` is the round's wall clock, copied from the wrapper's own
 stderr line (`codex-critic: code r1 took 412s`). It times itself; never measure
 by hand, and omit the field rather than guess if the line is missing.
-A clean round still gets its header and a single `- (none)` line. If this plan
-has no spec path — handed over bare — write the log beside the plan instead; a
-run whose findings went nowhere is the one case the ledger cannot report on.
+A clean round still gets its header and a single `- (none)` line.
 `node "$LEDGER" docs/foureyes/specs` reads them all back.
 
 **Any fix here invalidates the barrier.** E6's build and test run happened before
