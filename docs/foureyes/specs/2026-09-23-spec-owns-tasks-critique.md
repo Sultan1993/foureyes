@@ -15,3 +15,6 @@
 ## code · round 1 · 2026-09-23 · 193s
 - [Critical] fixed — code critic's description and check 1 named spec conformance but not `## Cross-Task Contracts`; both now require every pinned declaration honoured.
 - [Critical] fixed — prose assertion 29e grepped the whole build file, so it passed even when E2 dropped the forwarded sections or has-steps became report-and-continue. Scoped to the E2 section; new 29e2 pins has-steps in Step 0.5's STOP row.
+
+## code · round 2 · 2026-09-23 · 133s
+- (none)
