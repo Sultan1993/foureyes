@@ -446,8 +446,15 @@ check "29c the drafter carries no part/splice protocol" \
   '! grep -q "TASKS-PER-PART" "$AG/foureyes-drafter.md" && ! grep -q "DRAFT: part" "$AG/foureyes-drafter.md" && ! grep -q "REVISION: sections" "$AG/foureyes-drafter.md" && ! grep -q "CHANGED-TASKS" "$AG/foureyes-drafter.md"'
 check "29d the spec critic reviews contracts, scaffolding and coverage" \
   'has "$AG/foureyes-spec-critic.md" "Cross-Task Contracts" && has "$AG/foureyes-spec-critic.md" "scaffold" && has "$AG/foureyes-spec-critic.md" "coverage"'
-check "29e build's E2 forwards contracts, not Steps" \
-  'has "$BD" "Cross-Task Contracts" && has "$BD" "Global Constraints" && ! grep -q "Verify / Steps" "$BD" && grep -q "has-steps" "$BD"'
+# Scoped to the sections that own the rule, so the check fails when E2 stops
+# forwarding a section or Step 0.5 downgrades has-steps to report-and-continue —
+# a whole-file grep passed on both mutations.
+e2()  { sed -n '/^\*\*E2 /,/^\*\*E3 /p' "$BD" | tr '\n' ' '; }
+s05() { sed -n '/^## Step 0.5/,/^## Step B/p' "$BD"; }
+check "29e build's E2 forwards contracts and constraints, not Steps" \
+  'e2 | grep -q "Cross-Task Contracts" && e2 | grep -q "Global Constraints" && ! e2 | grep -q "Verify / Steps"'
+check "29e2 build's Step 0.5 stops on has-steps" \
+  's05 | grep -q "has-steps.* STOP"'
 for a in implementer implementer-frontier; do
   check "29f $a knows the Cross-Task Contracts and expects no Steps" \
     'has "$AG/foureyes-$a.md" "Cross-Task Contracts" && ! grep -q "Steps" "$AG/foureyes-$a.md"'
