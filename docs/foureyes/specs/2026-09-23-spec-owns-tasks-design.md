@@ -93,13 +93,15 @@ Assignment A, minus everything about Steps):
 - A verify command or acceptance criterion may reference only: paths in the
   task's own Files, names in `## Cross-Task Contracts`, or names that already
   exist in the repo. Anything else is a contract the drafter forgot to pin.
-- **Scaffold rule.** If any wave has width > 1 and its tasks share a build unit
-  (same package, module, compilation unit, or one imports from another), the
-  first task is a scaffold: create the files named in the contracts, declare the
-  signatures with stub bodies so the tree compiles or loads, no logic. Tier
-  `mechanical`. Every task of that wave lists it in `blockedBy`. Independent
-  files (a bash script and a YAML, two unrelated markdown files) need no
-  scaffold.
+- **Scaffold rule.** If any wave has width > 1, its tasks share a build unit
+  (same package, module, compilation unit, or one imports from another), **and
+  a name they share does not yet exist in the tree**, the first task is a
+  scaffold: create the files named in the contracts, declare the signatures
+  with stub bodies so the tree compiles or loads, no logic. Tier `mechanical`.
+  Every task of that wave lists it in `blockedBy`. No scaffold when the shared
+  names already exist and the contract says they are unchanged (an existing
+  import kept as is), or when the files are independent (a bash script and a
+  YAML, two unrelated markdown files).
 - **Tier rule.** `mechanical` only when the task is fully determined by the
   contracts plus its criteria — scaffold tasks, renames, copying bytes the spec
   already verified. `standard` when the implementer writes code from a goal.
@@ -117,9 +119,12 @@ halving, `DRAFT: part`, `REMAINING`, `REVISION: sections`, `CHANGED-TASKS` and
 the splicer are deleted. On revision the drafter returns the full spec. If a
 spec reply ever overflows, that is a scope problem: the feature is too big for
 one build and is decomposed into sub-projects, which the spec critic's scope
-check already asks for. The harness facts (spilled output lands in a file and
-returns a preview; the 64000-token ceiling returns nothing) stay in the drafter
-and coordinator prose; only the remedies that mention sections or parts go.
+check already asks for. The harness facts stay in the drafter and coordinator
+prose: spilled output lands in a file and returns a preview; a reply over the
+output-token limit returns nothing, where the limit is whatever
+`CLAUDE_CODE_MAX_OUTPUT_TOKENS` sets in the environment and 64000 is the
+observed historical failure, not a constant. Only the remedies that mention
+sections or parts go.
 
 ### Brainstorm
 
@@ -143,12 +148,16 @@ churn in the readers.
 
 - Argument is a spec path. Step 0 classification stays artifact-driven: `<X>.md`
   with an `<X>.md.tasks.json` sibling → SPEC branch (was PLAN); anything else →
-  BRIEF. An old plan file with its sibling still classifies and still runs; its
-  Steps are reported as `has-steps` and ignored.
+  BRIEF.
 - Step 0.5 runs plan-viz on the spec; the stop/continue table is unchanged, with
-  `has-steps` added to the report-and-continue row. "Has Astra ever read this
-  spec?" greps the sibling critique log for `^## spec ` and, when absent, offers
-  the same three options; "Critique it first" runs the `spec` seam at `ROUND=1`.
+  `has-steps` added to the **STOP** row: a task carrying Steps is content the
+  pipeline would silently drop, so build says so and stops. That also makes
+  legacy plans non-executable by construction — their Steps hold material
+  (verbatim code, "the YAML above") that no other section carries, and forwarding
+  a plan without its Steps would not be "running it as before". A legacy plan is
+  re-brainstormed, not migrated. "Has Astra ever read this spec?" greps the
+  sibling critique log for `^## spec ` and, when absent, offers the same three
+  options; "Critique it first" runs the `spec` seam at `ROUND=1`.
 - Step B is unchanged except wording: brainstorm returns the spec path.
 - E2 implementer prompt: the task's Goal / Files / Acceptance Criteria / Verify
   verbatim, plus `## Global Constraints` verbatim, plus `## Cross-Task Contracts`
@@ -184,7 +193,9 @@ equivalent, as a new group applied to the trailing sections:
 9. **Parallel readiness** — files disjoint within a wave; `blockedBy` only for
    real dependencies; barrier tasks for shared steps; test policy stated when a
    build unit is shared; **scaffold task present when a wave wider than one
-   shares a build unit** (missing = Important).
+   shares a build unit and a shared name does not yet exist in the tree**
+   (missing = Important; not demanded when the shared names already exist and
+   the contract declares them unchanged).
 10. **Task completeness** — exact paths, a runnable verify, checkable criteria,
     subjects ≤ 60, no placeholders ("TBD", "similar to Task N").
 11. **Tier sanity** — tier reflects the judgment the task needs under the tier
@@ -230,7 +241,9 @@ build <spec>.md ─► plan-viz checks ─► waves from blockedBy + file-disjoi
 
 ## Error handling
 
-- Task carries Steps → `has-steps` reported; never forwarded; build continues.
+- Task carries Steps → `has-steps`. In brainstorm it is reported for Fable to
+  fix before the spec ships; in build it STOPS the run, because the field would
+  otherwise be dropped silently.
 - Verify names something unpinned → spec critic Critical before dispatch; if it
   slips through, the implementer's verify fails and it reports `NEEDS_CONTEXT`,
   the coordinator pins the name and re-dispatches.
@@ -238,7 +251,8 @@ build <spec>.md ─► plan-viz checks ─► waves from blockedBy + file-disjoi
   `NEEDS_CONTEXT`; coordinator adds it or serializes.
 - Spec reply overflows → scope problem; decompose the feature; never a parts
   protocol.
-- Old plan handed to build → runs as before; `has-steps` noise only.
+- Old plan handed to build → stops at Step 0.5 on `has-steps` with a one-line
+  explanation; the user re-brainstorms it.
 
 ## Explicit non-goals (YAGNI)
 
@@ -247,7 +261,8 @@ build <spec>.md ─► plan-viz checks ─► waves from blockedBy + file-disjoi
   today.
 - No change to the approach seam, the code seam, review, investigate, or the
   wave/commit mechanics in build.
-- No migration of old plans; no deletion of `docs/foureyes/plans/`.
+- No migration of old plans and no execution of them; no deletion of
+  `docs/foureyes/plans/`.
 - No change to `tests/pressure/` scenarios (their "Steps:" is assignment prose
   inside a pressure prompt, not pipeline contract).
 - No new dependencies. Node stdlib and bash only.
@@ -259,7 +274,7 @@ build <spec>.md ─► plan-viz checks ─► waves from blockedBy + file-disjoi
 3. `node plan-viz.mjs --json` on a tasks.json whose description has a `**Steps:**` line reports `has-steps`; `spliceTasks` and `taskRanges` are not exported.
 4. Build's E2 prompt assembly names Cross-Task Contracts and not Steps; Step 0.5 greps `^## spec `.
 5. `bash tests/run.sh` is green, with new prose contracts covering 1, 2 and 4.
-6. Handing build the existing `docs/foureyes/plans/2026-08-05-test-entry-point.md` reaches Step 0.5 and reports `has-steps` for every task, nothing else new.
+6. Handing build the existing `docs/foureyes/plans/2026-08-05-test-entry-point.md` reaches Step 0.5, reports `has-steps` for every task, and stops with the one-line explanation; nothing is dispatched.
 
 ## Cross-Task Contracts
 
@@ -292,6 +307,14 @@ CLI unchanged: node plan-viz.mjs <doc.md> [--json]; reads <doc.md>.tasks.json; w
 "Has Astra ever read this spec"      grep for '^## spec '
 E2 and E5 both name "Cross-Task Contracts" and "Global Constraints"; E2 never names Steps
 Step 0 branch names: SPEC (was PLAN), BRIEF
+Step 0.5: `has-steps` is in the STOP row
+
+# brainstorm report section (tests/prose-contracts 14e/14g extract it by heading)
+heading text exactly:  ## Step 5 — Report, then stop or hand back
+inside it, in this order: the `--continue` branch, then "print the paths"; and the phrase "standalone … STOP"
+the tests' extraction helper reads `^## Step 5` (was `^## Step 7`)
+
+# drafter ceiling wording: contains CLAUDE_CODE_MAX_OUTPUT_TOKENS (test 22j stays)
 
 # drafter phrases
 Assignment A carries the three sections; contains "declarations only" and "scaffold"
@@ -308,12 +331,16 @@ contains "Cross-Task Contracts", "NEEDS_CONTEXT"; absent: "Steps"
 # astra-ledger:   SEAMS unchanged = ['approach','investigate','spec','plan','code']
 ```
 
-**Test policy.** All nine tasks are wave 1 and file-disjoint; there is no shared
-build unit, so no scaffold task. Each task's Verify checks only its own files.
-`bash tests/run.sh` is expected red until the join and green at the join, when
-Task 8's rewritten assertions meet the siblings' text. The pre-commit hook runs
-the suite on the working tree, so the per-task commits at the join all pass;
-individual wave-1 commits may be red in isolation, and that is accepted.
+**Test policy.** All nine tasks are wave 1 and file-disjoint. Tasks 6 and 7
+share one build unit (`pipeline-stats.mjs` imports `parseTasks`, `computeWaves`,
+`detectProblems` from `plan-viz.mjs`), but every shared name already exists and
+the contract keeps it unchanged, so under the scaffold rule no scaffold task is
+needed. Each task's Verify runs independently against only its own files; Task
+8's Verify is a syntax and presence check, not the suite. The integrated run,
+`bash tests/run.sh`, is the coordinator's E6 barrier at the join, when Task 8's
+rewritten assertions meet the siblings' text. The pre-commit hook runs the suite
+on the working tree, so the per-task commits at the join all pass; individual
+wave-1 commits may be red in isolation, and that is accepted.
 
 ## Global Constraints
 
@@ -341,17 +368,17 @@ individual wave-1 commits may be red in isolation, and that is accepted.
 **Acceptance Criteria:**
 - Description no longer says "implementation plans"; says the drafter authors design specs that end with a task section.
 - Assignment A's output list adds, after the existing coverage list: `## Cross-Task Contracts` (declarations only, never bodies, code blocks in the target language, test policy when a build unit is shared), `## Global Constraints` (one line each, written for implementers), `## Tasks` with the exact per-task format from the spec (Goal, Files, Acceptance Criteria, Verify, `json:metadata` fence with files/modelTier/verifyCommand/acceptanceCriteria/blockedBy). No `**Steps:**` anywhere in the file.
-- Task rules carried into Assignment A: files disjoint per wave and barrier tasks; `"files": []` for verify-only tasks; the reference rule (verify/criteria may name only own Files, contracts, or existing repo names); the scaffold rule (wave width > 1 sharing a build unit → first task is a mechanical scaffold every wave task depends on); the tier rule (mechanical only when fully determined by contracts + criteria; standard when writing code from a goal; frontier for design judgment; no blanket assignments); zsh reserved names in Verify commands; library claims verified; subjects ≤ 60.
+- Task rules carried into Assignment A: files disjoint per wave and barrier tasks; `"files": []` for verify-only tasks; the reference rule (verify/criteria may name only own Files, contracts, or existing repo names); the scaffold rule (wave width > 1, sharing a build unit, and a shared name that does not yet exist in the tree → first task is a mechanical scaffold every wave task depends on; shared names that already exist and stay unchanged need none); the tier rule (mechanical only when fully determined by contracts + criteria; standard when writing code from a goal; frontier for design judgment; no blanket assignments); zsh reserved names in Verify commands; library claims verified; subjects ≤ 60.
 - Assignment B section deleted. "You receive ONE of three assignments" becomes two (A0, A).
 - Deleted: "A big plan is fine — a big REPLY is not" section, `TASKS-PER-PART`, `DRAFT: part`, `REMAINING`, `TASKS-IN-THIS-PART`, `REVISION: sections`, `REVISION: full`, `CHANGED-TASKS`, the "complete code = mechanical" tie-break, "Show the real code".
 - "On a REVISION" section now says: return the full spec; address every finding or state why the design is intentional. The `DRAFTER-STATS:` first-line rule stays, with its rationale reduced to "the coordinator reads it first and strips it".
-- The overflow guidance keeps the harness facts (spill preview, 64000-token ceiling) and replaces the sections/halves remedy with: an overflowing spec is a scope problem; say so and return the design sections with a `## Unresolved` note recommending decomposition.
+- The overflow guidance keeps the harness facts (spill preview; a reply over the output-token limit returns nothing, the limit being whatever `CLAUDE_CODE_MAX_OUTPUT_TOKENS` sets, with 64000 named as the observed failure, not a constant) and replaces the sections/halves remedy with: an overflowing spec is a scope problem; say so and return the design sections with a `## Unresolved` note recommending decomposition. The string `CLAUDE_CODE_MAX_OUTPUT_TOKENS` stays in the file.
 - The A0 line "a spec, a plan, two critic rounds" becomes "a spec, two critic rounds".
 
-**Verify:** `f=agents/foureyes-drafter.md; ! grep -q '\*\*Steps:\*\*' $f && ! grep -q 'TASKS-PER-PART\|DRAFT: part\|REVISION: sections\|CHANGED-TASKS\|Assignment B' $f && grep -q '## Cross-Task Contracts' $f && grep -q '## Global Constraints' $f && grep -q '## Tasks' $f && grep -qi 'declarations only' $f && grep -qi 'scaffold' $f && grep -q 'DRAFTER-STATS' $f && echo OK`
+**Verify:** `f=agents/foureyes-drafter.md; ! grep -q '\*\*Steps:\*\*' $f && ! grep -q 'TASKS-PER-PART\|DRAFT: part\|REVISION: sections\|CHANGED-TASKS\|Assignment B' $f && grep -q '## Cross-Task Contracts' $f && grep -q '## Global Constraints' $f && grep -q '## Tasks' $f && grep -qi 'declarations only' $f && grep -qi 'scaffold' $f && grep -q 'DRAFTER-STATS' $f && grep -q 'CLAUDE_CODE_MAX_OUTPUT_TOKENS' $f && echo OK`
 
 ```json:metadata
-{"files": ["agents/foureyes-drafter.md"], "modelTier": "frontier", "verifyCommand": "f=agents/foureyes-drafter.md; ! grep -q '\\*\\*Steps:\\*\\*' $f && ! grep -q 'TASKS-PER-PART\\|DRAFT: part\\|REVISION: sections\\|CHANGED-TASKS\\|Assignment B' $f && grep -q '## Cross-Task Contracts' $f && grep -q '## Global Constraints' $f && grep -q '## Tasks' $f && grep -qi 'declarations only' $f && grep -qi 'scaffold' $f && grep -q 'DRAFTER-STATS' $f && echo OK", "acceptanceCriteria": ["Assignment A emits the three trailing sections with the per-task format and no Steps", "Assignment B and the parts/splice protocol are deleted", "scaffold, tier, and reference rules present", "DRAFTER-STATS first-line rule kept"]}
+{"files": ["agents/foureyes-drafter.md"], "modelTier": "frontier", "verifyCommand": "f=agents/foureyes-drafter.md; ! grep -q '\\*\\*Steps:\\*\\*' $f && ! grep -q 'TASKS-PER-PART\\|DRAFT: part\\|REVISION: sections\\|CHANGED-TASKS\\|Assignment B' $f && grep -q '## Cross-Task Contracts' $f && grep -q '## Global Constraints' $f && grep -q '## Tasks' $f && grep -qi 'declarations only' $f && grep -qi 'scaffold' $f && grep -q 'DRAFTER-STATS' $f && grep -q 'CLAUDE_CODE_MAX_OUTPUT_TOKENS' $f && echo OK", "acceptanceCriteria": ["Assignment A emits the three trailing sections with the per-task format and no Steps", "Assignment B and the parts/splice protocol are deleted", "scaffold (with the already-exists exemption), tier, and reference rules present", "DRAFTER-STATS first-line rule and CLAUDE_CODE_MAX_OUTPUT_TOKENS wording kept"]}
 ```
 
 ### Task 2: Spec critic absorbs task checks; delete plan critic
@@ -363,7 +390,7 @@ individual wave-1 commits may be red in isolation, and that is accepted.
 - Delete: `agents/foureyes-plan-critic.md`
 
 **Acceptance Criteria:**
-- Checks 7–11 added exactly as the design lists them: Coverage (uncovered = Critical), Contract pinning (missing declaration = Critical; a body in the contracts section = Important), Parallel readiness including "scaffold task present when a wave wider than one shares a build unit" (missing = Important), Task completeness, Tier sanity (blanket = Important; mechanical needing judgment = Critical).
+- Checks 7–11 added exactly as the design lists them: Coverage (uncovered = Critical), Contract pinning (missing declaration = Critical; a body in the contracts section = Important), Parallel readiness including "scaffold task present when a wave wider than one shares a build unit and a shared name does not yet exist in the tree" (missing = Important; not demanded when the shared names already exist and are declared unchanged), Task completeness, Tier sanity (blanket = Important; mechanical needing judgment = Critical).
 - The clause "Do NOT demand an execution/parallelism section in the spec — execution policy lives in the pipeline, not the spec" is deleted; check 6 says the spec's own `## Tasks` is what is judged for decomposability.
 - Description and "SEAM 1" prose no longer say "before writing-plans" / "BEFORE any implementation plan is written"; they say the spec is the only document seam and is executed directly.
 - The NOT A CLAUDE SUBAGENT guard and VERDICT/FINDINGS grammar are unchanged.
@@ -411,13 +438,14 @@ individual wave-1 commits may be red in isolation, and that is accepted.
 - Step 3 unchanged in mechanics (`"$WRAP" spec`, `CODEX_CRITIC_ROUND` 1 then 2, GATE table, critique log rows, Fable concludes).
 - Old Steps 4 and 5 (plan draft, plan critique), the parts protocol, assembly rules, and "critiques the assembled plan" deleted. The loop section says "the DOC seam" (one), not "both DOC seams"; the critique-log seam set is `approach` and `spec`.
 - New Step 4: derive `<spec>.md.tasks.json` from `## Tasks` (id 0-based, subject "Task N: …", description = full task markdown with fence, blockedBy 0-based, `planPath` key kept), then `node "$VIZ" "<spec path>"` writes `<spec>.md.html`; check table adds `has-steps` (Fable's to fix, like `no-verify`).
-- New Step 5: report spec, tasks.json, HTML, critique log paths; standalone says the user runs `foureyes-build <spec>`; `--continue` returns the spec path.
+- New Step 5 with the heading text exactly `## Step 5 — Report, then stop or hand back`. Its body keeps the existing order the prose tests assert: the `--continue` branch (return the spec path, ask nothing) comes before "print the paths"; the standalone branch prints the paths of spec, tasks.json, HTML and critique log, says the user runs `foureyes-build <spec>`, and contains the phrase "standalone … STOP".
+- The 4c overflow note names the limit as whatever `CLAUDE_CODE_MAX_OUTPUT_TOKENS` sets, with 64000 as the observed failure; "64000 output" and "do NOT … re-dispatch" wording stays.
 - `"$WRAP" plan` appears nowhere; `docs/foureyes/plans` appears nowhere.
 
-**Verify:** `f=skills/foureyes-brainstorm/SKILL.md; ! grep -q '"\$WRAP" plan' $f && ! grep -q 'foureyes/plans\|TASKS-PER-PART\|spliceTasks\|CHANGED-TASKS\|DRAFT: part' $f && grep -q 'has-steps' $f && grep -q '## Tasks' $f && grep -q 'tasks.json' $f && grep -q 'CODEX_CRITIC_ROUND' $f && grep -q 'Strip the leading' $f && echo OK`
+**Verify:** `f=skills/foureyes-brainstorm/SKILL.md; ! grep -q '"\$WRAP" plan' $f && ! grep -q 'foureyes/plans\|TASKS-PER-PART\|spliceTasks\|CHANGED-TASKS\|DRAFT: part' $f && grep -q 'has-steps' $f && grep -q '## Tasks' $f && grep -q 'tasks.json' $f && grep -q 'CODEX_CRITIC_ROUND' $f && grep -q 'Strip the leading' $f && grep -q '^## Step 5 — Report, then stop or hand back' $f && ! grep -q '^## Step [67]' $f && echo OK`
 
 ```json:metadata
-{"files": ["skills/foureyes-brainstorm/SKILL.md"], "modelTier": "frontier", "verifyCommand": "f=skills/foureyes-brainstorm/SKILL.md; ! grep -q '\"\\$WRAP\" plan' $f && ! grep -q 'foureyes/plans\\|TASKS-PER-PART\\|spliceTasks\\|CHANGED-TASKS\\|DRAFT: part' $f && grep -q 'has-steps' $f && grep -q '## Tasks' $f && grep -q 'tasks.json' $f && grep -q 'CODEX_CRITIC_ROUND' $f && grep -q 'Strip the leading' $f && echo OK", "acceptanceCriteria": ["one document seam: spec drafted, critiqued <=2, concluded", "tasks.json derived from the spec and plan-viz run on it", "plan steps, parts protocol and splicing deleted", "spec seam mechanics unchanged"]}
+{"files": ["skills/foureyes-brainstorm/SKILL.md"], "modelTier": "frontier", "verifyCommand": "f=skills/foureyes-brainstorm/SKILL.md; ! grep -q '\"\\$WRAP\" plan' $f && ! grep -q 'foureyes/plans\\|TASKS-PER-PART\\|spliceTasks\\|CHANGED-TASKS\\|DRAFT: part' $f && grep -q 'has-steps' $f && grep -q '## Tasks' $f && grep -q 'tasks.json' $f && grep -q 'CODEX_CRITIC_ROUND' $f && grep -q 'Strip the leading' $f && grep -q '^## Step 5 — Report, then stop or hand back' $f && ! grep -q '^## Step [67]' $f && echo OK", "acceptanceCriteria": ["one document seam: spec drafted, critiqued <=2, concluded", "tasks.json derived from the spec and plan-viz run on it", "plan steps, parts protocol and splicing deleted", "spec seam mechanics unchanged", "Step 5 report heading and internal order pinned for the prose tests"]}
 ```
 
 ### Task 5: Build skill: execute the spec
@@ -429,8 +457,8 @@ individual wave-1 commits may be red in isolation, and that is accepted.
 
 **Acceptance Criteria:**
 - Frontmatter, title, announce line and Inputs say spec, not plan; "the spec is the contract".
-- Step 0: `<X>.md` with `<X>.md.tasks.json` sibling → SPEC (Step 0.5); else BRIEF. Note that an old plan file still classifies and runs, with `has-steps` reported.
-- Step 0.5 title "Read the spec before executing it"; `has-steps` joins the report-and-continue row; "Has Astra ever read this spec?" greps `'^## spec '`; "Critique it first" runs the `spec` seam at `ROUND=1`.
+- Step 0: `<X>.md` with `<X>.md.tasks.json` sibling → SPEC (Step 0.5); else BRIEF.
+- Step 0.5 title "Read the spec before executing it"; `has-steps` joins the STOP row with a one-line explanation: the task carries a Steps field that build no longer forwards, so executing it would silently drop content; legacy plans are re-brainstormed, not run. "Has Astra ever read this spec?" greps `'^## spec '`; "Critique it first" runs the `spec` seam at `ROUND=1`.
 - Step B wording: brainstorm returns the spec path.
 - E2: the prompt is Goal / Files / Acceptance Criteria / Verify verbatim, plus `## Global Constraints` verbatim, plus `## Cross-Task Contracts` verbatim, plus the spec's Design subsection(s) covering the task's files; "Never tell an implementer to read the spec file"; Steps not mentioned.
 - E3 BLOCKED row: "Spec is wrong → STOP".
@@ -497,16 +525,16 @@ individual wave-1 commits may be red in isolation, and that is accepted.
 - Modify: `tests/codex-critic.test.sh`
 
 **Acceptance Criteria:**
-- Removed or rewritten: test 3's loop drops `plan-critic`; test 4 loops over `spec` only; 6a/6b loop `spec code`; 14a–c grep "Has Astra ever read this spec" and `'^## spec '`; 21a, 21b, 21f, 22a–22j, 25a–25f deleted; 21c/21d/21e/21g kept (they are harness facts); 24a/b loop `spec code`; 27f loops `spec code approach investigate`; test 9's read-only agent list drops `plan-critic`.
-- Added, using the existing `check`/`has` helpers: (a) no skill calls `"$WRAP" plan`; (b) the drafter's file contains no `**Steps:**` and does contain `## Cross-Task Contracts`, `## Global Constraints`, `## Tasks`, "declarations only", "scaffold"; (c) the drafter contains none of `TASKS-PER-PART`, `DRAFT: part`, `REVISION: sections`, `CHANGED-TASKS`; (d) the spec critic names "Cross-Task Contracts", "scaffold", "coverage"; (e) build E2 names "Cross-Task Contracts" and "Global Constraints" and the build file contains no `Steps`; (f) both implementers name "Cross-Task Contracts" and contain no `Steps`; (g) plan-viz exports no `spliceTasks`; (h) `agents/foureyes-plan-critic.md` does not exist.
+- Removed or rewritten: test 3's loop drops `plan-critic`; test 4 loops over `spec` only; 6a/6b loop `spec code`; 14a–c grep "Has Astra ever read this spec" and `'^## spec '`; the `s7` helper that extracts the brainstorm report section reads `^## Step 5` instead of `^## Step 7` (rename it `s5`), so 14e and 14g keep asserting the `--continue`-before-"print the paths" order and "standalone … STOP"; 21a, 21b, 21f, 22a–22i, 25a–25f deleted; 21c/21d/21e/21g and 22j kept (harness facts and the env-var ceiling); 24a/b loop `spec code`; 27f loops `spec code approach investigate`; test 9's read-only agent list drops `plan-critic`.
+- Added, using the existing `check`/`has` helpers: (a) no skill calls `"$WRAP" plan`; (b) the drafter's file contains no `**Steps:**` and does contain `## Cross-Task Contracts`, `## Global Constraints`, `## Tasks`, "declarations only", "scaffold"; (c) the drafter contains none of `TASKS-PER-PART`, `DRAFT: part`, `REVISION: sections`, `CHANGED-TASKS`; (d) the spec critic names "Cross-Task Contracts", "scaffold", "coverage"; (e) build E2 names "Cross-Task Contracts" and "Global Constraints", the build file contains no `Steps`, and its Step 0.5 lists `has-steps` in the STOP row; (f) both implementers name "Cross-Task Contracts" and contain no `Steps`; (g) plan-viz exports no `spliceTasks`; (h) `agents/foureyes-plan-critic.md` does not exist.
 - `tests/codex-critic.test.sh`: the round-budget loop becomes `for m in spec code`.
 - Comments explaining deleted groups are removed with them; the file header is unchanged.
-- At the join (all wave-1 tasks present), `bash tests/run.sh` exits 0.
+- Verify is independent of the siblings: both files parse, the new assertions are present, the deleted ones are gone. The integrated `bash tests/run.sh` is the coordinator's E6 barrier, expected green only once every wave-1 task has landed.
 
-**Verify:** `bash tests/run.sh`
+**Verify:** `t=tests/prose-contracts.test.sh; bash -n $t && bash -n tests/codex-critic.test.sh && grep -q 'Has Astra ever read this spec' $t && grep -q "^## Step 5" $t && ! grep -q '^## Step 7' $t && ! grep -q 'TASKS-PER-PART\|spliceTasks\|plan-critic' $t && grep -q 'CLAUDE_CODE_MAX_OUTPUT_TOKENS' $t && grep -q 'Cross-Task Contracts' $t && grep -q 'for m in spec code' tests/codex-critic.test.sh && echo OK`
 
 ```json:metadata
-{"files": ["tests/prose-contracts.test.sh", "tests/codex-critic.test.sh"], "modelTier": "standard", "verifyCommand": "bash tests/run.sh", "acceptanceCriteria": ["plan-encoding assertions removed or rewritten as listed", "eight new contract assertions added", "codex-critic budget loop is spec code", "full suite green at the join"]}
+{"files": ["tests/prose-contracts.test.sh", "tests/codex-critic.test.sh"], "modelTier": "standard", "verifyCommand": "t=tests/prose-contracts.test.sh; bash -n $t && bash -n tests/codex-critic.test.sh && grep -q 'Has Astra ever read this spec' $t && grep -q \"^## Step 5\" $t && ! grep -q '^## Step 7' $t && ! grep -q 'TASKS-PER-PART\\|spliceTasks\\|plan-critic' $t && grep -q 'CLAUDE_CODE_MAX_OUTPUT_TOKENS' $t && grep -q 'Cross-Task Contracts' $t && grep -q 'for m in spec code' tests/codex-critic.test.sh && echo OK", "acceptanceCriteria": ["plan-encoding assertions removed or rewritten as listed, s7 helper moved to Step 5", "eight new contract assertions added", "codex-critic budget loop is spec code", "verify runs independently; the full suite is the coordinator's barrier"]}
 ```
 
 ### Task 9: README and site describe the new pipeline

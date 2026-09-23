@@ -99,9 +99,9 @@ details.checks .ok{color:var(--mech)}
 </ul>
 <p>  task's own Files, names in <code>## Cross-Task Contracts</code>, or names that already   exist in the repo. Anything else is a contract the drafter forgot to pin.</p>
 <ul>
-<li><strong>Scaffold rule.</strong> If any wave has width &gt; 1 and its tasks share a build unit</li>
+<li><strong>Scaffold rule.</strong> If any wave has width &gt; 1, its tasks share a build unit</li>
 </ul>
-<p>  (same package, module, compilation unit, or one imports from another), the   first task is a scaffold: create the files named in the contracts, declare the   signatures with stub bodies so the tree compiles or loads, no logic. Tier   <code>mechanical</code>. Every task of that wave lists it in <code>blockedBy</code>. Independent   files (a bash script and a YAML, two unrelated markdown files) need no   scaffold.</p>
+<p>  (same package, module, compilation unit, or one imports from another), <strong>and   a name they share does not yet exist in the tree</strong>, the first task is a   scaffold: create the files named in the contracts, declare the signatures   with stub bodies so the tree compiles or loads, no logic. Tier <code>mechanical</code>.   Every task of that wave lists it in <code>blockedBy</code>. No scaffold when the shared   names already exist and the contract says they are unchanged (an existing   import kept as is), or when the files are independent (a bash script and a   YAML, two unrelated markdown files).</p>
 <ul>
 <li><strong>Tier rule.</strong> <code>mechanical</code> only when the task is fully determined by the</li>
 </ul>
@@ -114,7 +114,7 @@ details.checks .ok{color:var(--mech)}
 <li>Every library/API claim verified via Context7 or WebSearch first.</li>
 <li>Subjects ≤ 60 characters.</li>
 </ul>
-<p><strong>Reply size.</strong> Without code, a thirty-task spec is roughly 30 KB, an order of magnitude under the output ceiling. The parts protocol, <code>TASKS-PER-PART</code>, halving, <code>DRAFT: part</code>, <code>REMAINING</code>, <code>REVISION: sections</code>, <code>CHANGED-TASKS</code> and the splicer are deleted. On revision the drafter returns the full spec. If a spec reply ever overflows, that is a scope problem: the feature is too big for one build and is decomposed into sub-projects, which the spec critic's scope check already asks for. The harness facts (spilled output lands in a file and returns a preview; the 64000-token ceiling returns nothing) stay in the drafter and coordinator prose; only the remedies that mention sections or parts go.</p>
+<p><strong>Reply size.</strong> Without code, a thirty-task spec is roughly 30 KB, an order of magnitude under the output ceiling. The parts protocol, <code>TASKS-PER-PART</code>, halving, <code>DRAFT: part</code>, <code>REMAINING</code>, <code>REVISION: sections</code>, <code>CHANGED-TASKS</code> and the splicer are deleted. On revision the drafter returns the full spec. If a spec reply ever overflows, that is a scope problem: the feature is too big for one build and is decomposed into sub-projects, which the spec critic's scope check already asks for. The harness facts stay in the drafter and coordinator prose: spilled output lands in a file and returns a preview; a reply over the output-token limit returns nothing, where the limit is whatever <code>CLAUDE_CODE_MAX_OUTPUT_TOKENS</code> sets in the environment and 64000 is the observed historical failure, not a constant. Only the remedies that mention sections or parts go.</p>
 <h4>Brainstorm</h4>
 <p>Steps become: 0 preflight · 1 approach seam (unchanged) · 2 Fable drafts the spec, now including the three trailing sections · 3 Astra critiques the spec, ≤ 2 rounds, Fable concludes · 4 the coordinator derives <code>&lt;spec&gt;.md.tasks.json</code> from <code>## Tasks</code> and runs <code>node &quot;$VIZ&quot; &quot;&lt;spec path&gt;&quot;</code>, which writes <code>&lt;spec&gt;.md.html</code> · 5 report, then stop or hand the spec path back under <code>--continue</code>.</p>
 <p>The old Steps 4 (draft plan), 5 (critique plan) and the parts/splice protocol in Step 0 are deleted. <code>--skip-critics</code> skips Step 3 only. The critique log's <code>&lt;seam&gt;</code> set for brainstorm is <code>approach</code> and <code>spec</code>; <code>## plan ·</code> rows are never written again. <code>&quot;$WRAP&quot; plan</code> appears in no skill.</p>
@@ -123,11 +123,11 @@ details.checks .ok{color:var(--mech)}
 <ul>
 <li>Argument is a spec path. Step 0 classification stays artifact-driven: <code>&lt;X&gt;.md</code></li>
 </ul>
-<p>  with an <code>&lt;X&gt;.md.tasks.json</code> sibling → SPEC branch (was PLAN); anything else →   BRIEF. An old plan file with its sibling still classifies and still runs; its   Steps are reported as <code>has-steps</code> and ignored.</p>
+<p>  with an <code>&lt;X&gt;.md.tasks.json</code> sibling → SPEC branch (was PLAN); anything else →   BRIEF.</p>
 <ul>
 <li>Step 0.5 runs plan-viz on the spec; the stop/continue table is unchanged, with</li>
 </ul>
-<p>  <code>has-steps</code> added to the report-and-continue row. &quot;Has Astra ever read this   spec?&quot; greps the sibling critique log for <code>^## spec </code> and, when absent, offers   the same three options; &quot;Critique it first&quot; runs the <code>spec</code> seam at <code>ROUND=1</code>.</p>
+<p>  <code>has-steps</code> added to the <strong>STOP</strong> row: a task carrying Steps is content the   pipeline would silently drop, so build says so and stops. That also makes   legacy plans non-executable by construction — their Steps hold material   (verbatim code, &quot;the YAML above&quot;) that no other section carries, and forwarding   a plan without its Steps would not be &quot;running it as before&quot;. A legacy plan is   re-brainstormed, not migrated. &quot;Has Astra ever read this spec?&quot; greps the   sibling critique log for <code>^## spec </code> and, when absent, offers the same three   options; &quot;Critique it first&quot; runs the <code>spec</code> seam at <code>ROUND=1</code>.</p>
 <ul>
 <li>Step B is unchanged except wording: brainstorm returns the spec path.</li>
 <li>E2 implementer prompt: the task's Goal / Files / Acceptance Criteria / Verify</li>
@@ -159,7 +159,7 @@ details.checks .ok{color:var(--mech)}
 <ol>
 <li><strong>Parallel readiness</strong> — files disjoint within a wave; <code>blockedBy</code> only for</li>
 </ol>
-<p>   real dependencies; barrier tasks for shared steps; test policy stated when a    build unit is shared; <strong>scaffold task present when a wave wider than one    shares a build unit</strong> (missing = Important).</p>
+<p>   real dependencies; barrier tasks for shared steps; test policy stated when a    build unit is shared; <strong>scaffold task present when a wave wider than one    shares a build unit and a shared name does not yet exist in the tree</strong>    (missing = Important; not demanded when the shared names already exist and    the contract declares them unchanged).</p>
 <ol>
 <li><strong>Task completeness</strong> — exact paths, a runnable verify, checkable criteria,</li>
 </ol>
@@ -183,7 +183,10 @@ build &lt;spec&gt;.md ─► plan-viz checks ─► waves from blockedBy + file-
       ─► per-task review ─► per-task commit ─► Astra code seam against the spec</code></pre>
 <h4>Error handling</h4>
 <ul>
-<li>Task carries Steps → <code>has-steps</code> reported; never forwarded; build continues.</li>
+<li>Task carries Steps → <code>has-steps</code>. In brainstorm it is reported for Fable to</li>
+</ul>
+<p>  fix before the spec ships; in build it STOPS the run, because the field would   otherwise be dropped silently.</p>
+<ul>
 <li>Verify names something unpinned → spec critic Critical before dispatch; if it</li>
 </ul>
 <p>  slips through, the implementer's verify fails and it reports <code>NEEDS_CONTEXT</code>,   the coordinator pins the name and re-dispatches.</p>
@@ -196,8 +199,9 @@ build &lt;spec&gt;.md ─► plan-viz checks ─► waves from blockedBy + file-
 </ul>
 <p>  protocol.</p>
 <ul>
-<li>Old plan handed to build → runs as before; <code>has-steps</code> noise only.</li>
+<li>Old plan handed to build → stops at Step 0.5 on <code>has-steps</code> with a one-line</li>
 </ul>
+<p>  explanation; the user re-brainstorms it.</p>
 <h4>Explicit non-goals (YAGNI)</h4>
 <ul>
 <li>No rename of <code>plan-viz.mjs</code> or the <code>planPath</code> JSON key.</li>
@@ -209,7 +213,10 @@ build &lt;spec&gt;.md ─► plan-viz checks ─► waves from blockedBy + file-
 </ul>
 <p>  wave/commit mechanics in build.</p>
 <ul>
-<li>No migration of old plans; no deletion of <code>docs/foureyes/plans/</code>.</li>
+<li>No migration of old plans and no execution of them; no deletion of</li>
+</ul>
+<p>  <code>docs/foureyes/plans/</code>.</p>
+<ul>
 <li>No change to <code>tests/pressure/</code> scenarios (their &quot;Steps:&quot; is assignment prose</li>
 </ul>
 <p>  inside a pressure prompt, not pipeline contract).</p>
@@ -223,7 +230,7 @@ build &lt;spec&gt;.md ─► plan-viz checks ─► waves from blockedBy + file-
 <li><code>node plan-viz.mjs --json</code> on a tasks.json whose description has a <code><strong>Steps:</strong></code> line reports <code>has-steps</code>; <code>spliceTasks</code> and <code>taskRanges</code> are not exported.</li>
 <li>Build's E2 prompt assembly names Cross-Task Contracts and not Steps; Step 0.5 greps <code>^## spec </code>.</li>
 <li><code>bash tests/run.sh</code> is green, with new prose contracts covering 1, 2 and 4.</li>
-<li>Handing build the existing <code>docs/foureyes/plans/2026-08-05-test-entry-point.md</code> reaches Step 0.5 and reports <code>has-steps</code> for every task, nothing else new.</li>
+<li>Handing build the existing <code>docs/foureyes/plans/2026-08-05-test-entry-point.md</code> reaches Step 0.5, reports <code>has-steps</code> for every task, and stops with the one-line explanation; nothing is dispatched.</li>
 </ol>
 <h4>Cross-Task Contracts</h4>
 <p>Strings the test task (Task 8) greps for; every sibling emits them exactly.</p>
@@ -253,6 +260,14 @@ CLI unchanged: node plan-viz.mjs &lt;doc.md&gt; [--json]; reads &lt;doc.md&gt;.t
 &quot;Has Astra ever read this spec&quot;      grep for '^## spec '
 E2 and E5 both name &quot;Cross-Task Contracts&quot; and &quot;Global Constraints&quot;; E2 never names Steps
 Step 0 branch names: SPEC (was PLAN), BRIEF
+Step 0.5: `has-steps` is in the STOP row
+
+# brainstorm report section (tests/prose-contracts 14e/14g extract it by heading)
+heading text exactly:  ## Step 5 — Report, then stop or hand back
+inside it, in this order: the `--continue` branch, then &quot;print the paths&quot;; and the phrase &quot;standalone … STOP&quot;
+the tests' extraction helper reads `^## Step 5` (was `^## Step 7`)
+
+# drafter ceiling wording: contains CLAUDE_CODE_MAX_OUTPUT_TOKENS (test 22j stays)
 
 # drafter phrases
 Assignment A carries the three sections; contains &quot;declarations only&quot; and &quot;scaffold&quot;
@@ -267,7 +282,7 @@ contains &quot;Cross-Task Contracts&quot;, &quot;NEEDS_CONTEXT&quot;; absent: &q
 
 # pipeline-stats: CODEX_ONLY = ['foureyes-spec-critic', 'foureyes-code-critic']
 # astra-ledger:   SEAMS unchanged = ['approach','investigate','spec','plan','code']</code></pre>
-<p><strong>Test policy.</strong> All nine tasks are wave 1 and file-disjoint; there is no shared build unit, so no scaffold task. Each task's Verify checks only its own files. <code>bash tests/run.sh</code> is expected red until the join and green at the join, when Task 8's rewritten assertions meet the siblings' text. The pre-commit hook runs the suite on the working tree, so the per-task commits at the join all pass; individual wave-1 commits may be red in isolation, and that is accepted.</p>
+<p><strong>Test policy.</strong> All nine tasks are wave 1 and file-disjoint. Tasks 6 and 7 share one build unit (<code>pipeline-stats.mjs</code> imports <code>parseTasks</code>, <code>computeWaves</code>, <code>detectProblems</code> from <code>plan-viz.mjs</code>), but every shared name already exists and the contract keeps it unchanged, so under the scaffold rule no scaffold task is needed. Each task's Verify runs independently against only its own files; Task 8's Verify is a syntax and presence check, not the suite. The integrated run, <code>bash tests/run.sh</code>, is the coordinator's E6 barrier at the join, when Task 8's rewritten assertions meet the siblings' text. The pre-commit hook runs the suite on the working tree, so the per-task commits at the join all pass; individual wave-1 commits may be red in isolation, and that is accepted.</p>
 <h4>Global Constraints</h4>
 <ul>
 <li>No new dependencies; Node stdlib and bash only.</li>
@@ -303,8 +318,8 @@ contains &quot;Cross-Task Contracts&quot;, &quot;NEEDS_CONTEXT&quot;; absent: &q
   <div class="blk"><h5>Goal</h5><p>Rewrite <code>agents/foureyes-drafter.md</code> so Assignment A produces the spec with its three trailing sections and Assignment B, Steps, and the parts/splice protocol are gone.</p></div>
   <div class="blk"><h5>Files</h5><p class="files"><code>agents/foureyes-drafter.md</code></p></div>
   
-  <div class="blk"><h5>Done when</h5><ul class="crit"><li>Assignment A emits the three trailing sections with the per-task format and no Steps</li><li>Assignment B and the parts/splice protocol are deleted</li><li>scaffold, tier, and reference rules present</li><li>DRAFTER-STATS first-line rule kept</li></ul></div>
-  <div class="blk"><h5>Verify</h5><pre class="code"><code>f=agents/foureyes-drafter.md; ! grep -q '\*\*Steps:\*\*' $f &amp;&amp; ! grep -q 'TASKS-PER-PART\|DRAFT: part\|REVISION: sections\|CHANGED-TASKS\|Assignment B' $f &amp;&amp; grep -q '## Cross-Task Contracts' $f &amp;&amp; grep -q '## Global Constraints' $f &amp;&amp; grep -q '## Tasks' $f &amp;&amp; grep -qi 'declarations only' $f &amp;&amp; grep -qi 'scaffold' $f &amp;&amp; grep -q 'DRAFTER-STATS' $f &amp;&amp; echo OK</code></pre></div>
+  <div class="blk"><h5>Done when</h5><ul class="crit"><li>Assignment A emits the three trailing sections with the per-task format and no Steps</li><li>Assignment B and the parts/splice protocol are deleted</li><li>scaffold (with the already-exists exemption), tier, and reference rules present</li><li>DRAFTER-STATS first-line rule and CLAUDE_CODE_MAX_OUTPUT_TOKENS wording kept</li></ul></div>
+  <div class="blk"><h5>Verify</h5><pre class="code"><code>f=agents/foureyes-drafter.md; ! grep -q '\*\*Steps:\*\*' $f &amp;&amp; ! grep -q 'TASKS-PER-PART\|DRAFT: part\|REVISION: sections\|CHANGED-TASKS\|Assignment B' $f &amp;&amp; grep -q '## Cross-Task Contracts' $f &amp;&amp; grep -q '## Global Constraints' $f &amp;&amp; grep -q '## Tasks' $f &amp;&amp; grep -qi 'declarations only' $f &amp;&amp; grep -qi 'scaffold' $f &amp;&amp; grep -q 'DRAFTER-STATS' $f &amp;&amp; grep -q 'CLAUDE_CODE_MAX_OUTPUT_TOKENS' $f &amp;&amp; echo OK</code></pre></div>
 </article><article class="card" id="task-1">
   <header>
     <h4>Task 2: Spec critic absorbs task checks; delete plan critic</h4>
@@ -342,8 +357,8 @@ contains &quot;Cross-Task Contracts&quot;, &quot;NEEDS_CONTEXT&quot;; absent: &q
   <div class="blk"><h5>Goal</h5><p>Restructure <code>skills/foureyes-brainstorm/SKILL.md</code> to draft and critique a single spec that ends with tasks, derive tasks.json from it, and render it.</p></div>
   <div class="blk"><h5>Files</h5><p class="files"><code>skills/foureyes-brainstorm/SKILL.md</code></p></div>
   
-  <div class="blk"><h5>Done when</h5><ul class="crit"><li>one document seam: spec drafted, critiqued &lt;=2, concluded</li><li>tasks.json derived from the spec and plan-viz run on it</li><li>plan steps, parts protocol and splicing deleted</li><li>spec seam mechanics unchanged</li></ul></div>
-  <div class="blk"><h5>Verify</h5><pre class="code"><code>f=skills/foureyes-brainstorm/SKILL.md; ! grep -q '&quot;\$WRAP&quot; plan' $f &amp;&amp; ! grep -q 'foureyes/plans\|TASKS-PER-PART\|spliceTasks\|CHANGED-TASKS\|DRAFT: part' $f &amp;&amp; grep -q 'has-steps' $f &amp;&amp; grep -q '## Tasks' $f &amp;&amp; grep -q 'tasks.json' $f &amp;&amp; grep -q 'CODEX_CRITIC_ROUND' $f &amp;&amp; grep -q 'Strip the leading' $f &amp;&amp; echo OK</code></pre></div>
+  <div class="blk"><h5>Done when</h5><ul class="crit"><li>one document seam: spec drafted, critiqued &lt;=2, concluded</li><li>tasks.json derived from the spec and plan-viz run on it</li><li>plan steps, parts protocol and splicing deleted</li><li>spec seam mechanics unchanged</li><li>Step 5 report heading and internal order pinned for the prose tests</li></ul></div>
+  <div class="blk"><h5>Verify</h5><pre class="code"><code>f=skills/foureyes-brainstorm/SKILL.md; ! grep -q '&quot;\$WRAP&quot; plan' $f &amp;&amp; ! grep -q 'foureyes/plans\|TASKS-PER-PART\|spliceTasks\|CHANGED-TASKS\|DRAFT: part' $f &amp;&amp; grep -q 'has-steps' $f &amp;&amp; grep -q '## Tasks' $f &amp;&amp; grep -q 'tasks.json' $f &amp;&amp; grep -q 'CODEX_CRITIC_ROUND' $f &amp;&amp; grep -q 'Strip the leading' $f &amp;&amp; grep -q '^## Step 5 — Report, then stop or hand back' $f &amp;&amp; ! grep -q '^## Step [67]' $f &amp;&amp; echo OK</code></pre></div>
 </article><article class="card" id="task-4">
   <header>
     <h4>Task 5: Build skill: execute the spec</h4>
@@ -394,8 +409,8 @@ contains &quot;Cross-Task Contracts&quot;, &quot;NEEDS_CONTEXT&quot;; absent: &q
   <div class="blk"><h5>Goal</h5><p>Rewrite the assertions in <code>tests/prose-contracts.test.sh</code> and <code>tests/codex-critic.test.sh</code> that encode the plan, and add the ones that pin the new contract.</p></div>
   <div class="blk"><h5>Files</h5><p class="files"><code>tests/prose-contracts.test.sh</code> <code>tests/codex-critic.test.sh</code></p></div>
   
-  <div class="blk"><h5>Done when</h5><ul class="crit"><li>plan-encoding assertions removed or rewritten as listed</li><li>eight new contract assertions added</li><li>codex-critic budget loop is spec code</li><li>full suite green at the join</li></ul></div>
-  <div class="blk"><h5>Verify</h5><pre class="code"><code>bash tests/run.sh</code></pre></div>
+  <div class="blk"><h5>Done when</h5><ul class="crit"><li>plan-encoding assertions removed or rewritten as listed, s7 helper moved to Step 5</li><li>eight new contract assertions added</li><li>codex-critic budget loop is spec code</li><li>verify runs independently; the full suite is the coordinator's barrier</li></ul></div>
+  <div class="blk"><h5>Verify</h5><pre class="code"><code>t=tests/prose-contracts.test.sh; bash -n $t &amp;&amp; bash -n tests/codex-critic.test.sh &amp;&amp; grep -q 'Has Astra ever read this spec' $t &amp;&amp; grep -q &quot;^## Step 5&quot; $t &amp;&amp; ! grep -q '^## Step 7' $t &amp;&amp; ! grep -q 'TASKS-PER-PART\|spliceTasks\|plan-critic' $t &amp;&amp; grep -q 'CLAUDE_CODE_MAX_OUTPUT_TOKENS' $t &amp;&amp; grep -q 'Cross-Task Contracts' $t &amp;&amp; grep -q 'for m in spec code' tests/codex-critic.test.sh &amp;&amp; echo OK</code></pre></div>
 </article><article class="card" id="task-8">
   <header>
     <h4>Task 9: README and site describe the new pipeline</h4>
