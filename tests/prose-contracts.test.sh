@@ -54,7 +54,7 @@ echo "--- Codex owns every critique; Claude never reviews at a seam ---"
 # The whole thesis: the author and the critic are different model families. If a
 # seam ever dispatches one of the critic agents as a Claude subagent, that is
 # gone — and nothing else in the suite would notice.
-for a in spec-critic plan-critic code-critic; do
+for a in spec-critic code-critic; do
   check "3 no skill dispatches foureyes-$a as a subagent" \
     '! grep -rq "subagent_type: foureyes-'"$a"'" "$SK"'
 done
@@ -62,7 +62,7 @@ done
 echo "--- doc seams stay round-budgeted ---"
 # A seam that forgets CODEX_CRITIC_ROUND runs unbudgeted: the wrapper defaults to
 # round 1 forever, and drafter<->critic never converges.
-for m in spec plan; do
+for m in spec; do
   check "4 brainstorm '$m' seam passes CODEX_CRITIC_ROUND" \
     'grep -B3 "\"\$WRAP\" '"$m"'" "$BS" | grep -q "CODEX_CRITIC_ROUND="'
 done
@@ -84,7 +84,7 @@ echo "--- critic prompts emit the grammar the wrapper parses ---"
 # codex-critic.sh keys on ^VERDICT: and counts ^- [Critical] / ^- [Important].
 # Rewording a critic's output format silently zeroes those counts, and the gate
 # then reports clean.
-for a in spec plan code; do
+for a in spec code; do
   check "6a $a-critic specifies a VERDICT line" \
     'grep -q "^VERDICT:" "$AG/foureyes-'"$a"'-critic.md"'
   check "6b $a-critic specifies [Critical] findings" \
@@ -153,33 +153,33 @@ check "13e both skills resolve the ledger reader" \
 check "13f the reader is on the deterministic suite list" \
   'grep -q "astra-ledger.test.mjs" "$HERE/run.sh"'
 
-echo "--- an uncritiqued plan asks, and never auto-runs brainstorm ---"
+echo "--- an uncritiqued spec asks, and never auto-runs brainstorm ---"
 # Step 0.5 offering to critique must stay an offer. Invoking brainstorm here
-# would make `foureyes-build <plan>` silently slower than the user asked for.
-check "14a build detects a plan with no plan-seam entry" \
-  'grep -q "Has Astra ever read this plan" "$BD"'
+# would make `foureyes-build <spec>` silently slower than the user asked for.
+check "14a build detects a spec with no spec-seam entry" \
+  'grep -q "Has Astra ever read this spec" "$BD" && grep -q "'"'"'^## spec '"'"'" "$BD"'
 check "14b it asks rather than deciding" \
-  'grep -A12 "Has Astra ever read this plan" "$BD" | grep -q "AskUserQuestion"'
+  'grep -A12 "Has Astra ever read this spec" "$BD" | grep -q "AskUserQuestion"'
 check "14c it never invokes brainstorm from that branch" \
-  'grep -A12 "Has Astra ever read this plan" "$BD" | grep -q "never invoke brainstorm"'
+  'grep -A12 "Has Astra ever read this spec" "$BD" | grep -q "never invoke brainstorm"'
 
 echo "--- inline brainstorm hands back instead of stopping ---"
-# build invokes brainstorm with --continue and goes straight to execution. Step 7
+# build invokes brainstorm with --continue and goes straight to execution. Step 5
 # used to be titled "Hard stop" with the --continue exception as its LAST bullet,
 # so the model read a whole section framed as stopping before reaching the one
 # line saying not to, and paused for HTML approval mid-build anyway. The mode has
 # to be decided BEFORE the report. 14e is the assertion that actually bites: it
 # fails the moment the branch drifts back below the report body.
-s7()  { sed -n '/^## Step 7/,$p' "$BS"; }
-s7n() { s7 | grep -n -i -e "$1" | head -1 | cut -d: -f1; }
+s5()  { sed -n '/^## Step 5/,$p' "$BS"; }
+s5n() { s5 | grep -n -i -e "$1" | head -1 | cut -d: -f1; }
 check "14d build invokes brainstorm with --continue" \
   'grep -A2 "Invoke Skill .foureyes:foureyes-brainstorm" "$BD" | grep -q -e "--continue"'
 check "14e brainstorm picks the mode before writing the report" \
-  'a=$(s7n "--continue"); b=$(s7n "print the paths"); [ -n "$a" ] && [ -n "$b" ] && [ "$a" -lt "$b" ]'
+  'a=$(s5n "--continue"); b=$(s5n "print the paths"); [ -n "$a" ] && [ -n "$b" ] && [ "$a" -lt "$b" ]'
 check "14f the --continue branch forbids asking" \
   'has "$BS" "ask NOTHING"'
 check "14g standalone still stops" \
-  's7 | grep -qi "standalone.*STOP"'
+  's5 | grep -qi "standalone.*STOP"'
 
 echo "--- transient failures retry, then degrade — never wait on the user ---"
 # The pipeline is left unattended. A timed-out Astra call used to be handed back as
@@ -261,52 +261,18 @@ check "18f brainstorm sources timing from the user's own history" \
 check "18g no invented per-run constants survive in the drafter" \
   '! grep -qE "capped at [0-9]+ tool calls|[0-9]+ network calls total|under ~?[0-9]+KB" "$DR"'
 
-echo "--- a revision never re-emits the whole document ---"
+echo "--- a large drafter return is read from disk, never re-dispatched blind ---"
 # Measured over 90 drafter dispatches: 20 returns were too large and got spilled
 # to disk behind a 2KB preview, and one died on the 64k output-token ceiling
-# after 51 minutes. The drafter is the only subagent with this problem, and
-# re-emitting a whole plan to fix three findings is the cause.
-check "21a drafter has a section-scoped revision mode" \
-  'grep -q "REVISION: sections" "$DR" && grep -q "CHANGED-TASKS:" "$DR"'
-check "21b full re-emit is reserved for structural change" \
-  'grep -q "REVISION: full" "$DR"'
-check "21c the rule is send-only-what-changed, not a borrowed byte count" \
-  'grep -qi "never send more than the change requires" "$DR"'
+# after 51 minutes. The drafter is the only subagent with this problem.
 check "21d brainstorm reads a spilled return instead of writing the preview" \
   'grep -q "persisted-output" "$BS" && grep -qi "Read that path" "$BS"'
 check "21e brainstorm never re-dispatches an over-limit assignment unchanged" \
   'grep -q "64000 output" "$BS" && grep -qi "do NOT.*re-dispatch" "$BS"'
-check "21f brainstorm knows how to splice a sections reply" \
-  'grep -q "CHANGED-TASKS" "$BS"'
 check "21g the reader classifies spill and over-limit distinctly" \
   'grep -q "over-limit" "$PS" && grep -q "spilled" "$PS"'
-
-echo "--- a big plan is allowed; a big reply is not ---"
-# Plan size is deliberately uncapped. The reply has a ceiling, so a large plan
-# arrives in parts — and the part protocol is only safe if numbering stays global
-# and the coordinator derives .tasks.json once, after assembly.
-check "22a drafter can emit a plan in parts" \
-  'grep -q "DRAFT: part" "$DR" && grep -q "REMAINING:" "$DR"'
-check "22b numbering is global, never restarted per part" \
-  'grep -qi "globally and contiguously" "$DR"'
-check "22c continuations get a manifest, not the earlier text" \
-  'grep -qi "manifest of the tasks already emitted\|manifest of tasks already emitted" "$DR"'
-check "22d nothing in the drafter caps how large a PLAN may be" \
-  'grep -qi "Plans are not capped" "$DR"'
-# The split size must come from the caller and self-correct, not from a constant
-# baked in from whoever happened to be measured.
-check "22h part size is supplied by the coordinator, not chosen by the drafter" \
-  'grep -q "TASKS-PER-PART:" "$DR" && grep -q "TASKS-PER-PART:" "$BS"'
-check "22i the coordinator halves it on overflow instead of guessing once" \
-  'grep -qi "halve it (8" "$BS" || grep -qi "halving" "$BS"'
 check "22j the token ceiling is read from the environment, not hardcoded" \
   'grep -q "CLAUDE_CODE_MAX_OUTPUT_TOKENS" "$DR"'
-check "22e brainstorm assembles parts before deriving tasks.json" \
-  'grep -q "DRAFT: part" "$BS" && grep -qi "Derive \`.tasks.json\` ONCE\|derive .tasks.json ONCE" "$BS"'
-check "22f brainstorm verifies no task number is missing" \
-  'grep -qi "ids contiguous from 1" "$BS"'
-check "22g Astra critiques the assembled plan, not a part" \
-  'grep -qi "critiques the assembled plan" "$BS"'
 
 echo "--- inert plan metadata is reported, never honoured ---"
 check "19a plan-viz declares the keys build actually reads" \
@@ -363,7 +329,7 @@ echo "--- the misroute is now PREVENTED, not only detected ---"
 # frontmatter description is what Claude reads when choosing an agent, and
 # codex-critic.sh strips frontmatter, so it is the one place a warning reaches
 # Claude and never reaches Codex.
-for a in spec plan code; do
+for a in spec code; do
   check "24a $a-critic's description forbids subagent dispatch" \
     'awk "/^---/{n++} n==1" "$AG/foureyes-'"$a"'-critic.md" | grep -qi "NOT A CLAUDE SUBAGENT"'
   check "24b $a-critic's body tells a Claude subagent to stop" \
@@ -374,23 +340,6 @@ for a in review refute; do
   check "24c $a-critic is not falsely guarded" \
     '! grep -qi "NOT A CLAUDE SUBAGENT" "$AG/foureyes-'"$a"'-critic.md"'
 done
-
-echo "--- a section revision is spliced by the library, never by hand ---"
-# A hand splice can silently corrupt a plan that then executes into commits. This
-# was prose-only while classify(), which only affects a report, had 14 tests.
-PV="$SK/foureyes-brainstorm/lib/plan-viz.mjs"
-check "25a plan-viz exports spliceTasks" \
-  'grep -q "export function spliceTasks" "$PV"'
-check "25b splice shares its boundary scan with the renderer" \
-  'grep -q "export function taskRanges" "$PV" && grep -q "taskRanges(lines)" "$PV"'
-check "25c a missing task number is reported, not appended" \
-  'grep -q "missing" "$PV"'
-check "25d brainstorm calls spliceTasks instead of editing by hand" \
-  'grep -q "spliceTasks" "$BS"'
-check "25e a non-empty missing aborts the write" \
-  'grep -q "MISSING" "$BS"'
-check "25f the stats line is FIRST so no splice can bury it" \
-  'grep -qi "START every response with this line, FIRST" "$DR" && grep -qi "Strip the leading" "$BS"'
 
 echo "--- unobserved is not failure ---"
 # Subagents run in the background by default and their completion carries no link
@@ -437,7 +386,7 @@ check "27e build routes frontier to the frontier agent" \
   'grep -q "foureyes-implementer-frontier" "$BD"'
 # Codex-only critics are never dispatched as Claude subagents and the wrapper
 # strips frontmatter — an effort pin there would imply they are dispatchable.
-for a in spec plan code approach investigate; do
+for a in spec code approach investigate; do
   check "27f $a-critic carries no effort pin" \
     '! awk "/^---/{n++} n==1 && /^effort:/{print}" "$AG/foureyes-'"$a"'-critic.md" | grep -q .'
 done
@@ -473,7 +422,7 @@ check "28k Astra rounds are priced by the ledger like every other seam" \
   'grep -q "## investigate · round" "$IV"'
 
 echo "--- read-only agents stay read-only ---"
-for a in approach-critic investigate-critic spec-critic plan-critic code-critic task-reviewer review-critic refute-critic scout investigator; do
+for a in approach-critic investigate-critic spec-critic code-critic task-reviewer review-critic refute-critic scout investigator; do
   check "9 $a has no Write/Edit tool" \
     '! grep "^tools:" "$AG/foureyes-'"$a"'.md" | grep -qE "\bWrite\b|\bEdit\b"'
 done
@@ -484,6 +433,29 @@ for f in "$AG"/*.md; do
   check "10 $n frontmatter name matches filename" \
     '[ "$(awk "/^name:/{print \$2; exit}" "$f")" = "'"$n"'" ]'
 done
+
+echo "--- the spec owns the tasks; there is no separate plan ---"
+# The implementation plan, its Steps field, and the parts/splice protocol are
+# gone. A skill that still calls "$WRAP" plan, or an implementer that still
+# expects a Steps field, is running the deleted design.
+check "29a no skill calls \"\$WRAP\" plan" \
+  '! grep -rq "\"\$WRAP\" plan" "$SK"'
+check "29b the drafter has no Steps field, and emits spec structure" \
+  '! has "$AG/foureyes-drafter.md" "Steps:" && grep -q "## Cross-Task Contracts" "$AG/foureyes-drafter.md" && grep -q "## Global Constraints" "$AG/foureyes-drafter.md" && grep -q "## Tasks" "$AG/foureyes-drafter.md" && has "$AG/foureyes-drafter.md" "declarations only" && has "$AG/foureyes-drafter.md" "scaffold"'
+check "29c the drafter carries no part/splice protocol" \
+  '! grep -q "TASKS-PER-PART" "$AG/foureyes-drafter.md" && ! grep -q "DRAFT: part" "$AG/foureyes-drafter.md" && ! grep -q "REVISION: sections" "$AG/foureyes-drafter.md" && ! grep -q "CHANGED-TASKS" "$AG/foureyes-drafter.md"'
+check "29d the spec critic reviews contracts, scaffolding and coverage" \
+  'has "$AG/foureyes-spec-critic.md" "Cross-Task Contracts" && has "$AG/foureyes-spec-critic.md" "scaffold" && has "$AG/foureyes-spec-critic.md" "coverage"'
+check "29e build's E2 forwards contracts, not Steps" \
+  'has "$BD" "Cross-Task Contracts" && has "$BD" "Global Constraints" && ! grep -q "Verify / Steps" "$BD" && grep -q "has-steps" "$BD"'
+for a in implementer implementer-frontier; do
+  check "29f $a knows the Cross-Task Contracts and expects no Steps" \
+    'has "$AG/foureyes-$a.md" "Cross-Task Contracts" && ! grep -q "Steps" "$AG/foureyes-$a.md"'
+done
+check "29g plan-viz exports no spliceTasks" \
+  '! grep -q "spliceTasks" "$SK/foureyes-brainstorm/lib/plan-viz.mjs"'
+check "29h foureyes-plan-critic.md no longer exists" \
+  '[ ! -f "$AG/foureyes-plan-critic.md" ]'
 
 echo
 echo "prose-contracts.test.sh: $PASS passed, $FAIL failed"

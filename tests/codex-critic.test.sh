@@ -60,7 +60,7 @@ check "5b past budget spends NO codex call"   '[ ! -f args.txt ]'
 check "5c past budget still exits 0"          '[ "$(cat rc.txt)" = 0 ]'
 check "5d past budget says FINAL"             'grep -q "FINAL" err.txt'
 
-for m in plan code; do
+for m in spec code; do
   run "$m" CODEX_CRITIC_ROUND=9 CODEX_CRITIC_MAX_ROUNDS=2
   check "5e budget applies to seam '$m'"      '[ "$(gate)" = conclude ]'
 done
