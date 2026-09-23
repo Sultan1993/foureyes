@@ -1,0 +1,418 @@
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spec: The spec owns the tasks — delete the implementation plan</title>
+<style>
+:root{--bg:#f5f7fa;--sf:#fff;--sf2:#eef1f6;--bd:#d7dde6;--ink:#1a2029;--soft:#54606f;--faint:#8791a0;
+--mech:#1f9d68;--std:#2560c4;--fro:#7c53e6;--bad:#cc4444;--mono:ui-monospace,Menlo,Consolas,monospace}
+@media(prefers-color-scheme:dark){:root{--bg:#0d1117;--sf:#161c25;--sf2:#1c232e;--bd:#2a3441;--ink:#e7ecf3;--soft:#9aa6b6;--faint:#647084;--mech:#43c78c;--std:#5b8cf0;--fro:#a689f7;--bad:#e5706b}}
+:root[data-theme="light"]{--bg:#f5f7fa;--sf:#fff;--sf2:#eef1f6;--bd:#d7dde6;--ink:#1a2029;--soft:#54606f;--faint:#8791a0;--mech:#1f9d68;--std:#2560c4;--fro:#7c53e6;--bad:#cc4444}
+:root[data-theme="dark"]{--bg:#0d1117;--sf:#161c25;--sf2:#1c232e;--bd:#2a3441;--ink:#e7ecf3;--soft:#9aa6b6;--faint:#647084;--mech:#43c78c;--std:#5b8cf0;--fro:#a689f7;--bad:#e5706b}
+*{box-sizing:border-box}
+body{margin:0 auto;max-width:1180px;background:var(--bg);color:var(--ink);font:15px/1.62 system-ui,-apple-system,sans-serif;padding:40px 24px 72px}
+a{color:var(--std)}
+h1{font-size:27px;line-height:1.25;margin:0 0 6px;letter-spacing:-.01em}
+h3{font-size:12.5px;text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono);margin:0 0 14px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.wnum{color:var(--ink);font-weight:700}.wmeta{color:var(--faint);text-transform:none;letter-spacing:0}
+.sub{color:var(--soft);font-family:var(--mono);font-size:12.5px;margin-bottom:24px;word-break:break-all}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:30px}
+.stat{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:9px 15px}
+.stat b{font-size:19px;display:block;line-height:1.2}.stat span{font-size:11px;color:var(--faint);font-family:var(--mono)}
+.brief{background:var(--sf);border:1px solid var(--bd);border-left:3px solid var(--std);border-radius:10px;padding:4px 20px;margin-bottom:34px}
+.brief h4{font-size:14px;margin:14px 0 6px}
+.wave{margin-bottom:34px}.wave.bad .wnum{color:var(--bad)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px;align-items:start}
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:15px 17px 5px}
+.card header{border-bottom:1px solid var(--bd);padding-bottom:10px;margin-bottom:12px}
+.card h4{margin:0 0 7px;font-size:15px;line-height:1.35}
+.meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.after{font-family:var(--mono);font-size:10.5px;color:var(--faint)}.after.free{opacity:.65}
+.blk{margin-bottom:14px}
+.blk h5{margin:0 0 5px;font:600 10.5px/1 var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--faint)}
+.blk p{margin:0 0 7px}.blk ul,.blk ol{margin:0 0 7px;padding-left:20px}.blk li{margin:2px 0}
+.blk :last-child{margin-bottom:0}
+.crit li{color:var(--soft)}
+.files code{display:inline-block;margin:0 4px 4px 0}
+pre.code{background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:9px 11px;overflow-x:auto;max-height:260px;overflow-y:auto;margin:0 0 7px}
+pre.code code{background:none;padding:0;font-size:11.5px;line-height:1.5;white-space:pre}
+code{font-family:var(--mono);font-size:.88em;background:color-mix(in srgb,var(--bd) 45%,transparent);padding:1px 5px;border-radius:4px;word-break:break-word}
+.chip{font-family:var(--mono);font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
+.chip.mechanical{color:var(--mech);background:color-mix(in srgb,var(--mech) 14%,transparent)}
+.chip.standard{color:var(--std);background:color-mix(in srgb,var(--std) 14%,transparent)}
+.chip.frontier{color:var(--fro);background:color-mix(in srgb,var(--fro) 14%,transparent)}
+.chip.bad{color:var(--bad);background:color-mix(in srgb,var(--bad) 14%,transparent)}
+details.checks{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:12px 18px;margin-top:10px}
+details.checks summary{cursor:pointer;font:600 11.5px/1 var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--faint)}
+details.checks ul{margin:12px 0 2px;padding-left:20px}
+details.checks li{margin:4px 0;color:var(--soft)}
+details.checks b{color:var(--bad);font-family:var(--mono);font-size:12.5px}
+details.checks .ok{color:var(--mech)}
+</style>
+<h1>Spec: The spec owns the tasks — delete the implementation plan</h1>
+<div class="sub">docs/foureyes/specs/2026-09-23-spec-owns-tasks-design.md</div>
+<div class="stats">
+  <div class="stat"><b>9</b><span>tasks</span></div>
+  <div class="stat"><b>1</b><span>waves</span></div>
+  <div class="stat"><b style="color:var(--mech)">0</b><span>mechanical</span></div>
+  <div class="stat"><b style="color:var(--std)">7</b><span>standard</span></div>
+  <div class="stat"><b style="color:var(--fro)">2</b><span>frontier</span></div>
+</div>
+<div class="brief"><p><strong>Date:</strong> 2026-09-23 <strong>Approaches file:</strong> none — direction settled in conversation (fold tasks into the spec, drop Steps, keep contracts) <strong>Chosen approach:</strong> one document seam; tasks without code; contracts in code form; scaffold wave when parallelism shares a build unit</p>
+<h4>Purpose</h4>
+<p>Brainstorm today produces two documents and runs two Astra loops: a design spec, then an implementation plan whose tasks carry a <code>Steps</code> field. The drafter is told that Steps must be &quot;complete enough that the assigned tier can execute without judgment gaps — for mechanical tasks that means the code itself&quot;. So the plan is the feature implemented once in markdown, read twice by Astra, then implemented again in files by a Sonnet. Measured on the plans in this repo, 49–56% of plan lines are code fences. The plan seam costs 33–73 minutes per brainstorm, and its long tail (a 51-minute dispatch that hit the output ceiling) is the reason the drafter carries a part-splitting protocol, <code>TASKS-PER-PART</code>, halving, <code>REVISION: sections</code> and a task splicer.</p>
+<p>This change deletes the plan. The design spec ends with a <code>## Tasks</code> section in the existing task format minus Steps. Nobody writes code before build. Build is unchanged in behavior: it still reads a <code>.tasks.json</code>, computes waves, routes by tier, reviews per task and commits per task.</p>
+<p>Three mitigations ship with it, because dropping pre-written code has one real regression — names shared between concurrent implementers are no longer pinned by construction:</p>
+<ol>
+<li><strong>Contracts in code form.</strong> The spec pins every shared name as a declaration</li>
+</ol>
+<p>   (signature, type, path, flag, env var, exit code, test name). Never a body.</p>
+<ol>
+<li><strong>A scaffold task</strong> when a wave wider than one shares a build unit: one serial</li>
+</ol>
+<p>   task creates the files and declares the contracts so the tree compiles before    the parallel wave starts.</p>
+<ol>
+<li><strong>A spec-critic rule</strong>: every name a task references from a sibling, and every</li>
+</ol>
+<p>   name a verify command references outside the task's own files, must appear in    the contracts section.</p>
+<p>Expected result: brainstorm drops from roughly 65–80 minutes to 35–40; the overflow tail disappears; build wall clock unchanged.</p>
+<h4>Design</h4>
+<h4>The spec document</h4>
+<p><code>docs/foureyes/specs/YYYY-MM-DD-&lt;topic&gt;-design.md</code> keeps everything it has today (purpose, design, data flow, error handling, non-goals, success criteria, <code>## Assumptions</code> when unknowns were not put to the user) and gains three trailing sections, in this order:</p>
+<pre class="code"><code>## Cross-Task Contracts
+## Global Constraints
+## Tasks</code></pre>
+<p><strong><code>## Cross-Task Contracts</code></strong> — declarations only. Function and type signatures, file paths, CLI flags, env vars, exit codes, exact test names, section headings other tasks grep for. Written as code blocks in the target language where one exists. A body, an implementation, or a &quot;for example&quot; implementation is a defect. Also carries the test policy when tasks share a build unit (which task runs the shared suite, and when it is expected green). Present even when empty-ish: a wave of width one still has to say &quot;no shared names&quot;.</p>
+<p><strong><code>## Global Constraints</code></strong> — one line each, the project-wide requirements every task implicitly carries: version floors, dependency limits, naming rules, platform requirements, implementer discipline. Build passes this section verbatim to every implementer and reviewer, so it is written for them, not for the reader of the design.</p>
+<p><strong><code>## Tasks</code></strong> — <code>### Task N: &lt;subject ≤ 60 chars&gt;</code> sections numbered from 1, each carrying exactly:</p>
+<pre class="code"><code>**Goal:** one sentence.
+**Files:** exact Create/Modify paths.
+**Acceptance Criteria:** bullet list, each one checkable.
+**Verify:** one runnable command.</code></pre>
+<p>followed by a <code>json:metadata</code> fence holding <code>{&quot;files&quot;: [...], &quot;modelTier&quot;: &quot;mechanical|standard|frontier&quot;, &quot;verifyCommand&quot;: &quot;...&quot;, &quot;acceptanceCriteria&quot;: [...], &quot;blockedBy&quot;: [task numbers]}</code>.</p>
+<p>There is no <code>Steps</code> field. A task that carries one is reported by plan-viz as <code>has-steps</code> and the field is never forwarded to an implementer.</p>
+<p>Rules the drafter follows for the task section (these move from Assignment B to Assignment A, minus everything about Steps):</p>
+<ul>
+<li>Files disjoint within a wave; shared steps (codegen, wiring, cleanup) become</li>
+</ul>
+<p>  barrier tasks after the wave. <code>blockedBy</code> only for real dependencies.</p>
+<ul>
+<li>A verify-only task declares <code>&quot;files&quot;: []</code>.</li>
+<li>A verify command or acceptance criterion may reference only: paths in the</li>
+</ul>
+<p>  task's own Files, names in <code>## Cross-Task Contracts</code>, or names that already   exist in the repo. Anything else is a contract the drafter forgot to pin.</p>
+<ul>
+<li><strong>Scaffold rule.</strong> If any wave has width &gt; 1 and its tasks share a build unit</li>
+</ul>
+<p>  (same package, module, compilation unit, or one imports from another), the   first task is a scaffold: create the files named in the contracts, declare the   signatures with stub bodies so the tree compiles or loads, no logic. Tier   <code>mechanical</code>. Every task of that wave lists it in <code>blockedBy</code>. Independent   files (a bash script and a YAML, two unrelated markdown files) need no   scaffold.</p>
+<ul>
+<li><strong>Tier rule.</strong> <code>mechanical</code> only when the task is fully determined by the</li>
+</ul>
+<p>  contracts plus its criteria — scaffold tasks, renames, copying bytes the spec   already verified. <code>standard</code> when the implementer writes code from a goal.   <code>frontier</code> when the task needs design judgment the spec does not capture. No   blanket assignments. The old tie-break &quot;steps containing the complete code =   mechanical&quot; is deleted with Steps.</p>
+<ul>
+<li>Verify commands run under the harness shell, zsh on macOS: never use <code>status</code>,</li>
+</ul>
+<p>  <code>path</code>, <code>argv</code> or <code>options</code> as variable names.</p>
+<ul>
+<li>Every library/API claim verified via Context7 or WebSearch first.</li>
+<li>Subjects ≤ 60 characters.</li>
+</ul>
+<p><strong>Reply size.</strong> Without code, a thirty-task spec is roughly 30 KB, an order of magnitude under the output ceiling. The parts protocol, <code>TASKS-PER-PART</code>, halving, <code>DRAFT: part</code>, <code>REMAINING</code>, <code>REVISION: sections</code>, <code>CHANGED-TASKS</code> and the splicer are deleted. On revision the drafter returns the full spec. If a spec reply ever overflows, that is a scope problem: the feature is too big for one build and is decomposed into sub-projects, which the spec critic's scope check already asks for. The harness facts (spilled output lands in a file and returns a preview; the 64000-token ceiling returns nothing) stay in the drafter and coordinator prose; only the remedies that mention sections or parts go.</p>
+<h4>Brainstorm</h4>
+<p>Steps become: 0 preflight · 1 approach seam (unchanged) · 2 Fable drafts the spec, now including the three trailing sections · 3 Astra critiques the spec, ≤ 2 rounds, Fable concludes · 4 the coordinator derives <code>&lt;spec&gt;.md.tasks.json</code> from <code>## Tasks</code> and runs <code>node &quot;$VIZ&quot; &quot;&lt;spec path&gt;&quot;</code>, which writes <code>&lt;spec&gt;.md.html</code> · 5 report, then stop or hand the spec path back under <code>--continue</code>.</p>
+<p>The old Steps 4 (draft plan), 5 (critique plan) and the parts/splice protocol in Step 0 are deleted. <code>--skip-critics</code> skips Step 3 only. The critique log's <code>&lt;seam&gt;</code> set for brainstorm is <code>approach</code> and <code>spec</code>; <code>## plan ·</code> rows are never written again. <code>&quot;$WRAP&quot; plan</code> appears in no skill.</p>
+<p><code>.tasks.json</code> derivation is unchanged in shape (<code>planPath</code>, <code>tasks[{id 0-based, subject &quot;Task N: …&quot;, description = the full task markdown including the fence, blockedBy 0-based}]</code>, <code>lastUpdated</code>); <code>planPath</code> is kept as the key name to avoid churn in the readers.</p>
+<h4>Build</h4>
+<ul>
+<li>Argument is a spec path. Step 0 classification stays artifact-driven: <code>&lt;X&gt;.md</code></li>
+</ul>
+<p>  with an <code>&lt;X&gt;.md.tasks.json</code> sibling → SPEC branch (was PLAN); anything else →   BRIEF. An old plan file with its sibling still classifies and still runs; its   Steps are reported as <code>has-steps</code> and ignored.</p>
+<ul>
+<li>Step 0.5 runs plan-viz on the spec; the stop/continue table is unchanged, with</li>
+</ul>
+<p>  <code>has-steps</code> added to the report-and-continue row. &quot;Has Astra ever read this   spec?&quot; greps the sibling critique log for <code>^## spec </code> and, when absent, offers   the same three options; &quot;Critique it first&quot; runs the <code>spec</code> seam at <code>ROUND=1</code>.</p>
+<ul>
+<li>Step B is unchanged except wording: brainstorm returns the spec path.</li>
+<li>E2 implementer prompt: the task's Goal / Files / Acceptance Criteria / Verify</li>
+</ul>
+<p>  verbatim, plus <code>## Global Constraints</code> verbatim, plus <code>## Cross-Task Contracts</code>   verbatim, plus the spec's Design subsection(s) that cover the task's files as   scene-setting. Never Steps. Never &quot;read the spec file&quot;.</p>
+<ul>
+<li>E5 task reviewer receives the brief, <code>## Global Constraints</code> and</li>
+</ul>
+<p>  <code>## Cross-Task Contracts</code>.</p>
+<ul>
+<li>S3 code seam passes <code>SPEC_DOC: &lt;spec path&gt;</code> only; the code critic reviews</li>
+</ul>
+<p>  against the spec's tasks and contracts. The critique log is always written   beside the spec; the &quot;bare plan, write beside the plan&quot; branch is deleted.</p>
+<ul>
+<li>E3 BLOCKED row: &quot;Spec is wrong → STOP and surface to the user&quot;.</li>
+</ul>
+<h4>Implementers</h4>
+<p>Both implementer bodies (kept byte-identical): the assignment is Goal, Files, Acceptance Criteria, Verify, Global Constraints, Cross-Task Contracts and scene-setting. Names in Cross-Task Contracts are fixed: an implementer that finds one cannot work reports <code>NEEDS_CONTEXT</code> rather than renaming. Tests are written first for each acceptance criterion that can have one, then the code. Task reviewer and code critic: &quot;plan&quot; → &quot;spec&quot;; the brief no longer lists steps.</p>
+<h4>Spec critic</h4>
+<p>The spec critic absorbs the plan critic's checks that have no spec-side equivalent, as a new group applied to the trailing sections:</p>
+<ol>
+<li><strong>Coverage</strong> — every requirement and success criterion maps to at least one</li>
+</ol>
+<p>   task; uncovered = Critical.</p>
+<ol>
+<li><strong>Contract pinning</strong> — every name a task references from a sibling's files,</li>
+</ol>
+<p>   and every name a verify command or criterion references outside the task's    own Files and the existing repo, appears in <code>## Cross-Task Contracts</code> as a    declaration; missing = Critical. A body in the contracts section = Important.</p>
+<ol>
+<li><strong>Parallel readiness</strong> — files disjoint within a wave; <code>blockedBy</code> only for</li>
+</ol>
+<p>   real dependencies; barrier tasks for shared steps; test policy stated when a    build unit is shared; <strong>scaffold task present when a wave wider than one    shares a build unit</strong> (missing = Important).</p>
+<ol>
+<li><strong>Task completeness</strong> — exact paths, a runnable verify, checkable criteria,</li>
+</ol>
+<p>    subjects ≤ 60, no placeholders (&quot;TBD&quot;, &quot;similar to Task N&quot;).</p>
+<ol>
+<li><strong>Tier sanity</strong> — tier reflects the judgment the task needs under the tier</li>
+</ol>
+<p>    rule above; a blanket assignment = Important; mechanical on a task that     needs judgment = Critical.</p>
+<p>The clause &quot;Do NOT demand an execution/parallelism section in the spec&quot; is deleted, as is &quot;before writing-plans&quot;. <code>agents/foureyes-plan-critic.md</code> is deleted.</p>
+<h4>plan-viz</h4>
+<p>File name kept (<code>skills/foureyes-brainstorm/lib/plan-viz.mjs</code>); a rename touches ten references for no behavior. Changes: header comment says it renders a spec's task section; <code>spliceTasks</code> and <code>taskRanges</code> removed with their tests; the <code>Steps</code> card block removed; title fallback becomes <code>Tasks</code>; the <code>Spec:</code> header line is no longer expected (the header shows the document's own path); new problem kind <code>has-steps</code> in <code>detectProblems</code>, detected on the task description with <code>/^\*\*Steps:\*\*/m</code>, detail <code>task carries a <strong>Steps:</strong> field — the pipeline never forwards it</code>. Every other export, check code and <code>FENCE_KEYS</code> unchanged.</p>
+<h4>Stats, ledger, docs</h4>
+<p><code>pipeline-stats.mjs</code> scans <code>foureyes/specs</code> and <code>superpowers/specs</code> in addition to the two plans dirs, so old runs stay counted; <code>CODEX_ONLY</code> drops <code>foureyes-plan-critic</code>. <code>astra-ledger.mjs</code> keeps <code>plan</code> in <code>SEAMS</code> so existing logs still parse, with a comment saying it is read-only history. README, the site (<code>docs/index.html</code> CMD arrays and roster), the ledger and review skills describe the new shape. Existing artifacts under <code>docs/foureyes/plans/</code> are left as history.</p>
+<h4>Data flow</h4>
+<pre class="code"><code>brief ─► approach seam ─► spec (design + contracts + constraints + tasks)
+      ─► Astra spec seam ×≤2 ─► Fable concludes
+      ─► coordinator derives &lt;spec&gt;.md.tasks.json ─► plan-viz ─► &lt;spec&gt;.md.html
+      ─► STOP (or --continue → build)
+build &lt;spec&gt;.md ─► plan-viz checks ─► waves from blockedBy + file-disjointness
+      ─► implementer gets task + constraints + contracts + design excerpt
+      ─► per-task review ─► per-task commit ─► Astra code seam against the spec</code></pre>
+<h4>Error handling</h4>
+<ul>
+<li>Task carries Steps → <code>has-steps</code> reported; never forwarded; build continues.</li>
+<li>Verify names something unpinned → spec critic Critical before dispatch; if it</li>
+</ul>
+<p>  slips through, the implementer's verify fails and it reports <code>NEEDS_CONTEXT</code>,   the coordinator pins the name and re-dispatches.</p>
+<ul>
+<li>Implementer needs a file not in Files → forbidden to touch it; reports</li>
+</ul>
+<p>  <code>NEEDS_CONTEXT</code>; coordinator adds it or serializes.</p>
+<ul>
+<li>Spec reply overflows → scope problem; decompose the feature; never a parts</li>
+</ul>
+<p>  protocol.</p>
+<ul>
+<li>Old plan handed to build → runs as before; <code>has-steps</code> noise only.</li>
+</ul>
+<h4>Explicit non-goals (YAGNI)</h4>
+<ul>
+<li>No rename of <code>plan-viz.mjs</code> or the <code>planPath</code> JSON key.</li>
+<li>No automatic <code>.tasks.json</code> derivation script; the coordinator derives it as</li>
+</ul>
+<p>  today.</p>
+<ul>
+<li>No change to the approach seam, the code seam, review, investigate, or the</li>
+</ul>
+<p>  wave/commit mechanics in build.</p>
+<ul>
+<li>No migration of old plans; no deletion of <code>docs/foureyes/plans/</code>.</li>
+<li>No change to <code>tests/pressure/</code> scenarios (their &quot;Steps:&quot; is assignment prose</li>
+</ul>
+<p>  inside a pressure prompt, not pipeline contract).</p>
+<ul>
+<li>No new dependencies. Node stdlib and bash only.</li>
+</ul>
+<h4>Observable success criteria</h4>
+<ol>
+<li><code>grep -rn '&quot;\$WRAP&quot; plan' skills/</code> returns nothing; <code>agents/foureyes-plan-critic.md</code> does not exist.</li>
+<li>The drafter's Assignment A output format contains <code>## Cross-Task Contracts</code>, <code>## Global Constraints</code>, <code>## Tasks</code> and no <code><strong>Steps:</strong></code>; the drafter contains none of <code>TASKS-PER-PART</code>, <code>DRAFT: part</code>, <code>REVISION: sections</code>, <code>CHANGED-TASKS</code>.</li>
+<li><code>node plan-viz.mjs --json</code> on a tasks.json whose description has a <code><strong>Steps:</strong></code> line reports <code>has-steps</code>; <code>spliceTasks</code> and <code>taskRanges</code> are not exported.</li>
+<li>Build's E2 prompt assembly names Cross-Task Contracts and not Steps; Step 0.5 greps <code>^## spec </code>.</li>
+<li><code>bash tests/run.sh</code> is green, with new prose contracts covering 1, 2 and 4.</li>
+<li>Handing build the existing <code>docs/foureyes/plans/2026-08-05-test-entry-point.md</code> reaches Step 0.5 and reports <code>has-steps</code> for every task, nothing else new.</li>
+</ol>
+<h4>Cross-Task Contracts</h4>
+<p>Strings the test task (Task 8) greps for; every sibling emits them exactly.</p>
+<pre class="code"><code># spec section headings (drafter emits, critic checks, build lifts verbatim)
+## Cross-Task Contracts
+## Global Constraints
+## Tasks
+### Task N: &lt;subject&gt;
+
+# task field markers — no Steps
+**Goal:**  **Files:**  **Acceptance Criteria:**  **Verify:**
+fence: json:metadata  keys: files modelTier verifyCommand acceptanceCriteria blockedBy model
+
+# plan-viz (skills/foureyes-brainstorm/lib/plan-viz.mjs)
+export { parseTasks, extractFence, normalizePath, computeWaves, FENCE_KEYS,
+         detectProblems, detectPlanDrift, analyze, parsePlanMarkdown, renderHTML }
+# removed: spliceTasks, taskRanges
+problem kind: 'has-steps'   detail: 'task carries a **Steps:** field — the pipeline never forwards it'
+CLI unchanged: node plan-viz.mjs &lt;doc.md&gt; [--json]; reads &lt;doc.md&gt;.tasks.json; writes &lt;doc.md&gt;.html
+
+# tasks.json: &lt;spec&gt;.md.tasks.json, shape unchanged, key `planPath` kept
+
+# seams: &quot;$WRAP&quot; spec | code | approach | review | refute   (&quot;$WRAP&quot; plan: never)
+# critique log headers: ## spec · round &lt;n&gt; …   (## plan · rows: never written; still parsed)
+
+# build phrases (tests/prose-contracts greps, via has())
+&quot;Has Astra ever read this spec&quot;      grep for '^## spec '
+E2 and E5 both name &quot;Cross-Task Contracts&quot; and &quot;Global Constraints&quot;; E2 never names Steps
+Step 0 branch names: SPEC (was PLAN), BRIEF
+
+# drafter phrases
+Assignment A carries the three sections; contains &quot;declarations only&quot; and &quot;scaffold&quot;
+absent: &quot;**Steps:**&quot;, &quot;Assignment B&quot;, &quot;TASKS-PER-PART&quot;, &quot;DRAFT: part&quot;, &quot;REVISION: sections&quot;, &quot;CHANGED-TASKS&quot;
+
+# spec-critic phrases
+contains &quot;Cross-Task Contracts&quot;, &quot;scaffold&quot;, &quot;coverage&quot;
+absent: &quot;Do NOT demand an execution/parallelism section&quot;, &quot;writing-plans&quot;
+
+# implementer phrases (both files, bodies byte-identical below frontmatter — tests/prose-contracts 27d `bodyof`)
+contains &quot;Cross-Task Contracts&quot;, &quot;NEEDS_CONTEXT&quot;; absent: &quot;Steps&quot;
+
+# pipeline-stats: CODEX_ONLY = ['foureyes-spec-critic', 'foureyes-code-critic']
+# astra-ledger:   SEAMS unchanged = ['approach','investigate','spec','plan','code']</code></pre>
+<p><strong>Test policy.</strong> All nine tasks are wave 1 and file-disjoint; there is no shared build unit, so no scaffold task. Each task's Verify checks only its own files. <code>bash tests/run.sh</code> is expected red until the join and green at the join, when Task 8's rewritten assertions meet the siblings' text. The pre-commit hook runs the suite on the working tree, so the per-task commits at the join all pass; individual wave-1 commits may be red in isolation, and that is accepted.</p>
+<h4>Global Constraints</h4>
+<ul>
+<li>No new dependencies; Node stdlib and bash only.</li>
+<li>Prose edits are surgical: change what the task names, keep the file's voice,</li>
+</ul>
+<p>  do not reflow or &quot;improve&quot; adjacent sections. Every changed line traces to the   task.</p>
+<ul>
+<li><code>spec</code>, <code>code</code>, <code>approach</code>, <code>review</code>, <code>refute</code> critics reach Astra only through</li>
+</ul>
+<p>  <code>scripts/codex-critic.sh</code>; never dispatched as Claude subagents.</p>
+<ul>
+<li>Implementers never commit and never touch a file outside their Files list;</li>
+</ul>
+<p>  temp files go in <code>mktemp</code> dirs outside the repo.</p>
+<ul>
+<li>Never modify anything under <code>docs/foureyes/plans/</code> or <code>tests/pressure/</code>.</li>
+<li>The two implementer bodies stay byte-identical below the frontmatter.</li>
+<li>Verify commands are zsh-safe: no <code>status</code>, <code>path</code>, <code>argv</code>, <code>options</code> variables.</li>
+</ul>
+<h4>Tasks</h4></div>
+
+<section class="wave">
+  <h3><span class="wnum">Wave 1</span>
+    <span class="wmeta">9 tasks · run in parallel</span></h3>
+  <div class="grid"><article class="card" id="task-0">
+  <header>
+    <h4>Task 1: Drafter: spec owns tasks, no Steps, no plan assignment</h4>
+    <div class="meta">
+      <span class="chip frontier">frontier</span>
+      <span class="after free">no dependencies</span>
+    </div>
+  </header>
+  <div class="blk"><h5>Goal</h5><p>Rewrite <code>agents/foureyes-drafter.md</code> so Assignment A produces the spec with its three trailing sections and Assignment B, Steps, and the parts/splice protocol are gone.</p></div>
+  <div class="blk"><h5>Files</h5><p class="files"><code>agents/foureyes-drafter.md</code></p></div>
+  
+  <div class="blk"><h5>Done when</h5><ul class="crit"><li>Assignment A emits the three trailing sections with the per-task format and no Steps</li><li>Assignment B and the parts/splice protocol are deleted</li><li>scaffold, tier, and reference rules present</li><li>DRAFTER-STATS first-line rule kept</li></ul></div>
+  <div class="blk"><h5>Verify</h5><pre class="code"><code>f=agents/foureyes-drafter.md; ! grep -q '\*\*Steps:\*\*' $f &amp;&amp; ! grep -q 'TASKS-PER-PART\|DRAFT: part\|REVISION: sections\|CHANGED-TASKS\|Assignment B' $f &amp;&amp; grep -q '## Cross-Task Contracts' $f &amp;&amp; grep -q '## Global Constraints' $f &amp;&amp; grep -q '## Tasks' $f &amp;&amp; grep -qi 'declarations only' $f &amp;&amp; grep -qi 'scaffold' $f &amp;&amp; grep -q 'DRAFTER-STATS' $f &amp;&amp; echo OK</code></pre></div>
+</article><article class="card" id="task-1">
+  <header>
+    <h4>Task 2: Spec critic absorbs task checks; delete plan critic</h4>
+    <div class="meta">
+      <span class="chip standard">standard</span>
+      <span class="after free">no dependencies</span>
+    </div>
+  </header>
+  <div class="blk"><h5>Goal</h5><p>Extend <code>agents/foureyes-spec-critic.md</code> with the five task-section checks and delete <code>agents/foureyes-plan-critic.md</code>.</p></div>
+  <div class="blk"><h5>Files</h5><p class="files"><code>agents/foureyes-spec-critic.md</code> <code>agents/foureyes-plan-critic.md</code></p></div>
+  
+  <div class="blk"><h5>Done when</h5><ul class="crit"><li>checks 7-11 present with the stated severities</li><li>parallelism clause and writing-plans wording removed</li><li>plan-critic file deleted</li><li>guard and verdict grammar unchanged</li></ul></div>
+  <div class="blk"><h5>Verify</h5><pre class="code"><code>f=agents/foureyes-spec-critic.md; test ! -e agents/foureyes-plan-critic.md &amp;&amp; grep -q 'Cross-Task Contracts' $f &amp;&amp; grep -qi 'scaffold' $f &amp;&amp; grep -qi 'coverage' $f &amp;&amp; ! grep -qi 'writing-plans' $f &amp;&amp; ! grep -q 'Do NOT demand an execution' $f &amp;&amp; grep -q 'NOT A CLAUDE SUBAGENT' $f &amp;&amp; echo OK</code></pre></div>
+</article><article class="card" id="task-2">
+  <header>
+    <h4>Task 3: Implementers, task reviewer, code critic: spec not plan</h4>
+    <div class="meta">
+      <span class="chip standard">standard</span>
+      <span class="after free">no dependencies</span>
+    </div>
+  </header>
+  <div class="blk"><h5>Goal</h5><p>Update the four execution-side agent prompts so the assignment is defined without Steps and with Cross-Task Contracts, and &quot;plan&quot; reads &quot;spec&quot;.</p></div>
+  <div class="blk"><h5>Files</h5><p class="files"><code>agents/foureyes-implementer.md</code> <code>agents/foureyes-implementer-frontier.md</code> <code>agents/foureyes-task-reviewer.md</code> <code>agents/foureyes-code-critic.md</code></p></div>
+  
+  <div class="blk"><h5>Done when</h5><ul class="crit"><li>implementer assignment has no Steps and includes contracts with the fixed-names rule</li><li>implementer bodies byte-identical</li><li>task reviewer and code critic reference the spec, not the plan</li></ul></div>
+  <div class="blk"><h5>Verify</h5><pre class="code"><code>bodyof(){ awk 'f&gt;1{print} /^---$/{f++}' &quot;$1&quot;; }; a=agents/foureyes-implementer.md; b=agents/foureyes-implementer-frontier.md; [ &quot;$(bodyof $a)&quot; = &quot;$(bodyof $b)&quot; ] &amp;&amp; ! grep -q 'Steps' $a &amp;&amp; grep -q 'Cross-Task Contracts' $a &amp;&amp; grep -q 'NEEDS_CONTEXT' $a &amp;&amp; grep -q 'Cross-Task Contracts' agents/foureyes-task-reviewer.md &amp;&amp; ! grep -qi 'steps' agents/foureyes-task-reviewer.md &amp;&amp; ! grep -q 'PLAN_DOC\|plan doc' agents/foureyes-code-critic.md &amp;&amp; echo OK</code></pre></div>
+</article><article class="card" id="task-3">
+  <header>
+    <h4>Task 4: Brainstorm skill: one document seam</h4>
+    <div class="meta">
+      <span class="chip frontier">frontier</span>
+      <span class="after free">no dependencies</span>
+    </div>
+  </header>
+  <div class="blk"><h5>Goal</h5><p>Restructure <code>skills/foureyes-brainstorm/SKILL.md</code> to draft and critique a single spec that ends with tasks, derive tasks.json from it, and render it.</p></div>
+  <div class="blk"><h5>Files</h5><p class="files"><code>skills/foureyes-brainstorm/SKILL.md</code></p></div>
+  
+  <div class="blk"><h5>Done when</h5><ul class="crit"><li>one document seam: spec drafted, critiqued &lt;=2, concluded</li><li>tasks.json derived from the spec and plan-viz run on it</li><li>plan steps, parts protocol and splicing deleted</li><li>spec seam mechanics unchanged</li></ul></div>
+  <div class="blk"><h5>Verify</h5><pre class="code"><code>f=skills/foureyes-brainstorm/SKILL.md; ! grep -q '&quot;\$WRAP&quot; plan' $f &amp;&amp; ! grep -q 'foureyes/plans\|TASKS-PER-PART\|spliceTasks\|CHANGED-TASKS\|DRAFT: part' $f &amp;&amp; grep -q 'has-steps' $f &amp;&amp; grep -q '## Tasks' $f &amp;&amp; grep -q 'tasks.json' $f &amp;&amp; grep -q 'CODEX_CRITIC_ROUND' $f &amp;&amp; grep -q 'Strip the leading' $f &amp;&amp; echo OK</code></pre></div>
+</article><article class="card" id="task-4">
+  <header>
+    <h4>Task 5: Build skill: execute the spec</h4>
+    <div class="meta">
+      <span class="chip standard">standard</span>
+      <span class="after free">no dependencies</span>
+    </div>
+  </header>
+  <div class="blk"><h5>Goal</h5><p>Update <code>skills/foureyes-build/SKILL.md</code> so it takes a spec path, forwards contracts instead of Steps, and logs beside the spec.</p></div>
+  <div class="blk"><h5>Files</h5><p class="files"><code>skills/foureyes-build/SKILL.md</code></p></div>
+  
+  <div class="blk"><h5>Done when</h5><ul class="crit"><li>argument and classifier are spec-based, old plans still run</li><li>E2 and E5 forward contracts and constraints, never Steps</li><li>S3 and the critique log use the spec only</li></ul></div>
+  <div class="blk"><h5>Verify</h5><pre class="code"><code>f=skills/foureyes-build/SKILL.md; grep -q 'Has Astra ever read this spec' $f &amp;&amp; grep -q &quot;'^## spec '&quot; $f &amp;&amp; grep -q 'Cross-Task Contracts' $f &amp;&amp; grep -q 'has-steps' $f &amp;&amp; ! grep -q 'PLAN_DOC\|foureyes/plans\|Steps' $f &amp;&amp; grep -q 'SPEC_DOC' $f &amp;&amp; echo OK</code></pre></div>
+</article><article class="card" id="task-5">
+  <header>
+    <h4>Task 6: plan-viz: has-steps check, drop splicer and Steps card</h4>
+    <div class="meta">
+      <span class="chip standard">standard</span>
+      <span class="after free">no dependencies</span>
+    </div>
+  </header>
+  <div class="blk"><h5>Goal</h5><p>Adjust <code>plan-viz.mjs</code> and its tests for a spec that owns its tasks.</p></div>
+  <div class="blk"><h5>Files</h5><p class="files"><code>skills/foureyes-brainstorm/lib/plan-viz.mjs</code> <code>skills/foureyes-brainstorm/lib/plan-viz.test.mjs</code></p></div>
+  
+  <div class="blk"><h5>Done when</h5><ul class="crit"><li>has-steps detected on the description with a test</li><li>spliceTasks/taskRanges and their tests removed</li><li>Steps card gone, other exports and checks unchanged</li></ul></div>
+  <div class="blk"><h5>Verify</h5><pre class="code"><code>node --test skills/foureyes-brainstorm/lib/plan-viz.test.mjs &amp;&amp; ! grep -q 'spliceTasks\|taskRanges' skills/foureyes-brainstorm/lib/plan-viz.mjs &amp;&amp; grep -q &quot;has-steps&quot; skills/foureyes-brainstorm/lib/plan-viz.mjs &amp;&amp; echo OK</code></pre></div>
+</article><article class="card" id="task-6">
+  <header>
+    <h4>Task 7: Stats, ledger, review and ledger skills</h4>
+    <div class="meta">
+      <span class="chip standard">standard</span>
+      <span class="after free">no dependencies</span>
+    </div>
+  </header>
+  <div class="blk"><h5>Goal</h5><p>Keep the stats and ledger scripts reading old and new artifacts, drop the plan critic from the Codex-only list, and update the two skills that mention plans.</p></div>
+  <div class="blk"><h5>Files</h5><p class="files"><code>scripts/pipeline-stats.mjs</code> <code>scripts/pipeline-stats.test.mjs</code> <code>scripts/astra-ledger.mjs</code> <code>skills/foureyes-ledger/SKILL.md</code> <code>skills/foureyes-review/SKILL.md</code></p></div>
+  
+  <div class="blk"><h5>Done when</h5><ul class="crit"><li>stats scan specs and legacy plans, CODEX_ONLY drops plan-critic, tests pass</li><li>ledger SEAMS kept with a comment</li><li>ledger and review skills no longer describe plans</li></ul></div>
+  <div class="blk"><h5>Verify</h5><pre class="code"><code>node --test scripts/pipeline-stats.test.mjs scripts/astra-ledger.test.mjs &amp;&amp; grep -q &quot;foureyes/specs&quot; scripts/pipeline-stats.mjs &amp;&amp; ! grep -q 'plan-critic' scripts/pipeline-stats.mjs &amp;&amp; ! grep -q 'foureyes/plans' skills/foureyes-review/SKILL.md &amp;&amp; echo OK</code></pre></div>
+</article><article class="card" id="task-7">
+  <header>
+    <h4>Task 8: Prose contracts and wrapper tests for the new shape</h4>
+    <div class="meta">
+      <span class="chip standard">standard</span>
+      <span class="after free">no dependencies</span>
+    </div>
+  </header>
+  <div class="blk"><h5>Goal</h5><p>Rewrite the assertions in <code>tests/prose-contracts.test.sh</code> and <code>tests/codex-critic.test.sh</code> that encode the plan, and add the ones that pin the new contract.</p></div>
+  <div class="blk"><h5>Files</h5><p class="files"><code>tests/prose-contracts.test.sh</code> <code>tests/codex-critic.test.sh</code></p></div>
+  
+  <div class="blk"><h5>Done when</h5><ul class="crit"><li>plan-encoding assertions removed or rewritten as listed</li><li>eight new contract assertions added</li><li>codex-critic budget loop is spec code</li><li>full suite green at the join</li></ul></div>
+  <div class="blk"><h5>Verify</h5><pre class="code"><code>bash tests/run.sh</code></pre></div>
+</article><article class="card" id="task-8">
+  <header>
+    <h4>Task 9: README and site describe the new pipeline</h4>
+    <div class="meta">
+      <span class="chip standard">standard</span>
+      <span class="after free">no dependencies</span>
+    </div>
+  </header>
+  <div class="blk"><h5>Goal</h5><p>Update <code>README.md</code> and <code>docs/index.html</code> so every description of the pipeline matches: one spec with tasks, critiqued twice, built directly.</p></div>
+  <div class="blk"><h5>Files</h5><p class="files"><code>README.md</code> <code>docs/index.html</code></p></div>
+  
+  <div class="blk"><h5>Done when</h5><ul class="crit"><li>README pipeline description, graph, examples, cost and tree updated</li><li>site CMD arrays and roster updated</li><li>nothing else changed</li></ul></div>
+  <div class="blk"><h5>Verify</h5><pre class="code"><code>! grep -q 'plan-critic' docs/index.html &amp;&amp; ! grep -q 'Claude writes the plan' README.md docs/index.html &amp;&amp; grep -q 'foureyes/specs/' README.md &amp;&amp; ! grep -q 'foureyes-build docs/foureyes/plans' README.md &amp;&amp; echo OK</code></pre></div>
+</article></div>
+</section>
+
+<details class="checks">
+  <summary>Structural checks (0)</summary>
+  <ul><li class="ok">none — plan is structurally clean</li></ul>
+</details>
