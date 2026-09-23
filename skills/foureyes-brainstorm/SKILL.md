@@ -1,12 +1,12 @@
 ---
 name: foureyes-brainstorm
 description: >
-  Write a detailed, executable plan with Fable and Astra, then STOP. Fable and Astra
+  Write a detailed, executable spec with Fable and Astra, then STOP. Fable and Astra
   propose approaches independently and you pick from the merged menu; then Fable
-  (the foureyes-drafter subagent) authors the design spec and the implementation
-  plan while Astra (Codex) critiques each one at most twice, and Fable concludes.
-  Produces the spec, the plan, its .tasks.json, and an HTML review page. You read
-  it and hand it to foureyes-build yourself. Flags: --continue (internal, used
+  (the foureyes-drafter subagent) authors the design spec, ending in its task
+  section, while Astra (Codex) critiques it at most twice, and Fable concludes.
+  Produces the spec (with its tasks), its .tasks.json, and an HTML review page.
+  You read it and hand it to foureyes-build yourself. Flags: --continue (internal, used
   by foureyes-build: suppress the hard stop), --skip-critics (Fable drafts
   alone, Astra never runs).
 ---
@@ -27,15 +27,15 @@ in the list is not:
 If you think of a better approach, it goes back to a proposer or it does not
 happen. Without that line, "arbitrate" becomes "design" within a week.
 
-This command GATES NOTHING. Its output is a plan document. Handing that plan to
+This command GATES NOTHING. Its output is a spec document. Handing that spec to
 `foureyes-build` is the user's decision — there is no approval to verify, no
-marker, no hash. If the user hands over a plan, it is done by definition.
+marker, no hash. If the user hands over a spec, it is done by definition.
 
 ## Announce
 "Using foureyes-brainstorm: Fable and Astra propose approaches independently, you
 pick once (or not at all), then Fable drafts and Astra critiques twice."
 
-## The loop — identical at both DOC seams
+## The loop — the DOC seam
 
 Step 1 (approach) is NOT one of these loops: one dispatch each, concurrent, no
 rounds, no budget, no gate. Neither model revises an approach set — the user
@@ -45,7 +45,7 @@ picks and the pipeline moves on.
 Fable drafts → Astra → Fable revises → Astra → Fable revises → DONE
 ```
 
-Two Astra passes per seam, then **Fable has the last word**. A critic that
+Two Astra passes, then **Fable has the last word**. A critic that
 re-reads a document always finds one more `[Important]`, so this never
 converges on its own — the budget is the whole point. Pass
 `CODEX_CRITIC_ROUND` on every seam call and act on the trailing `GATE:` line:
@@ -96,7 +96,7 @@ acted-on is worth having at ninety seconds a round and probably is not at nine.
 If the line is absent, omit the field rather than guessing; the reader treats
 duration as optional.
 
-`<seam>` is `spec` or `plan`. `<disposition>` is exactly one of:
+`<seam>` is `approach` or `spec`. `<disposition>` is exactly one of:
 
 | | means |
 |---|---|
@@ -171,8 +171,8 @@ which means you must read the verdict body yourself rather than trust the gate.
    however bad — a verdict, a status, a malformed draft is content, and the content
    rules govern it. Never retry a deterministic failure the same way: an
    output-token-maximum overflow fails identically on every attempt.
-4. `--skip-critics`: announce that Astra will not run, then do Steps 1, 2, 4, 6, 7
-   and skip Steps 3 and 5. Fable still authors everything. At Step 1, Fable
+4. `--skip-critics`: announce that Astra will not run, then do Steps 1, 2, 4, 5
+   and skip Step 3. Fable still authors everything. At Step 1, Fable
    proposes alone and you rank its set — the seam survives with one proposer, and
    the approaches file records that only one ran.
 4b. **Say what a normal drafter call looks like, before the first one.** A draft
@@ -190,44 +190,23 @@ which means you must read the verdict body yourself rather than trust the gate.
    drafter working correctly — take the partial, answer the gaps, and re-dispatch
    with those answers. Never discard a partial to start over.
    **Strip the leading `DRAFTER-STATS:` line** from returned content before
-   writing any file or splicing any section, and report it in your Step 7 summary
-   — it is the only view anyone has inside that dispatch. It is the FIRST line of
-   every reply, in every mode, precisely so that a `REVISION: sections` reply
-   cannot bury it inside the last task section and have it spliced into the plan.
+   writing any file, and report it in your Step 5 summary — it is the only view
+   anyone has inside that dispatch. It is the FIRST line of every reply, in every
+   mode, so it can never end up inside the spec you write.
 4c. **Two things a large drafter return does that will silently corrupt a file.**
    Check for both before writing anything:
    - **`<persisted-output>` / `Output too large (NNN KB). Full output saved to:
      <path>`** — the harness spilled the return to disk and handed you a ~2KB
      preview. **Read that path** and use its contents. Writing the preview gives
-     you a plan truncated mid-task that still looks plausible. Measured: this has
+     you a spec truncated mid-task that still looks plausible. Measured: this has
      already happened on returns around 97KB.
    - **`Agent terminated early due to an API error: … exceeded the 64000 output
-     token maximum`** — nothing was produced and nothing is recoverable.
-     Do NOT re-dispatch the same assignment; it will fail the same way. Split it: ask for
-     a `REVISION: sections` pass, or for the tasks in halves. (A user who hits
-     this often can raise `CLAUDE_CODE_MAX_OUTPUT_TOKENS`, but splitting is the
-     fix — fifty minutes to hit a ceiling is fifty minutes lost either way.)
-4d. **Applying a `REVISION: sections` reply.** Strip the leading `DRAFTER-STATS:`
-   line first, then splice with the library rather than by hand:
-   ```bash
-   node -e 'import("<VIZ>").then(async m=>{const fs=await import("node:fs");
-     const r=m.spliceTasks(fs.readFileSync("<plan>","utf8"), JSON.parse(fs.readFileSync("<sections.json>","utf8")));
-     if(r.missing.length){console.error("MISSING "+r.missing.join(","));process.exit(1)}
-     fs.writeFileSync("<plan>", r.markdown); console.error("spliced "+r.applied.join(","));})'
-   ```
-   `<sections.json>` maps each changed task NUMBER to its complete replacement text,
-   built from the reply: `CHANGED-TASKS:` lists the numbers, and each `### Task N`
-   block below it is that number's replacement. Cross-check the two — a number in
-   `CHANGED-TASKS` with no matching block, or a block not listed, means the reply is
-   malformed; re-dispatch rather than splicing half of it.
-   `spliceTasks` is fence-aware and shares its boundary scan with the renderer, so a
-   `### Task` line inside a code block is never mistaken for a section start.
-   Untouched tasks, the intro and any trailing content come through byte-identical.
-   **A non-empty `missing` exits 1 and writes nothing.** That means the drafter asked
-   to replace a task the plan does not have, which means it meant a structural change
-   and sent the wrong mode — re-dispatch asking for `REVISION: full`. Never hand-edit
-   around it, and never guess where a new task belongs.
-   Then re-derive `.tasks.json` from the spliced markdown as usual.
+     token maximum`** — nothing was produced and nothing is recoverable. The limit
+     is whatever `CLAUDE_CODE_MAX_OUTPUT_TOKENS` sets; 64000 is the observed
+     historical failure. Do NOT re-dispatch the same assignment; it will fail the
+     same way. A spec carries no code — thirty tasks is roughly 30 KB, an order of
+     magnitude under the ceiling — so a spec that overflows is a scope problem:
+     tell the user the feature needs decomposing into smaller specs, and stop.
 5. **Fable unavailable → fall back to Opus, LOUDLY.** The realistic failure is a
    spent quota or a model-unavailable error, and that is not a reason to stop:
    `model: fable` is a preference, not a correctness requirement, and Opus authors
@@ -302,7 +281,7 @@ interchangeable — Fable also authors every later artifact:
   one-line notice.
 - **Fable fails** — unavailable, timed out, or malformed twice: fall back to Opus
   per Step 0.5, announced. Never proceed Astra-only on the assumption Fable comes
-  back; it is the author of Steps 2 and 4.
+  back; it is the author of Step 2.
 - **The drafter is unusable even after the Opus fallback**: STOP, **regardless of
   what Astra returned**. A rich set of approaches with nobody able to write the spec
   is not partial progress, it is a dead end — say so plainly rather than ranking a
@@ -312,7 +291,7 @@ interchangeable — Fable also authors every later artifact:
 
 **2. Pool both sets into ONE auditable file, then rank from the file:**
 Derive the run's `<topic>` slug ONCE, from the brief, and reuse that exact slug
-for every artifact of this run — approaches, spec, plan. Different slugs leave the
+for every artifact of this run — approaches, spec, critique log. Different slugs leave the
 artifacts unlinked.
 
 Write `docs/foureyes/specs/YYYY-MM-DD-<topic>-approaches.md`. `## Proposed` is
@@ -371,7 +350,7 @@ menu as an option. Surviving as the ONLY entry → STOP, because there is nothin
 spec: show the user the evidence and let them redirect or overrule. This seam is
 the pipeline's one chance to question the brief itself — you take the brief as
 given and so does every stage after you, so a premise nobody challenges here gets
-a spec, a plan, two critic rounds and real commits built on top of it before
+a spec, two critic rounds and real commits built on top of it before
 anyone notices.
 
 <!-- ponytail: auditable pool, not real blinding — the coordinator reads both
@@ -390,7 +369,7 @@ anyone notices.
      session: a fresh arbiter subagent with a pinned model, costing one dispatch
      and a serial step. Not worth building before the records exist. -->
 
-**3. ONE interaction — the only one before the plan exists.**
+**3. ONE interaction — the only one before the spec exists.**
 It is a single `AskUserQuestion` carrying up to 4 questions. Make the call when
 there are **2+ survivors OR at least one retained unknown**; skip it only when
 there is exactly one survivor and nothing left to ask.
@@ -436,11 +415,14 @@ Dispatch the drafter (Agent tool, `subagent_type: foureyes-drafter` — its
 frontmatter pins `model: fable`; do not override): Assignment A with the
 complete brief, **the chosen approach verbatim**, the approaches-file path, any
 unknowns the user answered, and any that fell below the bar and must become
-`## Assumptions`. It RETURNS spec content; YOU write it to
+`## Assumptions`. It RETURNS spec content ending with `## Cross-Task Contracts`,
+`## Global Constraints` and `## Tasks` (each task: Goal / Files / Acceptance
+Criteria / Verify + a `json:metadata` fence — no Steps); YOU write it to
 `docs/foureyes/specs/YYYY-MM-DD-<topic>-design.md` — the SAME `<topic>` slug as the approaches file. If the content is
 malformed (no success criteria, placeholders, missing an `## Assumptions` section
-when you passed unanswered unknowns), reject and re-dispatch — do not patch it
-yourself.
+when you passed unanswered unknowns, missing any of the three trailing sections),
+reject and re-dispatch — do not patch it yourself. Create NO native tasks — the
+execution stage owns TaskCreate; a second creator only makes duplicates.
 
 ## Step 3 — Astra critiques the spec (≤2 rounds)
 ```bash
@@ -449,107 +431,56 @@ printf '%s\n' "SPEC_DOC: <spec path>" "" "ORIGINAL BRIEF (verbatim):" "<brief>" 
   | CODEX_CRITIC_ROUND=<1,2> "$WRAP" spec
 ```
 Follow the GATE table. Spec findings are intent decisions: show them to the
-user, and dispatch Fable to revise with the findings verbatim. On `final`,
+user, and dispatch Fable to revise with the findings verbatim; the revision
+returns the full spec, which you write over the file. On `final`,
 Fable's revision closes the spec — go to Step 4 regardless of what is left.
-
-## Step 4 — Fable drafts the plan
-Dispatch the drafter: Assignment B with the spec path. It returns the plan
-markdown (starting `Spec: <path>`, tasks with the four headers +
-`json:metadata` fences, subjects ≤ 60 chars, real `blockedBy` only, tiers by
-spec-completeness). YOU write `<plan>.md` under `docs/foureyes/plans/` and
-derive `<plan>.md.tasks.json` from it (id/subject/description per task,
-0-based `blockedBy`). Create NO native tasks — the execution stage owns
-TaskCreate; a second creator only makes duplicates.
-
-**A plan too large for one reply arrives in parts.** Plan size is deliberately
-uncapped; the reply is what has a ceiling. Pass `TASKS-PER-PART: <n>` in the
-assignment — **start at 8 and halve it (8 → 4 → 2 → 1) every time a reply
-overflows**, then re-dispatch that part. Fable emits `DRAFT: part N of M` with
-`TASKS-IN-THIS-PART:` and a `REMAINING:` list, and you assemble.
-
-8 is a starting guess, not a measurement: how many tasks fit depends on how
-verbose this repo's tasks are and on `CLAUDE_CODE_MAX_OUTPUT_TOKENS`, and neither
-is knowable in advance. Halving is what makes it correct anywhere — it converges
-on this environment's real limit within two retries and needs no configuration.
-An overflow is either signal from Step 4c: a `<persisted-output>` spill, or an
-`exceeded … output token maximum` error. Never re-dispatch an overflowed part at
-the same size; that is the loop that costs fifty minutes.
-
-<!-- ponytail: the working value lives in this conversation, so a session resumed
-     mid-plan restarts at 8. Self-healing by construction — it overflows once and
-     halves again, converging in at most three steps — so the cost of not
-     persisting it is a few wasted dispatches in a case that needs both a very
-     large plan and a restart inside it. Persisting it would mean writing
-     coordinator state into the plan file, which is worse. Known ceiling. -->
-
-1. Keep part 1 whole — it alone carries the `Spec:` header and
-   `## Global Constraints`. Append later parts' task sections verbatim, in order.
-   Never renumber: `blockedBy` refers to the global task numbers Fable assigned.
-2. Re-dispatch for each continuation with the spec, the `## Global Constraints`
-   **as written**, a manifest of tasks already emitted (id, subject, files) and the
-   `REMAINING` list. **Do not resend the earlier parts' full text** — output is the
-   constraint here, not input, and the manifest is what keeps files disjoint and
-   `blockedBy` pointing at tasks that exist.
-3. Before deriving `.tasks.json`, check the assembly: ids contiguous from 1 with no
-   gaps or repeats, every subject promised in a `REMAINING` list actually present,
-   and `## Global Constraints` appearing exactly once. A gap means a part was lost;
-   stop and re-dispatch for the missing numbers rather than shipping a plan whose
-   `blockedBy` points into a hole.
-4. Derive `.tasks.json` ONCE, from the assembled markdown. A per-part derivation
-   would renumber and silently break every cross-part dependency.
-
-Astra critiques the assembled plan, not the parts — a part on its own has dangling
-`blockedBy` references and would draw findings that are artefacts of the split.
-
-## Step 5 — Astra critiques the plan (≤2 rounds)
-```bash
-# Bash tool: set timeout: 600000 (Step 0.3b) — a tool parameter, not a script line.
-printf '%s\n' "PLAN_DOC: <plan path>" "SPEC_DOC: <spec path>" "" "<re-review: what changed>" \
-  | CODEX_CRITIC_ROUND=<1,2> "$WRAP" plan
-```
-Follow the GATE table. When Fable revises the plan markdown, re-derive
-`.tasks.json` from it — the markdown is the source, the JSON is its mirror.
-A user-directed spec change mid-loop = back to Step 3 with `ROUND=1`. A
-user-directed APPROACH change = back to Step 2 with the new approach; the spec is
+A user-directed APPROACH change = back to Step 2 with the new approach; the spec is
 rewritten, not patched, and Step 3 restarts at `ROUND=1`.
 
-## Step 6 — HTML plan page
+## Step 4 — Derive tasks.json, render the page
+Derive `<spec>.md.tasks.json` from the spec's `## Tasks` section, beside the spec:
+`planPath` (the spec path — the key name is kept), `tasks[]` with one entry per
+`### Task N: <subject>` — `id` 0-based, `subject` `"Task N: <subject>"`,
+`description` the full task markdown including its `json:metadata` fence, and
+`blockedBy` 0-based — and `lastUpdated`. Derive it ONCE from the final spec; the
+markdown is the source, the JSON is its mirror. Then:
 ```bash
-node "$VIZ" "<plan path>"    # writes <plan>.md.html, prints the path
+node "$VIZ" "<spec path>"    # writes <spec>.md.html, prints the path
 ```
-This renders THE PLAN — the brief, then every task in execution order with its
-goal, steps, files, acceptance criteria and verify command, grouped into the
+This renders THE SPEC's tasks — the brief, then every task in execution order
+with its goal, files, acceptance criteria and verify command, grouped into the
 waves they run in. It is what the user reads instead of the markdown; the
 structural checks are a collapsed footnote, not the subject. The local
 self-contained file is the deliverable. (You MAY additionally publish it via
 the Artifact tool if available — never required.)
 
-If it prints structural problems on stderr, they go in your Step 7 summary
+If it prints structural problems on stderr, they go in your Step 5 summary
 verbatim. `plan-tasks-order-mismatch` / `-count-mismatch` / `-fence-drift` mean
 YOUR `.tasks.json` derivation disagrees with Fable's markdown — build executes
 the JSON while the user reads the page, so fix the derivation and re-run the
 viz before stopping. `unknown-key` means the fence carries a field build never
 reads — a contract Fable believed it set and did not, which is worse than a
-missing one because it looks handled. It / `no-verify` / `no-criteria` / `bad-tier` are Fable's to
+missing one because it looks handled. `has-steps` means a task carries a
+`**Steps:**` field the spec's tasks no longer have. `unknown-key` / `has-steps` / `no-verify` / `no-criteria` / `bad-tier` are Fable's to
 fix. Nothing blocks here, but shipping an unreported problem is not an option.
 
-## Step 7 — Report, then stop or hand back
+## Step 5 — Report, then stop or hand back
 
 **Decide the mode before you write the report.** The report is identical either
 way; only the ending differs.
 
-- **`--continue`** — you are inside `foureyes-build`. Report, return the plan path
+- **`--continue`** — you are inside `foureyes-build`. Report, return the spec path
   to the caller, and go straight on to execution. Ask NOTHING. Do not wait for
   the user to read the HTML: build's Step E is next, and pausing here is the one
   thing `--continue` exists to prevent.
 - **standalone** — report, then STOP. Never ask a question here; the user reads
-  the HTML and runs `foureyes-build <plan>` when they are ready.
+  the HTML and runs `foureyes-build <spec>` when they are ready.
 
-The report, in both modes: print the paths: spec, plan, tasks.json, HTML, the critique log, and the
+The report, in both modes: print the paths: spec, tasks.json, HTML, the critique log, and the
 approaches file if the seam ran. Report this run's tally in one line —
 `Astra: <n> raised, <n> fixed, <n> rejected, <n> intentional, <n> open` — counted
 from the lines you just wrote. It costs nothing and it is the only feedback that
-arrives while you still remember the run. Name the chosen approach in one line — the plan only makes sense
+arrives while you still remember the run. Name the chosen approach in one line — the spec only makes sense
 against the direction it was built for. List any `## Assumptions` the spec is
 carrying, since those were decided FOR the user, not by them. If any seam ended
 on `final` or `conclude`, say so plainly and list what Astra still had open — the
