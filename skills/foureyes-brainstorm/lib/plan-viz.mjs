@@ -77,6 +77,8 @@ export function detectProblems(tasks, waves) {
   const byId = new Map(tasks.map(t => [t.id, t]));
 
   for (const t of tasks) {
+    if (/^\*\*Steps:\*\*/m.test(t.description))
+      problems.push({ kind: 'has-steps', task: t.id, detail: 'task carries a **Steps:** field — the pipeline never forwards it' });
     if (!t.fence) { problems.push({ kind: 'no-metadata', task: t.id, detail: 'missing or unparseable json:metadata fence' }); continue; }
     const tier = t.fence.modelTier;
     if (!['mechanical', 'standard', 'frontier'].includes(tier))
@@ -93,8 +95,6 @@ export function detectProblems(tasks, waves) {
     const unknown = Object.keys(t.fence).filter(k => !FENCE_KEYS.has(k));
     if (unknown.length)
       problems.push({ kind: 'unknown-key', task: t.id, detail: `metadata nothing reads: ${unknown.join(', ')}` });
-    if (/^\*\*Steps:\*\*/m.test(t.description))
-      problems.push({ kind: 'has-steps', task: t.id, detail: 'task carries a **Steps:** field — the pipeline never forwards it' });
   }
 
   // frontier-heavy: strictly more than 30% of tasks

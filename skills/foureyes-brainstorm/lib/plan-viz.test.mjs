@@ -199,3 +199,12 @@ test('no Steps field does not flag has-steps', () => {
   const { waves } = computeWaves(tasks);
   assert.equal(detectProblems(tasks, waves).filter(x => x.kind === 'has-steps').length, 0);
 });
+
+test('a Steps field with no fence flags both no-metadata and has-steps', () => {
+  const tasks = parseTasks({ tasks: [{ id: 1, subject: 's', description:
+    '**Goal:** g\n\n**Steps:**\n1. do it' }] });
+  const { waves } = computeWaves(tasks);
+  const kinds = detectProblems(tasks, waves).map(x => x.kind);
+  assert.ok(kinds.includes('no-metadata'));
+  assert.ok(kinds.includes('has-steps'));
+});
