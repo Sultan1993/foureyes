@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.2.0](https://github.com/Sultan1993/foureyes/compare/v1.1.1...v1.2.0) (2026-09-23)
+
+
+### Features
+
+* **agents:** implementers, reviewer and code critic work from the spec ([809c87a](https://github.com/Sultan1993/foureyes/commit/809c87aec16bdf82b6d8161a32e3497c26ca7df0))
+* **agents:** implementers, reviewer and code critic work from the spec: Astra fixes ([ab37155](https://github.com/Sultan1993/foureyes/commit/ab371550d38237b9fa611db15baca52268d3ed47))
+* **brainstorm:** one document seam; delete the plan draft, critique and parts protocol ([a0cbeae](https://github.com/Sultan1993/foureyes/commit/a0cbeaef713106e9e0db1590487b2217b8db0f7a))
+* **brainstorm:** one document seam: review fixes ([102fda1](https://github.com/Sultan1993/foureyes/commit/102fda177200673fe306ed4951ba64bbe2c2ff3b))
+* **build:** execute the spec; forward contracts, stop on has-steps ([c8dbe5f](https://github.com/Sultan1993/foureyes/commit/c8dbe5f4e1bd45779ee2c166a1da26b711c53667))
+* **critic:** spec critic absorbs task checks; delete the plan critic ([9a564f0](https://github.com/Sultan1993/foureyes/commit/9a564f0cef2f185d619adb599170df73e339bd96))
+* **drafter:** the spec owns its tasks; no Steps, no plan assignment ([3dc4f9e](https://github.com/Sultan1993/foureyes/commit/3dc4f9ef2243c80aa3a8f545931f614736e0e9ff))
+* **plan-viz:** has-steps check; drop the splicer and the Steps card ([0b1aa0d](https://github.com/Sultan1993/foureyes/commit/0b1aa0d3a6447794386a2335fdcd8e7c0e8192ba))
+* **plan-viz:** has-steps check; drop the splicer and the Steps card: review fixes ([01676c9](https://github.com/Sultan1993/foureyes/commit/01676c988c91a1e23f46abaf49d86099db1bfc9e))
+* **stats:** scan specs and legacy plans; drop the plan critic from the ledger and skills ([aaec918](https://github.com/Sultan1993/foureyes/commit/aaec918e851b1d4b8d81cba3bc97a730e1a901a4))
+
 ## [1.1.1](https://github.com/Sultan1993/foureyes/compare/v1.1.0...v1.1.1) (2026-09-21)
 
 
