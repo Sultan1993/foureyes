@@ -75,11 +75,11 @@ each carrying exactly:
 **Files:** exact Create/Modify paths.
 **Acceptance Criteria:** bullet list, each one checkable.
 **Verify:** one runnable command.
-```json:metadata
-{"files": [...], "modelTier": "mechanical|standard|frontier",
- "verifyCommand": "...", "acceptanceCriteria": [...], "blockedBy": [task numbers]}
 ```
-```
+
+followed by a `json:metadata` fence holding `{"files": [...], "modelTier":
+"mechanical|standard|frontier", "verifyCommand": "...", "acceptanceCriteria":
+[...], "blockedBy": [task numbers]}`.
 
 There is no `Steps` field. A task that carries one is reported by plan-viz as
 `has-steps` and the field is never forwarded to an implementer.
@@ -274,7 +274,7 @@ Strings the test task (Task 8) greps for; every sibling emits them exactly.
 
 # task field markers — no Steps
 **Goal:**  **Files:**  **Acceptance Criteria:**  **Verify:**
-```json:metadata  keys: files modelTier verifyCommand acceptanceCriteria blockedBy model
+fence: json:metadata  keys: files modelTier verifyCommand acceptanceCriteria blockedBy model
 
 # plan-viz (skills/foureyes-brainstorm/lib/plan-viz.mjs)
 export { parseTasks, extractFence, normalizePath, computeWaves, FENCE_KEYS,
