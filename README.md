@@ -3,8 +3,8 @@
 > **Claude writes the code. Codex reviews it.**
 
 A [Claude Code](https://docs.claude.com/en/docs/claude-code) plugin that runs your
-development pipeline across two model families. Claude designs, plans and writes.
-OpenAI's Codex reads every spec, plan and diff it produces — in a read-only
+development pipeline across two model families. Claude designs and writes.
+OpenAI's Codex reads every spec and diff it produces — in a read-only
 sandbox, never having seen how Claude got there — because a model checking its own
 work tends to agree with itself.
 
@@ -19,8 +19,8 @@ step of every command, who runs it, and what it produces. (Or open
 
 |            | writes                        | grades                             |
 | ---------- | ----------------------------- | ---------------------------------- |
-| **Claude** | specs, plans, code, commits   | *nothing it wrote itself*          |
-| **Codex**  | *nothing — read-only sandbox* | every spec, every plan, every diff |
+| **Claude** | specs, code, commits          | *nothing it wrote itself*          |
+| **Codex**  | *nothing — read-only sandbox* | every spec, every diff             |
 
 Build also runs a fast same-family check on each task as it lands, before Codex
 sees the change as a whole. That one is a first pass, not the verdict — the
@@ -58,11 +58,9 @@ flowchart TD
     C --> D
     D --> E["Claude writes the spec"]
     E --> F["Codex critiques it · max 2 rounds"]
-    F --> G["Claude writes the plan"]
-    G --> H["Codex critiques it · max 2 rounds"]
   end
   subgraph BD ["/foureyes-build"]
-    H --> I["waves of implementers, in parallel"]
+    F --> I["waves of implementers, in parallel"]
     I --> J["each task reviewed on its own"]
     J --> K["Codex reviews the whole diff · max 2 rounds"]
     K --> L{{"you choose — PR, merge, or leave it"}}
@@ -72,8 +70,8 @@ flowchart TD
   classDef codex fill:#D9EAE5,stroke:#1C6E5E,color:#0C2A24
   classDef human fill:#2B322F,stroke:#2B322F,color:#FFFFFF
   classDef plain fill:#EFF2EE,stroke:#8B948F,color:#202724
-  class B,E,G,I,J claude
-  class C,F,H,K codex
+  class B,E,I,J claude
+  class C,F,K codex
   class D,L human
   class A plain
 ```
@@ -84,13 +82,13 @@ Everything after that alternates: Claude writes, Codex reads, Claude revises.
 
 ## The commands
 
-Five, and each is independent. Plan today and build next week, or review a pull request
+Five, and each is independent. Write the spec today and build next week, or review a pull request
 without ever having used the others.
 
 | command | what it is for | stops for you | roughly |
 | --- | --- | --- | --- |
-| `/foureyes-brainstorm` | turn an idea into a plan you can execute | once | 15–30 min |
-| `/foureyes-build` | execute a plan, or take an idea to a finished branch | twice | 20–90 min |
+| `/foureyes-brainstorm` | turn an idea into a spec you can execute | once | 15–30 min |
+| `/foureyes-build` | execute a spec, or take an idea to a finished branch | twice | 20–90 min |
 | `/foureyes-review` | two independent reviews of a diff, and where they disagree | only to post | 10–20 min |
 | `/foureyes-investigate` | find the cause of a bug, starting from almost nothing | never | 15–25 min |
 | `/foureyes-ledger` | report whether the second model is earning its cost | never | seconds |
@@ -103,16 +101,16 @@ without ever having used the others.
 
 Two models propose approaches without seeing each other. Their suggestions are
 pooled into one file untouched, then ranked and capped at three — nothing reaches
-the menu that neither model proposed. You pick once. The design spec and the
-task-by-task plan are then written and critiqued twice each, and it **stops**.
-Building is a separate decision, and the plan is rendered as an HTML page you can
+the menu that neither model proposed. You pick once. The design spec, ending with
+its own task list, is then written and critiqued twice, and it **stops**.
+Building is a separate decision, and the spec is rendered as an HTML page you can
 actually read.
 
 ### /foureyes-build
 
 ```
-/foureyes-build docs/foureyes/plans/2026-08-15-offline-sync.md
-/foureyes-build add offline support to the sync layer      # plans first
+/foureyes-build docs/foureyes/specs/2026-08-15-offline-sync.md
+/foureyes-build add offline support to the sync layer      # spec first
 ```
 
 Tasks whose file lists do not overlap run **concurrently** in one working tree.
@@ -188,11 +186,10 @@ start on a dirty working tree.
   API account for Codex.
 - **`gh`** (GitHub CLI), signed in, only for `/foureyes-review <PR#>`.
 
-**What a run costs in Codex calls.** `brainstorm` makes up to five: one approach
-proposal, then up to two reviews each of the spec and the plan. `build` from a
-plan adds up to two more; `build` from an idea does both. `review` makes one per
-model plus one per contested finding. Each is a fresh high-effort call, typically
-a few minutes.
+**What a run costs in Codex calls.** `brainstorm` makes up to three: one approach
+proposal, then up to two reviews of the spec; `build` adds up to two more. `review`
+makes one per model plus one per contested finding. Each is a fresh high-effort
+call, typically a few minutes.
 
 Without Codex the commands still run if you pass `--skip-critics`, but only one
 model family is involved and the cross-checking — the reason to install this — is
@@ -221,7 +218,7 @@ Restart Claude Code after updating, so the new skills register. To remove it:
 `/plugin uninstall foureyes@foureyes`.
 
 Uninstalling removes the plugin only. Anything it wrote into your repository under
-`docs/foureyes/` stays — those are your specs, plans and reports — as does
+`docs/foureyes/` stays — those are your specs and reports — as does
 `~/.claude/foureyes-repos` if you created one.
 
 ## What it writes into your repository
@@ -231,8 +228,8 @@ the same pull request as the change they describe.
 
 ```
 docs/foureyes/
-├── specs/           design specs, and the approach menus behind them
-├── plans/           task-by-task plans, plus the .tasks.json the executor runs
+├── specs/           design specs, each ending in a task list, plus the .tasks.json the executor runs
+├── plans/           legacy task-by-task plans from before specs owned the tasks
 └── investigations/  investigation reports
 ```
 
@@ -255,7 +252,7 @@ Claude-side effort is pinned per role in each agent's frontmatter, because the
 Agent tool has no effort parameter: mechanical and standard work runs on Sonnet at
 medium, design judgement on Opus at high.
 
-Specs and plans are drafted on Claude's frontier model. If it is unavailable — a
+Specs are drafted on Claude's frontier model. If it is unavailable — a
 spent quota, most often — drafting falls back to Opus and says so in the
 transcript rather than failing the run.
 
@@ -267,7 +264,6 @@ the round took. `/foureyes-ledger` reads those back:
 ```
 seam    raised  fixed  rejected  intentional  open   acted-on
 spec        18     11         4            2     1        72%
-plan        12      9         1            2     0        92%
 code         7      5         2            0     0        71%
 ```
 
@@ -278,7 +274,7 @@ exists so that call is made on evidence rather than on feel.
 ## The full walkthrough
 
 [**sultan1993.github.io/foureyes**](https://sultan1993.github.io/foureyes/) lays
-out all five commands, all forty steps, who executes each one and on which model —
+out all five commands, all thirty-eight steps, who executes each one and on which model —
 with the shared skeleton shown as a grid so you can read across it. The page lives
 in this repo at `docs/index.html`; nothing is fetched from anywhere else, so it
 also works offline straight from a clone.

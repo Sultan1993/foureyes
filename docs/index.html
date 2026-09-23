@@ -143,7 +143,7 @@ footer{margin-top:5rem;padding-top:1.6rem;border-top:1px solid var(--line);font-
     <div>
       <span class="eyebrow">foureyes &middot; a Claude Code plugin</span>
       <h1>Claude writes it. <em>Codex</em> reviews it.</h1>
-      <p class="deck">Claude designs, plans and writes. <b>OpenAI's Codex reads every spec, plan and diff it produces</b> — in a read-only sandbox, never having seen how Claude got there — because a model checking its own work tends to agree with itself. Five commands cover planning, building, reviewing, debugging and measuring.</p>
+      <p class="deck">Claude designs and writes. <b>OpenAI's Codex reads every spec and diff it produces</b> — in a read-only sandbox, never having seen how Claude got there — because a model checking its own work tends to agree with itself. Five commands cover planning, building, reviewing, debugging and measuring.</p>
       <div class="cta">
         <pre class="inst"><span class="c"># in Claude Code</span>
 /plugin marketplace add Sultan1993/foureyes
@@ -154,11 +154,11 @@ footer{margin-top:5rem;padding-top:1.6rem;border-top:1px solid var(--line);font-
       <div class="cap">who writes, who reviews</div>
       <div class="prow head"><div></div><div>writes</div><div>grades</div></div>
       <div class="prow"><div class="who ox">Claude</div>
-        <div class="yes">specs, plans, code — and every commit</div>
+        <div class="yes">specs, code — and every commit</div>
         <div class="no">its own work only as a first pass</div></div>
       <div class="prow"><div class="who vd">Codex</div>
         <div class="no">nothing — read-only sandbox</div>
-        <div class="yes">every spec, plan and diff</div></div>
+        <div class="yes">every spec and diff</div></div>
     </div>
     <p style="margin:1.1rem 0 0;font-size:.88rem;color:var(--ink2);line-height:1.55;max-width:72ch">
     Build also runs a fast same-family check on each task as it lands, before Codex
@@ -185,7 +185,7 @@ footer{margin-top:5rem;padding-top:1.6rem;border-top:1px solid var(--line);font-
 <section>
   <span class="eyebrow">the shape</span>
   <h2>One machine at four scales.</h2>
-  <p class="lede">Every command runs the same skeleton, so learning one teaches you the others. Read <em>across</em> a row to see it. The empty cells matter too: <span class="m">review</span> never drafts anything, <span class="m">investigate</span> never changes your code, and <span class="m">build</span> only explores options when you hand it an idea instead of a plan. Click any step for detail.</p>
+  <p class="lede">Every command runs the same skeleton, so learning one teaches you the others. Read <em>across</em> a row to see it. The empty cells matter too: <span class="m">review</span> never drafts anything, <span class="m">investigate</span> never changes your code, and <span class="m">build</span> only explores options when you hand it an idea instead of a spec. Click any step for detail.</p>
   <div class="gwrap"><table class="grid"><thead><tr>
     <th class="ph">phase</th><th>brainstorm</th><th>build</th><th>review</th><th>investigate</th>
   </tr></thead><tbody id="gridbody"></tbody></table></div>
@@ -222,7 +222,7 @@ footer{margin-top:5rem;padding-top:1.6rem;border-top:1px solid var(--line);font-
 <section>
   <span class="eyebrow">under the hood</span>
   <h2>What actually runs, if you want to audit it.</h2>
-  <p class="lede">Every model call the plugin makes comes from one of these. The five marked <em>Codex prompt body</em> are instruction files handed to the <span class="m">codex</span> command line; the rest are Claude subagents. <em>Effort</em> is how hard the model thinks, and it is set deliberately per role rather than inherited — cheap mechanical work does not run at the same setting as design judgement.</p>
+  <p class="lede">Every model call the plugin makes comes from one of these. The four marked <em>Codex prompt body</em> are instruction files handed to the <span class="m">codex</span> command line; the rest are Claude subagents. <em>Effort</em> is how hard the model thinks, and it is set deliberately per role rather than inherited — cheap mechanical work does not run at the same setting as design judgement.</p>
   <div class="tw"><table class="ag">
     <thead><tr><th>agent</th><th>runs as</th><th>model</th><th>effort</th><th>speed</th><th>may write</th></tr></thead>
     <tbody id="roster"></tbody>
@@ -271,10 +271,10 @@ const A={
 const PHASES=['set up','gather','explore','decide','act','review','finish'];
 const CMD=[
 {id:'brainstorm',name:'/foureyes-brainstorm',arg:'<what you want>',
- for:'Turn an idea into a plan you can execute.',
- how:'Two models propose approaches without seeing each other, you pick one, then the plan is written and reviewed twice before you ever look at code.',
- facts:['asks you once','~15–30 min','ends with a plan'],
- sub:'Explores directions first, then writes the design and the task-by-task plan. It stops when the plan exists — building is a separate decision.',
+ for:'Turn an idea into a spec you can execute.',
+ how:'Two models propose approaches without seeing each other, you pick one, then the spec is written and reviewed twice before you ever look at code.',
+ facts:['asks you once','~15–30 min','ends with a spec'],
+ sub:'Explores directions first, then writes the design spec, ending in its own task list. It stops when the spec exists — building is a separate decision.',
  steps:[
  {id:'0',ph:'set up',t:'Check the environment',a:['coord'],
   d:'Locates the Codex wrapper and confirms the model settings are the ones this command expects. A misconfiguration stops the run here rather than halfway through.'},
@@ -288,31 +288,27 @@ const CMD=[
   d:'The author has no file-writing tools at all; it returns the document and the coordinator saves it. Separating those two roles keeps one model from quietly rewriting its own brief.'},
  {id:'3',ph:'review',t:'Codex reviews the spec',a:['astra'],
   d:'Up to two passes, each a fresh reading with no memory of the last. Claims are checked against the document before anyone spends a revision on them, and Claude — not Codex — always writes the final version.'},
- {id:'4',ph:'act',t:'Claude writes the plan',a:['fable'],
-  d:'Tasks with goals, file lists, acceptance criteria and a verify command. Large plans arrive in numbered parts so a single oversized reply can never lose the whole thing.'},
- {id:'5',ph:'review',t:'Codex reviews the plan',a:['astra'],
-  d:'Coverage against the spec, contradictions between tasks, dependencies that cannot be satisfied. Revisions replace only the tasks that changed.'},
- {id:'6',ph:'finish',t:'The plan is rendered as a page',a:['det'],
-  d:'Every task in execution order, grouped into the waves it will actually run in, so you can read the plan instead of the markdown.'},
- {id:'7',ph:'finish',t:'Stop',a:['coord'],
-  d:'Prints the paths, names the chosen approach, and lists any assumptions the spec is carrying — those were decided for you. It asks nothing here; running the plan is your call.'}]},
+ {id:'4',ph:'finish',t:'The spec is rendered as a page',a:['det'],
+  d:'Every task in execution order, grouped into the waves it will actually run in, so you can read the spec instead of the markdown.'},
+ {id:'5',ph:'finish',t:'Stop',a:['coord'],
+  d:'Prints the paths, names the chosen approach, and lists any assumptions the spec is carrying — those were decided for you. It asks nothing here; running the spec is your call.'}]},
 
-{id:'build',name:'/foureyes-build',arg:'<plan or idea>',
- for:'Execute a plan, or take an idea all the way to a finished branch.',
+{id:'build',name:'/foureyes-build',arg:'<spec or idea>',
+ for:'Execute a spec, or take an idea all the way to a finished branch.',
  how:'Independent tasks run concurrently, each reviewed on its own, then Codex reviews everything together before you decide where the branch goes.',
  facts:['asks you twice','~20–90 min','ends with commits'],
- sub:'Hand it a plan and it executes. Hand it an idea and it plans first, then executes. Either way it works on a branch and never merges without asking.',
+ sub:'Hand it a spec and it executes. Hand it an idea and it brainstorms first, then executes. Either way it works on a branch and never merges without asking.',
  steps:[
  {id:'0',ph:'set up',t:'Work out what you gave it',a:['coord'],
-  d:'A plan file with its task list beside it is a plan; anything else is an idea to plan first. The decision comes from the files, never from how you phrased the request.'},
- {id:'0.5',ph:'gather',t:'Check the plan, and offer a review',a:['det','you'],
-  d:'Impossible task orderings stop the run. If the plan has never been reviewed by Codex, it offers to do that first — and asks rather than deciding for you, because an unreviewed plan is a reasonable thing to hand over deliberately.'},
- {id:'B',ph:'explore',t:'No plan? Plan first',a:['coord'],
-  d:'Runs the whole brainstorm sequence and continues straight into execution. Only when you gave it an idea rather than a plan.'},
+  d:'A spec file with its task list beside it is a spec; anything else is an idea to brainstorm first. The decision comes from the files, never from how you phrased the request.'},
+ {id:'0.5',ph:'gather',t:'Check the spec, and offer a review',a:['det','you'],
+  d:'Impossible task orderings stop the run. If the spec has never been reviewed by Codex, it offers to do that first — and asks rather than deciding for you, because an unreviewed spec is a reasonable thing to hand over deliberately.'},
+ {id:'B',ph:'explore',t:'No spec? Brainstorm first',a:['coord'],
+  d:'Runs the whole brainstorm sequence and continues straight into execution. Only when you gave it an idea rather than a spec.'},
  {id:'E0',ph:'act',t:'Prepare the workspace',a:['coord'],
   d:'Requires a clean tree, because otherwise your uncommitted edits would be committed under someone else’s task. Never works directly on your default branch.'},
  {id:'E1',ph:'act',t:'Create the task list',a:['coord'],
-  d:'One task per plan entry with dependencies wired. Tasks already finished in an earlier run are skipped rather than repeated.'},
+  d:'One task per spec entry with dependencies wired. Tasks already finished in an earlier run are skipped rather than repeated.'},
  {id:'E2',ph:'act',t:'Run a wave of tasks at once',a:['impl'],par:1,
   d:'Tasks whose file lists do not overlap run concurrently. Straightforward tasks go to a smaller, cheaper model; ones needing design judgement go to a larger one, so you are not paying premium rates to rename a variable.'},
  {id:'E3',ph:'act',t:'Collect the results',a:['coord'],
@@ -324,7 +320,7 @@ const CMD=[
  {id:'E6',ph:'act',t:'Build and test the whole thing',a:['coord'],
   d:'After every wave: code generation, a full build, the complete test suite. Failures return to the task that caused them, and a repaired task is reviewed again.'},
  {id:'S3',ph:'review',t:'Codex reviews the whole change',a:['astra'],
-  d:'The first time anyone sees all the work together: plan conformance, integration between tasks, security, whether the tests actually test anything. Any fix made at this stage re-runs the suite, so the result you are shown reflects the final state of the code rather than an earlier one.'},
+  d:'The first time anyone sees all the work together: spec conformance, integration between tasks, security, whether the tests actually test anything. Any fix made at this stage re-runs the suite, so the result you are shown reflects the final state of the code rather than an earlier one.'},
  {id:'F',ph:'finish',t:'You decide where it goes',a:['you'],
   d:'Reports what landed with the exact command that verified it and its real output, then offers to open a pull request, merge, or leave the branch alone. It never merges or pushes on its own.'}]},
 
@@ -338,7 +334,7 @@ const CMD=[
  {id:'1',ph:'gather',t:'Work out what changed',a:['det'],
   d:'No argument reviews your current branch against where it forked. A pull request number is fetched into a temporary worktree, so your own checkout is never touched.'},
  {id:'2',ph:'gather',t:'Pick up any intent',a:['coord'],
-  d:'The most recent spec or plan locally, or the pull request description and any issue it references. Optional — without it the review is simply less able to judge intent.'},
+  d:'The most recent spec locally, or the pull request description and any issue it references. Optional — without it the review is simply less able to judge intent.'},
  {id:'3',ph:'explore',t:'Two independent reviews',a:['sub','astra'],par:1,
   d:'Correctness, security, performance, tests, API design and over-engineering. Both families get a byte-for-byte identical prompt, so a disagreement is not down to being asked different questions.'},
  {id:'4',ph:'decide',t:'Sort agreements from singles',a:['det'],
@@ -372,14 +368,14 @@ const CMD=[
 ,
 {id:'ledger',name:'/foureyes-ledger',arg:'[repos]',
  for:'Find out whether the second model is earning its cost.',
- how:'Reads back what every review stage found, what became of each finding, and what the round took. Plus the plans on disk and every subagent dispatch in your transcripts — entirely retroactive.',
+ how:'Reads back what every review stage found, what became of each finding, and what the round took. Plus the specs on disk and every subagent dispatch in your transcripts — entirely retroactive.',
  facts:['never interrupts','seconds','reads only'],
  sub:'The one command that is not part of a run. It answers a question the others cannot: is a review stage worth the minutes it costs, or should it be cut?',
  steps:[
  {id:'1',ph:'gather',t:'Read the critique logs',a:['det'],
   d:'Every review stage appends its findings and their disposition — fixed, kept deliberately, or checked and found false — with the wall clock of the round. Committed alongside your specs, so this works across your whole history.'},
- {id:'2',ph:'gather',t:'Read the plans and the dispatch history',a:['det'],
-  d:'Every plan on disk, and every subagent dispatch recorded in your local transcripts. Needs no instrumentation: it is all already written.'},
+ {id:'2',ph:'gather',t:'Read the specs and the dispatch history',a:['det'],
+  d:'Every spec on disk, and every subagent dispatch recorded in your local transcripts. Needs no instrumentation: it is all already written.'},
  {id:'3',ph:'finish',t:'Report per stage',a:['coord'],
   d:'How often each review stage was acted on versus factually wrong, and what it cost. A stage whose acted-on rate stays low is one worth cutting — the point is to make that call on evidence rather than on feel.'}]}];
 const ROSTER=[
@@ -394,7 +390,6 @@ const ROSTER=[
  ['foureyes-approach-critic','Codex prompt body','gpt-6-astra','high · wrapper','normal · wrapper','read-only'],
  ['foureyes-investigate-critic','Codex prompt body','gpt-6-astra','high · wrapper','normal · wrapper','read-only'],
  ['foureyes-spec-critic','Codex prompt body','gpt-6-astra','high · wrapper','normal · wrapper','read-only'],
- ['foureyes-plan-critic','Codex prompt body','gpt-6-astra','high · wrapper','normal · wrapper','read-only'],
  ['foureyes-code-critic','Codex prompt body','gpt-6-astra','high · wrapper','normal · wrapper','read-only']
 ];
 const cls=s=>{const a=s.a.map(x=>A[x].c);return a.includes('hu')?'hu':(a.includes('ox')&&a.includes('vd'))?'both':a[0];};
