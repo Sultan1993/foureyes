@@ -148,7 +148,7 @@ which means you must read the verdict body yourself rather than trust the gate.
    not on a later expansion — an empty expansion downstream is your own bookkeeping
    slip, and reporting it as a broken install sends the user to fix the wrong thing.
 3. Every Codex call runs at `high` effort — each is a fresh cold read, and at the Astra runs at the normal service tier: `fast` is the same thinking sooner at 2.5x the usage, and nobody is waiting on an unattended critic; a user who wants it exports `CODEX_CRITIC_SPEED=fast`. Never set either yourself.
-   doc seams the last round is the final word before Fable concludes. Do not set
+   doc seam the last round is the final word before Fable concludes. Do not set
    `CODEX_CRITIC_EFFORT` yourself; a user who exports it overrides it.
 3b. **Every** `"$WRAP"` call passes the Bash tool's `timeout: 600000` (10 min, the
    tool maximum). The default is 120s and a `high`-effort call with `--search`
