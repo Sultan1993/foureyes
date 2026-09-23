@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { analyze, normalizePath, extractFence, parsePlanMarkdown, mdToHtml, parseTasks, computeWaves, detectProblems, spliceTasks, taskRanges } from './plan-viz.mjs';
+import { analyze, normalizePath, extractFence, parsePlanMarkdown, mdToHtml, parseTasks, computeWaves, detectProblems } from './plan-viz.mjs';
 
 // fixture helper: task with a valid fence unless overridden
 const T = (id, over = {}, fence = {}) => ({
@@ -184,85 +184,18 @@ test('a fence using only known keys raises no unknown-key', () => {
   assert.equal(detectProblems(tasks, waves).filter(x => x.kind === 'unknown-key').length, 0);
 });
 
-// ---- spliceTasks: a bad splice corrupts a plan that then gets executed ----
-const PLAN = `Spec: docs/x-design.md
-
-## Global Constraints
-- never commit
-
-### Task 1: first
-Goal: a
-\`\`\`json:metadata
-{"files":["a"]}
-\`\`\`
-
-### Task 2: second
-Goal: b
-
-### Task 3: third
-Goal: c
-
-## Notes
-trailing prose
-`;
-
-test('replaces only the named task, byte-identical elsewhere', () => {
-  const r = spliceTasks(PLAN, { 2: '### Task 2: second (revised)\nGoal: B2' });
-  assert.deepEqual(r.applied, [2]);
-  assert.deepEqual(r.missing, []);
-  assert.match(r.markdown, /### Task 2: second \(revised\)\nGoal: B2/);
-  assert.match(r.markdown, /### Task 1: first/);
-  assert.match(r.markdown, /### Task 3: third/);
-  assert.match(r.markdown, /## Global Constraints\n- never commit/);
-  assert.match(r.markdown, /## Notes\ntrailing prose/);
-  assert.equal(r.markdown.match(/### Task 2/g).length, 1);
+// A task that still carries a **Steps:** field is a plan-era leftover — the
+// pipeline never reads it, so flag it rather than silently dropping it.
+test('a Steps field in the description flags has-steps', () => {
+  const tasks = parseTasks({ tasks: [{ id: 1, subject: 's', description:
+    '**Goal:** g\n\n**Steps:**\n1. do it\n\n```json:metadata\n{"files":[],"verifyCommand":"x","modelTier":"mechanical","acceptanceCriteria":["c"]}\n```' }] });
+  const { waves } = computeWaves(tasks);
+  assert.equal(detectProblems(tasks, waves).filter(x => x.kind === 'has-steps').length, 1);
 });
 
-test('replaces several tasks at once without index drift', () => {
-  const r = spliceTasks(PLAN, { 1: '### Task 1: X\nG', 3: '### Task 3: Z\nG' });
-  assert.deepEqual(r.applied, [1, 3]);
-  assert.match(r.markdown, /### Task 1: X/);
-  assert.match(r.markdown, /### Task 2: second/);
-  assert.match(r.markdown, /### Task 3: Z/);
-});
-
-// The drafter asked to replace a task that is not there: it meant a structural
-// change and sent the wrong mode. Appending or guessing would wreck the plan.
-test('an unknown task number is reported, never appended', () => {
-  const r = spliceTasks(PLAN, { 9: '### Task 9: new\nG' });
-  assert.deepEqual(r.applied, []);
-  assert.deepEqual(r.missing, [9]);
-  assert.equal(r.markdown, PLAN);   // untouched, trailing newline included
-});
-
-test('the last task splices without eating trailing content', () => {
-  const noTrailer = PLAN.replace('\n## Notes\ntrailing prose\n', '');
-  const r = spliceTasks(noTrailer, { 3: '### Task 3: last\nG' });
-  assert.deepEqual(r.applied, [3]);
-  assert.match(r.markdown, /### Task 3: last\nG$/);
-});
-
-// A `### Task` line inside a fenced block is not a task boundary: it belongs to
-// whichever task's block encloses it. A splice that disagreed would cut a task in
-// half, and `### Task 99` would be addressable as a task that does not exist.
-test('### Task inside a code fence is not a boundary', () => {
-  const src = '### Task 1: real\nGoal: a\n```md\n### Task 99: fake\n```\n\n### Task 2: other\nGoal: b\n';
-  assert.equal(taskRanges(src.split('\n')).length, 2);           // not 3
-  assert.deepEqual(spliceTasks(src, { 99: 'x' }).missing, [99]);  // not addressable
-  // Replacing task 1 replaces its WHOLE block, fence included — that is correct;
-  // the fence was task 1's content, not a section of its own.
-  const r = spliceTasks(src, { 1: '### Task 1: replaced\nGoal: A' });
-  assert.deepEqual(r.applied, [1]);
-  assert.doesNotMatch(r.markdown, /Task 99/);
-  assert.match(r.markdown, /### Task 2: other\nGoal: b/);
-});
-
-test('splicing nothing returns the document unchanged', () => {
-  assert.equal(spliceTasks(PLAN, {}).markdown, PLAN);
-});
-
-test('taskRanges and parsePlanMarkdown agree on task count', () => {
-  const n = taskRanges(PLAN.split('\n')).length;
-  assert.equal(n, parsePlanMarkdown(PLAN).tasks.length);
-  assert.equal(n, 3);
+test('no Steps field does not flag has-steps', () => {
+  const tasks = parseTasks({ tasks: [{ id: 1, subject: 's', description:
+    '**Goal:** g\n\n```json:metadata\n{"files":[],"verifyCommand":"x","modelTier":"mechanical","acceptanceCriteria":["c"]}\n```' }] });
+  const { waves } = computeWaves(tasks);
+  assert.equal(detectProblems(tasks, waves).filter(x => x.kind === 'has-steps').length, 0);
 });

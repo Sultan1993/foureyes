@@ -1,13 +1,13 @@
-// plan-viz.mjs — render a foureyes plan as a self-contained HTML page.
-// Pure node, zero deps. Usage: node plan-viz.mjs <plan.md> [--json]
-//   HTML  -> <plan.md>.html (path printed)
+// plan-viz.mjs — render a spec's `## Tasks` section as a self-contained HTML page.
+// Pure node, zero deps. Usage: node plan-viz.mjs <spec.md> [--json]
+//   HTML  -> <spec.md>.html (path printed)
 //   --json -> {stats, waves, problems} on stdout (test surface; no HTML write)
 //
-// The page is the PLAN, explained: the brief, then every task in execution
-// order with its goal, steps, files, acceptance criteria and verify command.
+// The page is the spec's task list, explained: the brief, then every task in
+// execution order with its goal, files, acceptance criteria and verify command.
 // The structural checks are a footnote at the bottom, not the headline — a
 // reader wants to know what will be built, not that the linter found nothing.
-// Content comes from the plan MARKDOWN; .tasks.json supplies the dependency
+// Content comes from the spec MARKDOWN; .tasks.json supplies the dependency
 // graph. tasks.json is the mirror, so section order matches task order.
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
@@ -93,6 +93,8 @@ export function detectProblems(tasks, waves) {
     const unknown = Object.keys(t.fence).filter(k => !FENCE_KEYS.has(k));
     if (unknown.length)
       problems.push({ kind: 'unknown-key', task: t.id, detail: `metadata nothing reads: ${unknown.join(', ')}` });
+    if (/^\*\*Steps:\*\*/m.test(t.description))
+      problems.push({ kind: 'has-steps', task: t.id, detail: 'task carries a **Steps:** field — the pipeline never forwards it' });
   }
 
   // frontier-heavy: strictly more than 30% of tasks
@@ -176,10 +178,7 @@ export function analyze(tasksJson, planTasks = null) {
 
 // Fence-aware section walk: a '### Task' heading inside a ``` block is an
 // example, not a task. Any other unfenced H2/H3 ends the current section.
-// Fence-aware `### Task` boundaries. Shared by parsePlanMarkdown and spliceTasks
-// so a revision can never disagree with the renderer about where a task begins —
-// and so a `### Task` line inside a fenced code block is a boundary to neither.
-export function taskRanges(lines) {
+function sectionBoundaries(lines) {
   const ranges = [];
   let inCode = false, cur = null;
   for (let n = 0; n < lines.length; n++) {
@@ -192,38 +191,9 @@ export function taskRanges(lines) {
   return ranges;
 }
 
-// Replace whole `### Task N` blocks. This exists because the alternative — a
-// coordinator doing string surgery on a plan by hand from prose instructions — can
-// silently corrupt a plan that then gets executed into commits, which is the most
-// damaging thing in this pipeline and was the least verified.
-//
-// `sections` maps a task NUMBER to its complete replacement text. Nothing else in
-// the document is touched: untouched tasks, the intro and any trailing content come
-// through byte-identical. A number with no matching block is reported in `missing`
-// rather than appended or guessed at — a drafter asking to replace a task that does
-// not exist meant a structural change and sent the wrong revision mode.
-export function spliceTasks(src, sections) {
-  const lines = String(src ?? '').split('\n');
-  const ranges = taskRanges(lines);
-  const want = new Map(Object.entries(sections).map(([k, v]) => [String(Number(k)), v]));
-  const applied = [];
-  // Right to left: splicing shifts every index after the edit.
-  const edits = [];
-  for (const [a, b] of ranges) {
-    const num = /^###\s*Task\s+(\d+)/.exec(lines[a])?.[1];
-    if (num !== undefined && want.has(num)) { edits.push([a, b, want.get(num)]); applied.push(Number(num)); }
-  }
-  const out = lines.slice();
-  for (const [a, b, text] of edits.sort((x, y) => y[0] - x[0])) {
-    out.splice(a, b - a, ...String(text).replace(/\n+$/, '').split('\n'));
-  }
-  const missing = [...want.keys()].map(Number).filter((n) => !applied.includes(n));
-  return { markdown: out.join('\n'), applied: applied.sort((a, b) => a - b), missing };
-}
-
 export function parsePlanMarkdown(src) {
   const lines = String(src ?? '').split('\n');
-  const ranges = taskRanges(lines);
+  const ranges = sectionBoundaries(lines);
 
   const intro = lines.slice(0, ranges.length ? ranges[0][0] : lines.length).join('\n');
   const trailing = ranges.length ? lines.slice(ranges[ranges.length - 1][1]).join('\n') : '';
@@ -315,7 +285,7 @@ export function renderHTML(planPath, analysis, plan = { intro: '', trailing: '',
 
   // The plan's `Spec:` pointer and H1, lifted out of the intro for the header.
   const specLine = /^Spec:\s*(\S+)/m.exec(plan.intro ?? '')?.[1] ?? '';
-  const title = /^#\s+(.+)$/m.exec(plan.intro ?? '')?.[1] ?? 'Implementation plan';
+  const title = /^#\s+(.+)$/m.exec(plan.intro ?? '')?.[1] ?? 'Tasks';
   const brief = String(plan.intro ?? '')
     .replace(/^Spec:.*$/m, '')
     .replace(/^#\s+.+$/m, '')
@@ -349,7 +319,6 @@ export function renderHTML(planPath, analysis, plan = { intro: '', trailing: '',
   </header>
   ${block('Goal', mdToHtml(F.goal ?? md.prose ?? ''))}
   ${block('Files', files)}
-  ${block('Steps', mdToHtml(F.steps ?? ''))}
   ${block('Done when', criteria)}
   ${block('Verify', f.verifyCommand
       ? `<pre class="code"><code>${esc(String(f.verifyCommand))}</code></pre>`
