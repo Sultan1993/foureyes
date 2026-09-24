@@ -49,29 +49,6 @@ ROUND="${CODEX_CRITIC_ROUND:-1}"
 # document, and with a 2-round budget the last round is the final word before
 # the drafter concludes — never run it lower than the first.
 EFFORT="${CODEX_CRITIC_EFFORT:-medium}"
-# Service tier — orthogonal to effort. `fast` buys priority routing: the same
-# thinking, delivered sooner, at 2.5x the usage (OpenAI's Codex pricing page;
-# the multiplier was published for gpt-6-astra and is not re-checked on
-# gpt-6-sol). Default OFF: a critic runs unattended, so nobody is waiting on
-# the minutes it saves, and on a ChatGPT plan the multiplier is what empties
-# the weekly limit. Set CODEX_CRITIC_SPEED=fast to buy it back for one run.
-# An account whose model does not advertise `priority` gets normal routing anyway.
-#
-# Codex needs BOTH halves and discards the tier without the feature gate:
-#   get_service_tier() returns None whenever fast_mode is disabled,
-#   (codex-rs/core/src/session/mod.rs)
-# so setting one alone is a silent no-op — you pay nothing and gain nothing while
-# believing otherwise. They are emitted together here or not at all.
-# A plain word-split string, NOT an array: this repo's baseline is macOS bash
-# 3.2, where "${ARR[@]}" on an EMPTY array under `set -u` is a fatal unbound
-# variable. An array here would have killed every normal-speed call — the default
-# path — while the fast path kept working. Same idiom as $SEARCH above.
-SPEED=""
-case "${CODEX_CRITIC_SPEED:-normal}" in
-  fast|priority) SPEED="--enable fast_mode -c service_tier=priority" ;;
-  normal|default|"") : ;;
-  *) echo "codex-critic: CODEX_CRITIC_SPEED='${CODEX_CRITIC_SPEED}' is not 'fast' or 'normal' — running at normal speed (the default). Fix it or unset it." >&2 ;;
-esac
 # -----------------------------------------------------------------------------
 
 fail() { echo "VERDICT: NEEDS-HUMAN"; echo "codex-critic: $1" >&2; exit 2; }
@@ -121,9 +98,9 @@ exact format specified above — no preamble, no text after it."
 # the gate directive after printing the verdict.
 if [ -z "$seam" ]; then
   if [ -n "$MODEL" ]; then
-    exec codex $SEARCH exec $SPEED -s read-only -c model_reasoning_effort="$EFFORT" -m "$MODEL" "$prompt"
+    exec codex $SEARCH exec -s read-only -c model_reasoning_effort="$EFFORT" -m "$MODEL" "$prompt"
   else
-    exec codex $SEARCH exec $SPEED -s read-only -c model_reasoning_effort="$EFFORT" "$prompt"
+    exec codex $SEARCH exec -s read-only -c model_reasoning_effort="$EFFORT" "$prompt"
   fi
 fi
 
@@ -133,9 +110,9 @@ fi
 # and their accounting lives in foureyes-review's own run artifacts.
 _t0=$(date +%s)
 if [ -n "$MODEL" ]; then
-  out="$(codex $SEARCH exec $SPEED -s read-only -c model_reasoning_effort="$EFFORT" -m "$MODEL" "$prompt")"
+  out="$(codex $SEARCH exec -s read-only -c model_reasoning_effort="$EFFORT" -m "$MODEL" "$prompt")"
 else
-  out="$(codex $SEARCH exec $SPEED -s read-only -c model_reasoning_effort="$EFFORT" "$prompt")"
+  out="$(codex $SEARCH exec -s read-only -c model_reasoning_effort="$EFFORT" "$prompt")"
 fi
 _secs=$(( $(date +%s) - _t0 ))
 printf '%s\n' "$out"

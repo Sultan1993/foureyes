@@ -224,7 +224,7 @@ footer{margin-top:5rem;padding-top:1.6rem;border-top:1px solid var(--line);font-
   <h2>What actually runs, if you want to audit it.</h2>
   <p class="lede">Every model call the plugin makes comes from one of these. The four marked <em>Codex prompt body</em> are instruction files handed to the <span class="m">codex</span> command line; the rest are Claude subagents. <em>Effort</em> is how hard the model thinks, and it is set deliberately per role rather than inherited — cheap mechanical work does not run at the same setting as design judgement.</p>
   <div class="tw"><table class="ag">
-    <thead><tr><th>agent</th><th>runs as</th><th>model</th><th>effort</th><th>speed</th><th>may write</th></tr></thead>
+    <thead><tr><th>agent</th><th>runs as</th><th>model</th><th>effort</th><th>may write</th></tr></thead>
     <tbody id="roster"></tbody>
   </table></div>
 </section>
@@ -379,18 +379,18 @@ const CMD=[
  {id:'3',ph:'finish',t:'Report per stage',a:['coord'],
   d:'How often each review stage was acted on versus factually wrong, and what it cost. A stage whose acted-on rate stays low is one worth cutting — the point is to make that call on evidence rather than on feel.'}]}];
 const ROSTER=[
- ['foureyes-drafter','Claude subagent','fable','high · agent file','session','nothing — no write tools'],
- ['foureyes-implementer','Claude subagent','sonnet','medium · agent file','session','its assigned files only'],
- ['foureyes-implementer-frontier','Claude subagent','opus','high · agent file','session','its assigned files only'],
- ['foureyes-task-reviewer','Claude subagent','sonnet','medium · agent file','session','read-only'],
- ['foureyes-scout','Claude subagent','sonnet','medium · agent file','session','read-only'],
- ['foureyes-investigator','Claude subagent','opus','high · agent file','session','read-only'],
- ['foureyes-review-critic','both families','opus + astra','high','session','read-only'],
- ['foureyes-refute-critic','both families','opus + astra','high','session','read-only'],
- ['foureyes-approach-critic','Codex prompt body','gpt-6-sol','medium · wrapper','normal · wrapper','read-only'],
- ['foureyes-investigate-critic','Codex prompt body','gpt-6-sol','medium · wrapper','normal · wrapper','read-only'],
- ['foureyes-spec-critic','Codex prompt body','gpt-6-sol','medium · wrapper','normal · wrapper','read-only'],
- ['foureyes-code-critic','Codex prompt body','gpt-6-sol','medium · wrapper','normal · wrapper','read-only']
+ ['foureyes-drafter','Claude subagent','fable','high · agent file','nothing — no write tools'],
+ ['foureyes-implementer','Claude subagent','sonnet','medium · agent file','its assigned files only'],
+ ['foureyes-implementer-frontier','Claude subagent','opus','high · agent file','its assigned files only'],
+ ['foureyes-task-reviewer','Claude subagent','sonnet','medium · agent file','read-only'],
+ ['foureyes-scout','Claude subagent','sonnet','medium · agent file','read-only'],
+ ['foureyes-investigator','Claude subagent','opus','high · agent file','read-only'],
+ ['foureyes-review-critic','both families','opus + astra','high','read-only'],
+ ['foureyes-refute-critic','both families','opus + astra','high','read-only'],
+ ['foureyes-approach-critic','Codex prompt body','gpt-6-sol','medium · wrapper','read-only'],
+ ['foureyes-investigate-critic','Codex prompt body','gpt-6-sol','medium · wrapper','read-only'],
+ ['foureyes-spec-critic','Codex prompt body','gpt-6-sol','medium · wrapper','read-only'],
+ ['foureyes-code-critic','Codex prompt body','gpt-6-sol','medium · wrapper','read-only']
 ];
 const cls=s=>{const a=s.a.map(x=>A[x].c);return a.includes('hu')?'hu':(a.includes('ox')&&a.includes('vd'))?'both':a[0];};
 document.getElementById('cards').innerHTML=CMD.map(c=>`

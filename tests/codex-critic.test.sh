@@ -162,31 +162,6 @@ check "9c explicit effort wins"               'grep -qx "model_reasoning_effort=
 run review
 check "9d non-seam is medium too"             'grep -qx "model_reasoning_effort=medium" args.txt'
 
-echo "--- service tier: fast needs BOTH halves or neither ---"
-# codex discards the tier when fast_mode is off (get_service_tier returns None),
-# so emitting one without the other is a silent no-op: you believe you are on
-# priority routing, you are not, and nothing anywhere says so.
-V "${CLEAN[@]}"
-run spec
-check "13a normal is the DEFAULT: neither half sent"  '[ -f args.txt ] && ! grep -qx "fast_mode" args.txt && ! grep -q "service_tier" args.txt'
-run spec CODEX_CRITIC_SPEED=fast
-check "13b fast passes the feature gate"             'grep -qx -- "--enable" args.txt && grep -qx "fast_mode" args.txt'
-check "13c fast passes the tier itself"              'grep -qx "service_tier=priority" args.txt'
-run spec CODEX_CRITIC_SPEED=priority
-check "13d 'priority' is accepted as a synonym"      'grep -qx "fast_mode" args.txt && grep -qx "service_tier=priority" args.txt'
-run spec CODEX_CRITIC_SPEED=normal
-check "13e explicit normal sends neither half"       '[ -f args.txt ] && ! grep -qx "fast_mode" args.txt && ! grep -q "service_tier" args.txt'
-# A typo must not read as "fast" and must not pass silently as "normal" either.
-run spec CODEX_CRITIC_SPEED=quick
-check "13f a typo runs normal, loudly"               '[ -f args.txt ] && ! grep -qx "fast_mode" args.txt && grep -q "not .fast. or .normal." err.txt'
-check "13g a typo still produces a verdict"          '[ "$(gate)" = pass ]'
-# Speed is orthogonal to effort: asking for fast must never quietly lower thinking.
-run spec CODEX_CRITIC_SPEED=fast
-check "13h fast keeps effort at medium"              'grep -qx "model_reasoning_effort=medium" args.txt'
-# review/refute exec-replace this shell; the tier has to reach them too.
-run review CODEX_CRITIC_SPEED=fast
-check "13i non-seam modes get the tier as well"      'grep -qx "fast_mode" args.txt && grep -qx "service_tier=priority" args.txt'
-
 echo
 echo "codex-critic.test.sh: $PASS passed, $FAIL failed"
 [ "$FAIL" -eq 0 ]

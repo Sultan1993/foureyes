@@ -32,7 +32,7 @@ LEDGER=$(ls -d ~/.claude/plugins/cache/*/foureyes/*/scripts/astra-ledger.mjs 2>/
   and finish. Read the trailing `GATE:` line; never reset the round to buy
   passes. Read stderr too: it warns when findings were in a format the wrapper
   could not count, meaning you must read the verdict body yourself.
-- Every round runs at `medium` effort. Do not set `CODEX_CRITIC_EFFORT` yourself. Astra runs at the normal service tier: `fast` is the same thinking sooner at 2.5x the usage, and nobody is waiting on an unattended critic; a user who wants it exports `CODEX_CRITIC_SPEED=fast`. Never set either yourself.
+- Every round runs at `medium` effort. Do not set `CODEX_CRITIC_EFFORT` yourself.
 - **Pass the Bash tool's `timeout: 600000`** (10 min, the tool maximum) on every
   `"$WRAP"` call. The default is 120s and a `medium`-effort review of a real diff
   routinely exceeds it — and a timeout arrives as a tool error with no `VERDICT`

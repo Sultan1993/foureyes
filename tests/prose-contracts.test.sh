@@ -295,34 +295,6 @@ check "20d the ledger skill runs it too" \
 check "20e it is on the deterministic suite list" \
   'grep -q "pipeline-stats.test.mjs" "$HERE/run.sh"'
 
-echo "--- speed is orthogonal to effort, and never half-applied ---"
-WR="$ROOT/scripts/codex-critic.sh"
-check "23a the wrapper honours a speed knob" \
-  'grep -q "CODEX_CRITIC_SPEED" "$WR"'
-# codex discards the tier when fast_mode is off, so one without the other is a
-# silent no-op. They must be emitted by the same branch.
-check "23b fast_mode and service_tier ship together" \
-  'grep -q "enable fast_mode -c service_tier" "$WR"'
-check "23c asking for fast never lowers effort" \
-  '! grep -qE "SPEED.*EFFORT=|fast.*EFFORT=(low|medium|minimal)" "$WR"'
-# macOS baseline is bash 3.2, where "${ARR[@]}" on an EMPTY array under set -u is
-# fatal. An array here kills the DEFAULT path while fast keeps working.
-check "23d no empty-array expansion in the wrapper" \
-  '! grep -q "SPEED_ARGS\[@\]" "$WR"'
-check "23e the knob is documented for users" \
-  'grep -q "CODEX_CRITIC_SPEED" "$ROOT/README.md"'
-# Fast is 2.5x the usage (published for gpt-6-astra) for the same output, and a critic runs
-# unattended — nobody is waiting on the minutes it saves. It is opt-in.
-check "23f normal is the default; fast is opt-in" \
-  'grep -q "CODEX_CRITIC_SPEED:-normal" "$WR"'
-# SEARCH=0 was recommended for latency on no evidence it was ever dead weight.
-# The drafter has web access; a critic without it reviews from weaker information
-# than the document it is reviewing.
-check "23g search is documented on, and never recommended off" \
-  'has "$ROOT/README.md" "CODEX_CRITIC_SEARCH" && ! has "$ROOT/README.md" "SEARCH=0"'
-check "23h both skills say how to opt in to the tier" \
-  'grep -q "CODEX_CRITIC_SPEED=fast" "$BS" && grep -q "CODEX_CRITIC_SPEED=fast" "$BD"'
-
 echo "--- the misroute is now PREVENTED, not only detected ---"
 # 143 real dispatches sent these to Claude subagents. Assertion 3 was green the
 # whole time: it greps skill prose and cannot see what a coordinator did. The
