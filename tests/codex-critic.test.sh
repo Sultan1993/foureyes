@@ -152,15 +152,15 @@ check "8d CODEX_CRITIC_MODEL honored"         'grep -qx "other-model" args.txt'
 run spec CODEX_CRITIC_MODEL=
 check "8e empty model omits -m"               '! grep -qx -- "-m" args.txt'
 
-echo "--- effort: high on every round ---"
+echo "--- effort: medium on every round ---"
 run spec CODEX_CRITIC_ROUND=1
-check "9a round 1 -> high"                    'grep -qx "model_reasoning_effort=high" args.txt'
+check "9a round 1 -> medium"                  'grep -qx "model_reasoning_effort=medium" args.txt'
 run spec CODEX_CRITIC_ROUND=2 CODEX_CRITIC_MAX_ROUNDS=2
-check "9b last round stays high"              'grep -qx "model_reasoning_effort=high" args.txt'
+check "9b last round stays medium"            'grep -qx "model_reasoning_effort=medium" args.txt'
 run spec CODEX_CRITIC_ROUND=2 CODEX_CRITIC_MAX_ROUNDS=3 CODEX_CRITIC_EFFORT=low
 check "9c explicit effort wins"               'grep -qx "model_reasoning_effort=low" args.txt'
 run review
-check "9d non-seam is high too"               'grep -qx "model_reasoning_effort=high" args.txt'
+check "9d non-seam is medium too"             'grep -qx "model_reasoning_effort=medium" args.txt'
 
 echo "--- service tier: fast needs BOTH halves or neither ---"
 # codex discards the tier when fast_mode is off (get_service_tier returns None),
@@ -182,7 +182,7 @@ check "13f a typo runs normal, loudly"               '[ -f args.txt ] && ! grep 
 check "13g a typo still produces a verdict"          '[ "$(gate)" = pass ]'
 # Speed is orthogonal to effort: asking for fast must never quietly lower thinking.
 run spec CODEX_CRITIC_SPEED=fast
-check "13h fast keeps effort at high"                'grep -qx "model_reasoning_effort=high" args.txt'
+check "13h fast keeps effort at medium"              'grep -qx "model_reasoning_effort=medium" args.txt'
 # review/refute exec-replace this shell; the tier has to reach them too.
 run review CODEX_CRITIC_SPEED=fast
 check "13i non-seam modes get the tier as well"      'grep -qx "fast_mode" args.txt && grep -qx "service_tier=priority" args.txt'

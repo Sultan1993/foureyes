@@ -38,12 +38,12 @@ node lib. Do NOT use the Workflow tool (its sandbox can't run Codex).
 ROOT=$(ls -d ~/.claude/plugins/cache/*/foureyes/*/ 2>/dev/null | sort -V | tail -1)
 WRAP="$ROOT/scripts/codex-critic.sh"
 SYNTH="$ROOT/skills/foureyes-review/lib/review-synth.mjs"
-export CODEX_CRITIC_EFFORT=high   # pin effort; don't rely on the wrapper default
+export CODEX_CRITIC_EFFORT=medium # pin effort; don't rely on the wrapper default
 ```
 An empty `ROOT` is a broken install: STOP and say the plugin path did not resolve.
 
 **Every `"$WRAP"` call passes the Bash tool's `timeout: 600000`** (10 min, the
-tool maximum). The default is 120s; a `high`-effort review of a real diff, and
+tool maximum). The default is 120s; a `medium`-effort review of a real diff, and
 refutations that re-read the code, routinely exceed it. A timeout arrives as a
 tool error with no verdict at all, so without this a slow Codex silently turns a
 two-model review into a one-model review — the exact thing this skill exists to

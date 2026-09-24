@@ -188,7 +188,7 @@ start on a dirty working tree.
 
 **What a run costs in Codex calls.** `brainstorm` makes up to three: one approach
 proposal, then up to two reviews of the spec; `build` adds up to two more. `review`
-makes one per model plus one per contested finding. Each is a fresh high-effort
+makes one per model plus one per contested finding. Each is a fresh medium-effort
 call, typically a few minutes.
 
 Without Codex the commands still run if you pass `--skip-critics`, but only one
@@ -243,7 +243,7 @@ Optional environment variables, all with working defaults.
 | | default | effect |
 | --- | --- | --- |
 | `CODEX_CRITIC_SPEED` | `normal` | `fast` buys priority routing: same thinking, sooner, 2.5x the usage (multiplier published for gpt-6-astra, not re-checked on gpt-6-sol) |
-| `CODEX_CRITIC_EFFORT` | `high` | reasoning depth — `minimal` … `high` … `xhigh` |
+| `CODEX_CRITIC_EFFORT` | `medium` | reasoning depth — `minimal` … `high` … `xhigh` |
 | `CODEX_CRITIC_SEARCH` | `1` | live web search, so a critic can check a library claim against current docs |
 | `CODEX_CRITIC_MODEL` | `gpt-6-sol` | empty string uses your account default |
 | `CODEX_CRITIC_MAX_ROUNDS` | `2` | passes per review stage |

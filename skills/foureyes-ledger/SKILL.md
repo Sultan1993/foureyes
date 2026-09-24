@@ -9,7 +9,7 @@ description: >
 
 # foureyes-ledger — is Astra worth the five minutes?
 
-Every seam costs a `high`-effort Codex call, roughly five minutes. This is the
+Every seam costs a `medium`-effort Codex call, a few minutes. This is the
 only thing that says whether any of them earned it.
 
 ## Announce

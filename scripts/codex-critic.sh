@@ -42,12 +42,13 @@ case "${CODEX_CRITIC_SEARCH:-1}" in 0|false|no) SEARCH="" ;; *) SEARCH="--search
 # Seam round budget.
 MAX_ROUNDS="${CODEX_CRITIC_MAX_ROUNDS:-2}"
 ROUND="${CODEX_CRITIC_ROUND:-1}"
-# Reasoning effort. Every round runs `high`. Each `codex exec` is a fresh
-# process with no memory of the last one, so a later round is not a cheap
-# re-read — it is a full cold review of the whole document. And with a 2-round
-# budget the last round is the final word before the drafter concludes, which
-# is the worst place to spend less thinking.
-EFFORT="${CODEX_CRITIC_EFFORT:-high}"
+# Reasoning effort. Every round runs `medium` by default — gpt-6-sol at medium
+# is the chosen operating point; override with CODEX_CRITIC_EFFORT. Whatever the
+# level, it is the same on every round: each `codex exec` is a fresh process with
+# no memory of the last one, so a later round is a full cold review of the whole
+# document, and with a 2-round budget the last round is the final word before
+# the drafter concludes — never run it lower than the first.
+EFFORT="${CODEX_CRITIC_EFFORT:-medium}"
 # Service tier — orthogonal to effort. `fast` buys priority routing: the same
 # thinking, delivered sooner, at 2.5x the usage (OpenAI's Codex pricing page;
 # the multiplier was published for gpt-6-astra and is not re-checked on
