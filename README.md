@@ -242,10 +242,10 @@ Optional environment variables, all with working defaults.
 
 | | default | effect |
 | --- | --- | --- |
-| `CODEX_CRITIC_SPEED` | `normal` | `fast` buys priority routing: same thinking, sooner, 2.5x the usage on gpt-6-astra |
+| `CODEX_CRITIC_SPEED` | `normal` | `fast` buys priority routing: same thinking, sooner, 2.5x the usage (multiplier published for gpt-6-astra, not re-checked on gpt-6-sol) |
 | `CODEX_CRITIC_EFFORT` | `high` | reasoning depth — `minimal` … `high` … `xhigh` |
 | `CODEX_CRITIC_SEARCH` | `1` | live web search, so a critic can check a library claim against current docs |
-| `CODEX_CRITIC_MODEL` | `gpt-6-astra` | empty string uses your account default |
+| `CODEX_CRITIC_MODEL` | `gpt-6-sol` | empty string uses your account default |
 | `CODEX_CRITIC_MAX_ROUNDS` | `2` | passes per review stage |
 
 Claude-side effort is pinned per role in each agent's frontmatter, because the

@@ -311,7 +311,7 @@ check "23d no empty-array expansion in the wrapper" \
   '! grep -q "SPEED_ARGS\[@\]" "$WR"'
 check "23e the knob is documented for users" \
   'grep -q "CODEX_CRITIC_SPEED" "$ROOT/README.md"'
-# Fast is 2.5x the usage on gpt-6-astra for the same output, and a critic runs
+# Fast is 2.5x the usage (published for gpt-6-astra) for the same output, and a critic runs
 # unattended — nobody is waiting on the minutes it saves. It is opt-in.
 check "23f normal is the default; fast is opt-in" \
   'grep -q "CODEX_CRITIC_SPEED:-normal" "$WR"'

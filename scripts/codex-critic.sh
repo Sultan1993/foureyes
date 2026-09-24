@@ -27,13 +27,13 @@ critic="${1:?usage: codex-critic.sh <approach|spec|plan|code|review|refute>}"
 seam=""; case "$critic" in spec|plan|code) seam=1 ;; esac
 
 # --- model config (EDIT HERE) ------------------------------------------------
-# Codex model the critics run on. "gpt-6-astra" is the current default on a
+# Codex model the critics run on. "gpt-6-sol" is the current default on a
 # ChatGPT-account Codex and is verified working; it needs Codex CLI >= 0.153
 # (`codex update`) — an older CLI rejects the id with a 400. The skills still
-# call the Codex critic "Astra", after the model; it was "Sol" under gpt-5.6-sol.
+# call the Codex critic "Astra"; the name was kept when the model moved to gpt-6-sol.
 # Override per-run with CODEX_CRITIC_MODEL; set it to empty ("") to let Codex use
 # whatever your account default is (safest if the id changes in a future release).
-MODEL="${CODEX_CRITIC_MODEL-gpt-6-astra}"
+MODEL="${CODEX_CRITIC_MODEL-gpt-6-sol}"
 # Live web search. Default ON — lets Codex verify current library APIs, CVEs, and
 # breaking changes as review evidence. Disable with CODEX_CRITIC_SEARCH=0 for
 # faster, offline critic runs. (Context7 MCP, if configured in ~/.codex, is
@@ -49,8 +49,9 @@ ROUND="${CODEX_CRITIC_ROUND:-1}"
 # is the worst place to spend less thinking.
 EFFORT="${CODEX_CRITIC_EFFORT:-high}"
 # Service tier — orthogonal to effort. `fast` buys priority routing: the same
-# thinking, delivered sooner, at 2.5x the usage on gpt-6-astra (OpenAI's Codex
-# pricing page). Default OFF: a critic runs unattended, so nobody is waiting on
+# thinking, delivered sooner, at 2.5x the usage (OpenAI's Codex pricing page;
+# the multiplier was published for gpt-6-astra and is not re-checked on
+# gpt-6-sol). Default OFF: a critic runs unattended, so nobody is waiting on
 # the minutes it saves, and on a ChatGPT plan the multiplier is what empties
 # the weekly limit. Set CODEX_CRITIC_SPEED=fast to buy it back for one run.
 # An account whose model does not advertise `priority` gets normal routing anyway.
