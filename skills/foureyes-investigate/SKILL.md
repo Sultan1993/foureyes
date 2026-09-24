@@ -2,13 +2,13 @@
 name: foureyes-investigate
 description: >
   Investigate a bug or a vague "something is wrong here" with two model families.
-  Scouts sweep the codebase from several angles at once, then Fable and Astra form
+  Scouts sweep the codebase from several angles at once, then Fable and Sol form
   hypotheses independently and blind, the cheapest disproof of each is actually
   run, and survivors are attacked by the other model. Produces a cause with its
   evidence — or an honest "not established" plus what is now ruled out. Diagnoses
   only: it never changes code and never commits. The one thing it writes is its
   own report. Flags:
-  --skip-critics (Astra never runs), --angles a,b,c.
+  --skip-critics (Sol never runs), --angles a,b,c.
 ---
 
 # foureyes-investigate — widen, guess, prove, attack, conclude
@@ -25,7 +25,7 @@ If the user wants the fix, they hand the conclusion to `foureyes-build` as a
 brief, which keeps the fix inside the pipeline instead of around it.
 
 ## Announce
-"Using foureyes-investigate: scouts sweep, then Fable and Astra form hypotheses
+"Using foureyes-investigate: scouts sweep, then Fable and Sol form hypotheses
 independently and we test the cheapest disproof of each. Roughly 15-25 minutes,
 and it diagnoses without changing anything."
 
@@ -59,7 +59,7 @@ however bad — a verdict, a status, a malformed draft is content, and the conte
 rules govern it. Never retry a deterministic failure the same way: an
 output-token-maximum overflow fails identically on every attempt.
 
-`--skip-critics`: Astra never runs, Fable hypothesises alone, and you say plainly
+`--skip-critics`: Sol never runs, Fable hypothesises alone, and you say plainly
 that the conclusion rests on one model.
 
 ## Step 1 — State the symptom, do not interview
@@ -105,7 +105,7 @@ the only thing making two of them worth more than one.
 Issue BOTH in ONE message. Neither input mentions the other model.
 
 ```bash
-# Astra. NOT a seam: pass no CODEX_CRITIC_ROUND and expect no GATE line.
+# Sol. NOT a seam: pass no CODEX_CRITIC_ROUND and expect no GATE line.
 printf '%s\n' "PROPOSE" "SYMPTOM: <one line>" "REPRO: <command or 'none'>" \
   "STARTED: <when, or 'unknown'>" "" "SCOUT FINDINGS:" "<all scout reports>" \
   | "$WRAP" investigate
@@ -113,15 +113,15 @@ printf '%s\n' "PROPOSE" "SYMPTOM: <one line>" "REPRO: <command or 'none'>" \
 …and `subagent_type: foureyes-investigator`, same content, as Assignment
 PROPOSE. Both emit the same template, so Step 4 is a copy rather than a rewrite.
 
-Say in one line that Astra is thinking and may take a few minutes; a silent
+Say in one line that Sol is thinking and may take a few minutes; a silent
 terminal reads as a hang.
 
 Failure is not symmetric (and every branch below applies only after Step 0's
 three attempts):
-- **Astra fails, times out, or returns nothing usable** → continue with Fable alone
+- **Sol fails, times out, or returns nothing usable** → continue with Fable alone
   and say so. Name a timeout AS a timeout; filing it under "the critic failed"
   hides the systematic loss of the second model.
-- **Fable fails** → continue with Astra alone and say so. Unlike the drafting
+- **Fable fails** → continue with Sol alone and say so. Unlike the drafting
   seams, neither model is load-bearing here: one set of hypotheses still tests.
 - **Neither returns a usable hypothesis** → go to Step 6 and report
   `NOT ESTABLISHED`, with everything both of them ruled out. That is a real
@@ -163,7 +163,7 @@ always finds one more thing to check, and the budget is the whole point.
 
 ## Step 5 — The other model attacks the survivors
 
-Cross-refute, never self-refute: a Fable hypothesis goes to Astra, a Astra hypothesis
+Cross-refute, never self-refute: a Fable hypothesis goes to Sol, a Sol hypothesis
 goes to Claude, and one both proposed goes to whichever has not yet argued
 against it. Batch these in ONE message.
 
@@ -187,7 +187,7 @@ Write `docs/foureyes/investigations/YYYY-MM-DD-<topic>.md`:
 STATUS: ESTABLISHED | LIKELY | NOT ESTABLISHED
 CAUSE: <the mechanism, concretely — or "not established">
 EVIDENCE: <the observation that proves it, with its real output>
-PROPOSED BY: <fable | astra | both>   REFUTED BY: <none | who tried and failed>
+PROPOSED BY: <fable | sol | both>   REFUTED BY: <none | who tried and failed>
 RULED OUT:
 - <hypothesis> — killed by <observation>
 - <angle> — swept, nothing found
@@ -206,7 +206,7 @@ Never dress LIKELY up as ESTABLISHED. A confident wrong diagnosis is the most
 expensive thing this command can produce — it sends someone to fix code that
 works, and they trust it because two models and a test run stand behind it.
 
-**Log Astra's rounds** to `docs/foureyes/investigations/YYYY-MM-DD-<topic>-critique.md`
+**Log Sol's rounds** to `docs/foureyes/investigations/YYYY-MM-DD-<topic>-critique.md`
 in the standard grammar, so the ledger prices this seam like every other one:
 ```
 ## investigate · round <n> · <YYYY-MM-DD> · <n>s

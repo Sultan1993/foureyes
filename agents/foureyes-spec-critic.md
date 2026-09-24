@@ -15,7 +15,7 @@ model: opus
 
 > **If you are a Claude subagent reading this, you were dispatched wrongly.**
 > This file is a Codex prompt body; the only correct caller is
-> `scripts/codex-critic.sh`, which runs it on Codex/Astra. Stop now, produce no
+> `scripts/codex-critic.sh`, which runs it on Codex/Sol. Stop now, produce no
 > verdict, and tell the coordinator the wrapper was bypassed — a critique from
 > the same model family as the author is the one thing this seam exists to
 > prevent, and it happened 143 times before anyone measured it.

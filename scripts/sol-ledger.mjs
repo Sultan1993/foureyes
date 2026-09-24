@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// astra-ledger.mjs — read the critique logs the seams write, and answer one
-// question: is Astra earning its keep, per seam?
+// sol-ledger.mjs — read the critique logs the seams write, and answer one
+// question: is Sol earning its keep, per seam?
 //
 // The seams (brainstorm 3/5, build S3) append to
 // docs/foureyes/specs/<slug>-critique.md as they go. This reads them back.
@@ -68,7 +68,7 @@ export function tally(rows) {
 }
 
 // acted-on = the share of findings that changed the artifact or were consciously
-// kept. `rejected` is the complement worth watching: Astra was factually wrong and
+// kept. `rejected` is the complement worth watching: Sol was factually wrong and
 // the round was spent anyway.
 const actedOn = (t) => (t.raised ? Math.round(((t.fixed + t.intentional) / t.raised) * 100) : 0);
 
@@ -168,7 +168,7 @@ function main(args) {
   }
   // One bad path must not kill a multi-repo sweep, but it must never pass
   // silently either — a dropped repo reads as "that repo has no findings".
-  for (const d of missing) console.error(`astra-ledger: skipping, no such directory: ${d}`);
+  for (const d of missing) console.error(`sol-ledger: skipping, no such directory: ${d}`);
   if (!found.length) process.exit(2);
 
   const files = found.flatMap(collect);
@@ -178,7 +178,7 @@ function main(args) {
     console.log(`\nNo critique logs yet — searched ${found.length} superpowers director${found.length === 1 ? 'y' : 'ies'}:`);
     for (const d of found) console.log(`  ${d}`);
     console.log('\nSeams append a log as they run. A repo that has not run one since the ledger');
-    console.log('shipped is empty for that reason, not because Astra found nothing.\n');
+    console.log('shipped is empty for that reason, not because Sol found nothing.\n');
     return;
   }
 
@@ -187,7 +187,7 @@ function main(args) {
   const roundRecs = parsed.flatMap((p) => p.rounds);
   if (!rows.length) {
     console.log(`${files.length} critique log(s) under ${dir}, no findings recorded.`);
-    console.log('A seam that ran clean logs `- (none)`, which is a real result: Astra found nothing.');
+    console.log('A seam that ran clean logs `- (none)`, which is a real result: Sol found nothing.');
     return;
   }
 
@@ -243,7 +243,7 @@ function main(args) {
   }
 
   console.log('\nacted-on = (fixed + intentional) / raised — findings that changed the artifact');
-  console.log('or were consciously kept. `rejected` is Astra being factually wrong, and the round');
+  console.log('or were consciously kept. `rejected` is Sol being factually wrong, and the round');
   console.log('was spent either way. A seam that stays low is a seam worth cutting.');
   if (found.length > 1) console.log(`\nread from:\n${found.map((d) => `  ${d}`).join('\n')}`);
   console.log();

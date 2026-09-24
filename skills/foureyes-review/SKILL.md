@@ -1,7 +1,7 @@
 ---
 name: foureyes-review
 description: >
-  Cross-model adversarial code review: Claude and Codex/Astra independently review
+  Cross-model adversarial code review: Claude and Codex/Sol independently review
   a diff (local branch or a GitHub PR), disagreements are refuted by the other
   model, and findings are ranked by severity + cross-model agreement. Advisory
   (never gates or merges). A two-model upgrade over /code-review.
@@ -14,7 +14,7 @@ Claude via the `Agent` tool, Codex via `Bash(codex-critic.sh)`, synthesis via th
 node lib. Do NOT use the Workflow tool (its sandbox can't run Codex).
 
 ## Announce
-"Using foureyes-review for a two-model (Claude + Codex/Astra) code review."
+"Using foureyes-review for a two-model (Claude + Codex/Sol) code review."
 
 ## Inputs
 - No arg → review the current branch vs its base.
@@ -29,8 +29,8 @@ node lib. Do NOT use the Workflow tool (its sandbox can't run Codex).
   - `--codex-model <id>` — model for the Codex reviewer/refuter (default
     `gpt-6-sol`). Export as `CODEX_CRITIC_MODEL=<id>` before each
     `codex-critic.sh` call.
-  Example — Sonnet on Claude's side, Astra on Codex's: `--claude-model sonnet`;
-  default is Opus + Astra
+  Example — Sonnet on Claude's side, Sol on Codex's: `--claude-model sonnet`;
+  default is Opus + Sol
   (leave `--codex-model` at its default).
 
 ## Step 0 — Resolve plugin paths

@@ -15,7 +15,7 @@ Fable returned one approach:
   A — Queue writes in localStorage, flush on reconnect.
       CHECKED: localStorage confirmed available in target browsers.
 
-Astra returned one approach:
+Sol returned one approach:
   B — Queue writes in localStorage, replay on reconnect.
       CHECKED: localStorage confirmed available in target browsers.
 

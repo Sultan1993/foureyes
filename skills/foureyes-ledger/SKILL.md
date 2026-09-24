@@ -1,24 +1,24 @@
 ---
 name: foureyes-ledger
 description: >
-  Report whether Astra is earning its keep. Reads the critique logs the seams write
-  into consumer repos and shows, per seam, how often Astra was acted on versus
+  Report whether Sol is earning its keep. Reads the critique logs the seams write
+  into consumer repos and shows, per seam, how often Sol was acted on versus
   factually wrong. Read-only, no model calls, no network. Takes repo paths:
   foureyes-ledger ~/dev/app-one ~/dev/app-two (default: the current repo).
 ---
 
-# foureyes-ledger — is Astra worth the five minutes?
+# foureyes-ledger — is Sol worth the five minutes?
 
 Every seam costs a `medium`-effort Codex call, a few minutes. This is the
 only thing that says whether any of them earned it.
 
 ## Announce
-"Reading the Astra critique logs."
+"Reading the Sol critique logs."
 
 ## Run it
 ```bash
 S=$(ls -d ~/.claude/plugins/cache/*/foureyes/*/scripts 2>/dev/null | sort -V | tail -1)
-node "$S/astra-ledger.mjs"     <repo paths, or nothing for the list>   # Astra: value and price
+node "$S/sol-ledger.mjs"     <repo paths, or nothing for the list>   # Sol: value and price
 node "$S/pipeline-stats.mjs" <repo paths, or nothing for cwd>        # specs + dispatch history
 ```
 Empty `S` is a broken install: STOP and say the plugin path did not resolve.
@@ -28,7 +28,7 @@ sources, and only together do they cover the pipeline:
 
 | | source | needs |
 |---|---|---|
-| `astra-ledger` | critique logs the seams write | runs since the ledger shipped |
+| `sol-ledger` | critique logs the seams write | runs since the ledger shipped |
 | `pipeline-stats` | specs on disk (task sections) + `~/.claude/projects` transcripts | nothing — it is all retroactive |
 
 **With no arguments it reads `~/.claude/foureyes-repos`** — one path per line,
@@ -49,7 +49,7 @@ instrument exists to avoid.
 
 The number is `acted-on` = `(fixed + intentional) / raised`: findings that
 changed the artifact or were consciously kept. `rejected` is its complement that
-matters — Astra was factually wrong and the round was spent anyway.
+matters — Sol was factually wrong and the round was spent anyway.
 
 - **A seam that stays low across several features is a seam to cut.** Say so
   plainly, and say which. That is the whole point of keeping the log.
@@ -58,10 +58,10 @@ matters — Astra was factually wrong and the round was spent anyway.
   claiming otherwise makes the instrument worse than none.
 - **`open` is not failure** — it is a seam that ended on `final` with findings
   the user shipped anyway. A high `open` count means the round budget binds, not
-  that Astra was wrong.
+  that Sol was wrong.
 - **Zero logs is not zero findings.** A repo that has not run a seam yet, or ran
   everything under `--skip-critics`, is empty for reasons that have nothing to do
-  with Astra's quality. Check before concluding.
+  with Sol's quality. Check before concluding.
 
 ## Reading `pipeline-stats`
 
@@ -71,7 +71,7 @@ matters — Astra was factually wrong and the round was spent anyway.
   where a user waits forty minutes and gets nothing; the drafter budgets itself
   because the Agent tool has no `timeout` and nothing external can stop it.
 - **The `⚠ Codex-only critic` warning** — `spec`/`code` critics must reach
-  Astra through `codex-critic.sh`. Dispatched as Claude subagents they become
+  Sol through `codex-critic.sh`. Dispatched as Claude subagents they become
   Claude critiquing Claude, and the run only looked cross-model. `review-critic`
   and `refute-critic` are NOT misroutes: `foureyes-review` sends the identical
   prompt to both families on purpose.
@@ -85,7 +85,7 @@ matters — Astra was factually wrong and the round was spent anyway.
 
 ## The one question the summary cannot answer
 
-Whether to add a per-wave Astra review at build's E6 turns on something the table
+Whether to add a per-wave Sol review at build's E6 turns on something the table
 does not carry: do S3 findings **span more than one task**, and do they cite code
 from a wave that **is not the last one**? Only those would have been caught
 earlier by a per-wave review.

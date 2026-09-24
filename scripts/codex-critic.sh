@@ -30,7 +30,7 @@ seam=""; case "$critic" in spec|plan|code) seam=1 ;; esac
 # Codex model the critics run on. "gpt-6-sol" is the current default on a
 # ChatGPT-account Codex and is verified working; it needs Codex CLI >= 0.153
 # (`codex update`) — an older CLI rejects the id with a 400. The skills still
-# call the Codex critic "Astra"; the name was kept when the model moved to gpt-6-sol.
+# call the Codex critic "Sol", after the model.
 # Override per-run with CODEX_CRITIC_MODEL; set it to empty ("") to let Codex use
 # whatever your account default is (safest if the id changes in a future release).
 MODEL="${CODEX_CRITIC_MODEL-gpt-6-sol}"

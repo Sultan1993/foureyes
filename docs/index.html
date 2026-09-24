@@ -266,7 +266,7 @@ claude plugin update foureyes@foureyes</pre>
 const A={
  coord:{n:'coordinator',c:'ox'}, fable:{n:'Claude (author)',c:'ox'},
  sub:{n:'Claude subagent',c:'ox'}, impl:{n:'implementer',c:'ox'},
- astra:{n:'Codex',c:'vd'}, det:{n:'script',c:'pw'}, you:{n:'you',c:'hu'}
+ sol:{n:'Codex',c:'vd'}, det:{n:'script',c:'pw'}, you:{n:'you',c:'hu'}
 };
 const PHASES=['set up','gather','explore','decide','act','review','finish'];
 const CMD=[
@@ -278,7 +278,7 @@ const CMD=[
  steps:[
  {id:'0',ph:'set up',t:'Check the environment',a:['coord'],
   d:'Locates the Codex wrapper and confirms the model settings are the ones this command expects. A misconfiguration stops the run here rather than halfway through.'},
- {id:'1a',ph:'explore',t:'Both models propose approaches',a:['fable','astra'],par:1,
+ {id:'1a',ph:'explore',t:'Both models propose approaches',a:['fable','sol'],par:1,
   d:'Claude and Codex each receive your description word for word, at the same moment, and neither sees the other’s answer. This runs even when you already named an approach — the proposals double as a check that it can be built here at all.'},
  {id:'1b',ph:'decide',t:'Proposals are pooled and ranked',a:['coord'],
   d:'Every suggestion from both models goes into one file untouched, then duplicates merge and the strongest three survive. Nothing can be added that neither model proposed.'},
@@ -286,7 +286,7 @@ const CMD=[
   d:'A single prompt with up to four questions, the recommendation first, priced in what you will actually feel — new dependencies, files touched, what gets harder later. Skipped entirely when only one approach survives.'},
  {id:'2',ph:'act',t:'Claude writes the design spec',a:['fable'],
   d:'The author has no file-writing tools at all; it returns the document and the coordinator saves it. Separating those two roles keeps one model from quietly rewriting its own brief.'},
- {id:'3',ph:'review',t:'Codex reviews the spec',a:['astra'],
+ {id:'3',ph:'review',t:'Codex reviews the spec',a:['sol'],
   d:'Up to two passes, each a fresh reading with no memory of the last. Claims are checked against the document before anyone spends a revision on them, and Claude — not Codex — always writes the final version.'},
  {id:'4',ph:'finish',t:'The spec is rendered as a page',a:['det'],
   d:'Every task in execution order, grouped into the waves it will actually run in, so you can read the spec instead of the markdown.'},
@@ -319,7 +319,7 @@ const CMD=[
   d:'Two verdicts per task — does it match the spec, and is the code good — and both must pass. Failures go back once or twice, then the problem is surfaced rather than ground at.'},
  {id:'E6',ph:'act',t:'Build and test the whole thing',a:['coord'],
   d:'After every wave: code generation, a full build, the complete test suite. Failures return to the task that caused them, and a repaired task is reviewed again.'},
- {id:'S3',ph:'review',t:'Codex reviews the whole change',a:['astra'],
+ {id:'S3',ph:'review',t:'Codex reviews the whole change',a:['sol'],
   d:'The first time anyone sees all the work together: spec conformance, integration between tasks, security, whether the tests actually test anything. Any fix made at this stage re-runs the suite, so the result you are shown reflects the final state of the code rather than an earlier one.'},
  {id:'F',ph:'finish',t:'You decide where it goes',a:['you'],
   d:'Reports what landed with the exact command that verified it and its real output, then offers to open a pull request, merge, or leave the branch alone. It never merges or pushes on its own.'}]},
@@ -335,11 +335,11 @@ const CMD=[
   d:'No argument reviews your current branch against where it forked. A pull request number is fetched into a temporary worktree, so your own checkout is never touched.'},
  {id:'2',ph:'gather',t:'Pick up any intent',a:['coord'],
   d:'The most recent spec locally, or the pull request description and any issue it references. Optional — without it the review is simply less able to judge intent.'},
- {id:'3',ph:'explore',t:'Two independent reviews',a:['sub','astra'],par:1,
+ {id:'3',ph:'explore',t:'Two independent reviews',a:['sub','sol'],par:1,
   d:'Correctness, security, performance, tests, API design and over-engineering. Both families get a byte-for-byte identical prompt, so a disagreement is not down to being asked different questions.'},
  {id:'4',ph:'decide',t:'Sort agreements from singles',a:['det'],
   d:'Findings both models raised are treated as already corroborated. Findings only one raised go on to be challenged.'},
- {id:'5',ph:'review',t:'Each model attacks the other’s findings',a:['astra','sub'],par:1,
+ {id:'5',ph:'review',t:'Each model attacks the other’s findings',a:['sol','sub'],par:1,
   d:'One finding, the diff, and an instruction to disprove it. A challenge that fails to run counts as failing to disprove, so an infrastructure hiccup can never silently delete a real bug.'},
  {id:'6',ph:'finish',t:'Build the report',a:['det'],
   d:'Ranked by severity and by whether both models saw it. The header names the models actually used, so a run where one was unavailable is visible on its face.'},
@@ -357,11 +357,11 @@ const CMD=[
   d:'One line, and two facts that change what is possible rather than what is likely: whether the problem can be reproduced, and roughly when it started. A date turns the history search from a haystack into a range.'},
  {id:'2',ph:'gather',t:'Scouts sweep, all at once',a:['sub'],par:1,
   d:'Four searches in parallel: what changed recently, where errors get swallowed, the area you named, and what touches the same data. They report facts with file and line numbers and are forbidden from guessing at causes — a scout with a theory would bias the models that come next.'},
- {id:'3',ph:'explore',t:'Both models form theories',a:['sub','astra'],par:1,
+ {id:'3',ph:'explore',t:'Both models form theories',a:['sub','sol'],par:1,
   d:'Each theory must explain how the cause produces the symptom, and must come with the single cheapest observation that would prove it wrong. Codex leans on history — which commit introduced the line — because that is where a read-only reviewer is strongest.'},
  {id:'4',ph:'decide',t:'Theories are tested, cheapest first',a:['coord','sub'],
   d:'Ordered by how cheap each is to disprove rather than by which sounds likeliest, because a thirty-second check that eliminates a middling theory is worth more than twenty minutes on a favourite. A test that could not actually be run is never counted as a pass.'},
- {id:'5',ph:'review',t:'The other model attacks what survived',a:['astra','sub'],par:1,
+ {id:'5',ph:'review',t:'The other model attacks what survived',a:['sol','sub'],par:1,
   d:'Whatever is left goes to the family that did not propose it, with an instruction to find the fact that makes it impossible.'},
  {id:'6',ph:'finish',t:'A conclusion, or an honest no',a:['coord'],
   d:'Either the cause with the observation that proves it, or "not established" — with everything now ruled out. The second is a real result: the next attempt starts from what you already eliminated instead of from nothing.'}]}
@@ -385,8 +385,8 @@ const ROSTER=[
  ['foureyes-task-reviewer','Claude subagent','sonnet','medium · agent file','read-only'],
  ['foureyes-scout','Claude subagent','sonnet','medium · agent file','read-only'],
  ['foureyes-investigator','Claude subagent','opus','high · agent file','read-only'],
- ['foureyes-review-critic','both families','opus + astra','high','read-only'],
- ['foureyes-refute-critic','both families','opus + astra','high','read-only'],
+ ['foureyes-review-critic','both families','opus + sol','high','read-only'],
+ ['foureyes-refute-critic','both families','opus + sol','high','read-only'],
  ['foureyes-approach-critic','Codex prompt body','gpt-6-sol','medium · wrapper','read-only'],
  ['foureyes-investigate-critic','Codex prompt body','gpt-6-sol','medium · wrapper','read-only'],
  ['foureyes-spec-critic','Codex prompt body','gpt-6-sol','medium · wrapper','read-only'],

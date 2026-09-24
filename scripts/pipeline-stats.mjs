@@ -178,7 +178,7 @@ function reportHistory(h) {
     const total = bad.reduce((a, [, n]) => a + n, 0);
     console.log(`\n⚠  ${total} dispatch(es) sent a Codex-only critic to a Claude subagent:`);
     for (const [k, n] of bad) console.log(`     ${pad(k, 30)} ${n}`);
-    console.log('   Those ran Claude-critiques-Claude. Only codex-critic.sh reaches Astra, and no');
+    console.log('   Those ran Claude-critiques-Claude. Only codex-critic.sh reaches Sol, and no');
     console.log('   prose test can catch this — it greps skill text, not what the coordinator did.');
   }
 }

@@ -134,7 +134,7 @@ check "12c brainstorm handles it surviving alone" \
 
 echo "--- every doc/code seam records what became of its findings ---"
 # The ledger is the only instrument that can retire a seam. A seam that stops
-# logging goes silent, and its column in astra-ledger.mjs quietly reads as clean
+# logging goes silent, and its column in sol-ledger.mjs quietly reads as clean
 # rather than as absent — nothing else in the suite would notice.
 check "13a brainstorm defines the critique-log grammar" \
   'grep -q "critique.md" "$BS" && grep -q "round <n>" "$BS"'
@@ -149,19 +149,19 @@ done
 check "13d the log grammar puts the disposition before the em-dash" \
   'grep -q "disposition> — <the finding" "$BS"'
 check "13e both skills resolve the ledger reader" \
-  'grep -q "astra-ledger.mjs" "$BS" && grep -q "astra-ledger.mjs" "$BD"'
+  'grep -q "sol-ledger.mjs" "$BS" && grep -q "sol-ledger.mjs" "$BD"'
 check "13f the reader is on the deterministic suite list" \
-  'grep -q "astra-ledger.test.mjs" "$HERE/run.sh"'
+  'grep -q "sol-ledger.test.mjs" "$HERE/run.sh"'
 
 echo "--- an uncritiqued spec asks, and never auto-runs brainstorm ---"
 # Step 0.5 offering to critique must stay an offer. Invoking brainstorm here
 # would make `foureyes-build <spec>` silently slower than the user asked for.
 check "14a build detects a spec with no spec-seam entry" \
-  'grep -q "Has Astra ever read this spec" "$BD" && grep -q "'"'"'^## spec '"'"'" "$BD"'
+  'grep -q "Has Sol ever read this spec" "$BD" && grep -q "'"'"'^## spec '"'"'" "$BD"'
 check "14b it asks rather than deciding" \
-  'grep -A12 "Has Astra ever read this spec" "$BD" | grep -q "AskUserQuestion"'
+  'grep -A12 "Has Sol ever read this spec" "$BD" | grep -q "AskUserQuestion"'
 check "14c it never invokes brainstorm from that branch" \
-  'grep -A12 "Has Astra ever read this spec" "$BD" | grep -q "never invoke brainstorm"'
+  'grep -A12 "Has Sol ever read this spec" "$BD" | grep -q "never invoke brainstorm"'
 
 echo "--- inline brainstorm hands back instead of stopping ---"
 # build invokes brainstorm with --continue and goes straight to execution. Step 5
@@ -182,7 +182,7 @@ check "14g standalone still stops" \
   's5 | grep -qi "standalone.*STOP"'
 
 echo "--- transient failures retry, then degrade — never wait on the user ---"
-# The pipeline is left unattended. A timed-out Astra call used to be handed back as
+# The pipeline is left unattended. A timed-out Sol call used to be handed back as
 # "offer --skip-critics" — a question nobody was there to answer, so the run did
 # nothing. 16a is the rule; 16b is the assertion that bites: it fails the moment
 # a skill drifts back to offering the flag instead of retrying and continuing.
@@ -208,7 +208,7 @@ check "15c build's run dir is under the git dir" \
   'grep -q "<gitdir>/foureyes-build/" "$BD"'
 
 echo "--- --skip-critics states what it costs ---"
-# With Astra off, E5 is a Claude subagent reviewing Claude's work: nothing in the
+# With Sol off, E5 is a Claude subagent reviewing Claude's work: nothing in the
 # run crosses model families, which is the entire premise of the plugin.
 check "16 build says skip-critics leaves no cross-model check" \
   'grep -q "nothing in the run crosses model families" "$BD"'
@@ -219,7 +219,7 @@ echo "--- the ledger is reachable from the repos it reports on ---"
 check "17a a ledger skill exists" \
   '[ -f "$SK/foureyes-ledger/SKILL.md" ]'
 check "17b it resolves the reader script" \
-  'grep -q "astra-ledger.mjs" "$SK/foureyes-ledger/SKILL.md"'
+  'grep -q "sol-ledger.mjs" "$SK/foureyes-ledger/SKILL.md"'
 check "17c it says the logs live in other repos" \
   'grep -qi "repos you BUILD in\|consumer repo" "$SK/foureyes-ledger/SKILL.md"'
 check "17e it documents the no-argument repo list" \
@@ -390,7 +390,7 @@ check "28i the pooled list may not gain a coordinator theory" \
   'has "$IV" "may not test a hypothesis neither proposer named"'
 check "28j the evidence loop is round-budgeted" \
   'has "$IV" "at most 2 rounds"'
-check "28k Astra rounds are priced by the ledger like every other seam" \
+check "28k Sol rounds are priced by the ledger like every other seam" \
   'grep -q "## investigate · round" "$IV"'
 
 echo "--- read-only agents stay read-only ---"

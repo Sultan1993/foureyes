@@ -1,20 +1,20 @@
 ---
 name: foureyes-brainstorm
 description: >
-  Write a detailed, executable spec with Fable and Astra, then STOP. Fable and Astra
+  Write a detailed, executable spec with Fable and Sol, then STOP. Fable and Sol
   propose approaches independently and you pick from the merged menu; then Fable
   (the foureyes-drafter subagent) authors the design spec, ending in its task
-  section, while Astra (Codex) critiques it at most twice, and Fable concludes.
+  section, while Sol (Codex) critiques it at most twice, and Fable concludes.
   Produces the spec (with its tasks), its .tasks.json, and an HTML review page.
   You read it and hand it to foureyes-build yourself. Flags: --continue (internal, used
   by foureyes-build: suppress the hard stop), --skip-critics (Fable drafts
-  alone, Astra never runs).
+  alone, Sol never runs).
 ---
 
-# foureyes-brainstorm — two models propose, Fable drafts, Astra sharpens
+# foureyes-brainstorm — two models propose, Fable drafts, Sol sharpens
 
 You are the COORDINATOR. You do not author: Fable (the `foureyes-drafter`
-subagent) writes every document, and Astra critiques through `codex-critic.sh`.
+subagent) writes every document, and Sol critiques through `codex-critic.sh`.
 
 You DO arbitrate, in exactly one place — Step 1, where you pool two independent
 approach sets into one auditable list and rank it into the menu the user picks
@@ -32,8 +32,8 @@ This command GATES NOTHING. Its output is a spec document. Handing that spec to
 marker, no hash. If the user hands over a spec, it is done by definition.
 
 ## Announce
-"Using foureyes-brainstorm: Fable and Astra propose approaches independently, you
-pick once (or not at all), then Fable drafts and Astra critiques twice."
+"Using foureyes-brainstorm: Fable and Sol propose approaches independently, you
+pick once (or not at all), then Fable drafts and Sol critiques twice."
 
 ## The loop — the DOC seam
 
@@ -42,10 +42,10 @@ rounds, no budget, no gate. Neither model revises an approach set — the user
 picks and the pipeline moves on.
 
 ```
-Fable drafts → Astra → Fable revises → Astra → Fable revises → DONE
+Fable drafts → Sol → Fable revises → Sol → Fable revises → DONE
 ```
 
-Two Astra passes, then **Fable has the last word**. A critic that
+Two Sol passes, then **Fable has the last word**. A critic that
 re-reads a document always finds one more `[Important]`, so this never
 converges on its own — the budget is the whole point. Pass
 `CODEX_CRITIC_ROUND` on every seam call and act on the trailing `GATE:` line:
@@ -106,12 +106,12 @@ duration as optional.
 | `open` | the seam ended on `final`/`conclude` with this unaddressed |
 
 The disposition LEADS the em-dash because findings contain em-dashes of their
-own; a trailing one cannot be parsed back. A round Astra ran clean still gets its
-header and a single `- (none)` line — "Astra found nothing" is a result, and a
+own; a trailing one cannot be parsed back. A round Sol ran clean still gets its
+header and a single `- (none)` line — "Sol found nothing" is a result, and a
 missing header is indistinguishable from a seam that never ran.
 
 `node "$LEDGER" docs/foureyes/specs` reads these back and reports, per seam,
-how often Astra was acted on versus factually wrong. Without the log that number
+how often Sol was acted on versus factually wrong. Without the log that number
 does not exist anywhere: every seam costs a few minutes at `medium` effort, and
 nothing today records whether any of them ever earned it. This is the only
 instrument that can retire a seam.
@@ -136,7 +136,7 @@ which means you must read the verdict body yourself rather than trust the gate.
    ```bash
    WRAP=$(ls -d ~/.claude/plugins/cache/*/foureyes/*/scripts/codex-critic.sh 2>/dev/null | sort -V | tail -1)
    VIZ=$(ls -d ~/.claude/plugins/cache/*/foureyes/*/skills/foureyes-brainstorm/lib/plan-viz.mjs 2>/dev/null | sort -V | tail -1)
-   LEDGER=$(ls -d ~/.claude/plugins/cache/*/foureyes/*/scripts/astra-ledger.mjs 2>/dev/null | sort -V | tail -1)
+   LEDGER=$(ls -d ~/.claude/plugins/cache/*/foureyes/*/scripts/sol-ledger.mjs 2>/dev/null | sort -V | tail -1)
    ```
    If ANY prints nothing, that is a broken install, not a failed critic: STOP
    and say the plugin path did not resolve. Never let it fall through to the
@@ -156,7 +156,7 @@ which means you must read the verdict body yourself rather than trust the gate.
    `VERDICT` and no `GATE:` line, so without this it silently looks like a critic
    that failed. If a call really does hit 10 minutes, that is a transient
    failure: retry it per 3c (announced, never silent), and after the third
-   attempt continue without Astra exactly as `--skip-critics` does, saying so.
+   attempt continue without Sol exactly as `--skip-critics` does, saying so.
    Run it with the Bash tool's own `run_in_background`, never by appending `&`
    inside a backgrounded call — the child dies with the outer shell and you get a
    completed task with an empty output file, which looks exactly like a critic that
@@ -171,7 +171,7 @@ which means you must read the verdict body yourself rather than trust the gate.
    however bad — a verdict, a status, a malformed draft is content, and the content
    rules govern it. Never retry a deterministic failure the same way: an
    output-token-maximum overflow fails identically on every attempt.
-4. `--skip-critics`: announce that Astra will not run, then do Steps 1, 2, 4, 5
+4. `--skip-critics`: announce that Sol will not run, then do Steps 1, 2, 4, 5
    and skip Step 3. Fable still authors everything. At Step 1, Fable
    proposes alone and you rank its set — the seam survives with one proposer, and
    the approaches file records that only one ran.
@@ -255,13 +255,13 @@ a brief that specifies correctly. A named approach collapses the MENU (see 3); i
 never skips the check.
 
 **1. Both proposers, in ONE message (concurrent — they must not see each other):**
-Say in one line that Astra is proposing and may take a few minutes at `medium`
+Say in one line that Sol is proposing and may take a few minutes at `medium`
 effort; a silent terminal reads as a hang.
 
 **Set the Bash tool's `timeout: 600000` on this call** (Step 0.3b). That is a
 tool parameter — a `timeout` comment inside the script does nothing.
 ```bash
-# Astra proposes. NOT a seam mode: pass no CODEX_CRITIC_ROUND, expect no GATE line.
+# Sol proposes. NOT a seam mode: pass no CODEX_CRITIC_ROUND, expect no GATE line.
 printf '%s\n' "BRIEF (verbatim):" "<brief>" "" "REPO: <repo root>" \
   | "$WRAP" approach
 ```
@@ -270,20 +270,20 @@ printf '%s\n' "BRIEF (verbatim):" "<brief>" "" "REPO: <repo root>" \
 
 Failure handling is NOT symmetric between the two, because they are not
 interchangeable — Fable also authors every later artifact:
-- **Astra fails** (exit 2, `NEEDS-HUMAN`, unparseable, or a well-formed answer with
+- **Sol fails** (exit 2, `NEEDS-HUMAN`, unparseable, or a well-formed answer with
   no entries at all): continue with Fable's set alone exactly as `--skip-critics`
-  does, and tell the user Astra did not run. The `GATE:` table above governs the DOC
+  does, and tell the user Sol did not run. The `GATE:` table above governs the DOC
   seams and does not apply here — a seam with no gate cannot be stopped by one.
-- **Astra times out**: retry per Step 0.3c. If the third attempt also times out,
+- **Sol times out**: retry per Step 0.3c. If the third attempt also times out,
   name it AS a timeout and continue with Fable's set alone as `--skip-critics`
   does — do not wait for the user to choose. Never file a timeout under "the
   critic failed" — that hides a systematic loss of the second model behind a
   one-line notice.
 - **Fable fails** — unavailable, timed out, or malformed twice: fall back to Opus
-  per Step 0.5, announced. Never proceed Astra-only on the assumption Fable comes
+  per Step 0.5, announced. Never proceed Sol-only on the assumption Fable comes
   back; it is the author of Step 2.
 - **The drafter is unusable even after the Opus fallback**: STOP, **regardless of
-  what Astra returned**. A rich set of approaches with nobody able to write the spec
+  what Sol returned**. A rich set of approaches with nobody able to write the spec
   is not partial progress, it is a dead end — say so plainly rather than ranking a
   menu you cannot act on.
 - **Neither proposer returns a usable entry**: STOP. There is nothing to rank and
@@ -298,10 +298,10 @@ Write `docs/foureyes/specs/YYYY-MM-DD-<topic>-approaches.md`. `## Proposed` is
 the RAW pool: every entry from both sets, nothing merged, nothing dropped,
 relabeled `1..N` and ordered **alphabetically by title**. Alphabetical because it
 is deterministic, derived from content, and uncorrelated with who wrote it —
-whereas alternating Fable/Astra/Fable makes index parity an exact authorship label,
+whereas alternating Fable/Sol/Fable makes index parity an exact authorship label,
 and grouping by source is the same leak in blocks. Both proposers emit the same
 template, so this is a copy, not a rewrite. Write it BEFORE deciding anything: a
-pre-cleaned file cannot show that Astra proposed entry 4 and it got folded into
+pre-cleaned file cannot show that Sol proposed entry 4 and it got folded into
 entry 1, which is the whole reason the file exists.
 
 `VERDICT:` and `SUMMARY:` are NOT entries — they are each proposer's own pick, so
@@ -383,7 +383,7 @@ there is exactly one survivor and nothing left to ask.
 - **Retained unknowns** — one question each. Budget: 3 alongside an approach
   question, 4 without one. These are the `UNKNOWNS` lines both proposers raised,
   deduped, that clear the bar "guessing wrong would waste the run". Everything
-  below the bar becomes an explicit `## Assumptions` entry in the spec, where Astra
+  below the bar becomes an explicit `## Assumptions` entry in the spec, where Sol
   argues with it at Step 3 instead of costing a turn now. Never a follow-up turn:
   this call is the whole budget.
 - **Never ask a question the approach pick already answers.** Every question in
@@ -424,7 +424,7 @@ when you passed unanswered unknowns, missing any of the three trailing sections)
 reject and re-dispatch — do not patch it yourself. Create NO native tasks — the
 execution stage owns TaskCreate; a second creator only makes duplicates.
 
-## Step 3 — Astra critiques the spec (≤2 rounds)
+## Step 3 — Sol critiques the spec (≤2 rounds)
 ```bash
 # Bash tool: set timeout: 600000 (Step 0.3b) — a tool parameter, not a script line.
 printf '%s\n' "SPEC_DOC: <spec path>" "" "ORIGINAL BRIEF (verbatim):" "<brief>" "" "<re-review: what changed>" \
@@ -478,12 +478,12 @@ way; only the ending differs.
 
 The report, in both modes: print the paths: spec, tasks.json, HTML, the critique log, and the
 approaches file if the seam ran. Report this run's tally in one line —
-`Astra: <n> raised, <n> fixed, <n> rejected, <n> intentional, <n> open` — counted
+`Sol: <n> raised, <n> fixed, <n> rejected, <n> intentional, <n> open` — counted
 from the lines you just wrote. It costs nothing and it is the only feedback that
 arrives while you still remember the run. Name the chosen approach in one line — the spec only makes sense
 against the direction it was built for. List any `## Assumptions` the spec is
 carrying, since those were decided FOR the user, not by them. If any seam ended
-on `final` or `conclude`, say so plainly and list what Astra still had open — the
+on `final` or `conclude`, say so plainly and list what Sol still had open — the
 user is deciding whether to build, and they need to know what went unaddressed.
-If Astra never ran at this seam (a failed `approach` call), say that too: the menu
+If Sol never ran at this seam (a failed `approach` call), say that too: the menu
 came from one model.
