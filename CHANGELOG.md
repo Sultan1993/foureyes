@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.3.0](https://github.com/Sultan1993/foureyes/compare/v1.2.0...v1.3.0) (2026-09-24)
+
+
+### Features
+
+* **critic:** move Codex to gpt-6-sol ([dd6d851](https://github.com/Sultan1993/foureyes/commit/dd6d851a12299d7fdefa36538582692dc7f97e03))
+* **critic:** remove the fast service tier ([91b3c52](https://github.com/Sultan1993/foureyes/commit/91b3c522927e81d794cc1612faa877d24e4e3255))
+* **critic:** rename the critic Astra → Sol ([5dd2528](https://github.com/Sultan1993/foureyes/commit/5dd2528d0c66e5773fe83994a7658a7ea6e5abe5))
+* **critic:** run Astra at medium effort by default ([2960037](https://github.com/Sultan1993/foureyes/commit/2960037c4aee377822f43fa1c36d72b15fdd3e5b))
+
 ## [1.2.0](https://github.com/Sultan1993/foureyes/compare/v1.1.1...v1.2.0) (2026-09-23)
 
 
