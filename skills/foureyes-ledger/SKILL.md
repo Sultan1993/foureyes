@@ -9,7 +9,7 @@ description: >
 
 # foureyes-ledger — is Sol worth the five minutes?
 
-Every seam costs a `medium`-effort Codex call, a few minutes. This is the
+Every seam costs a `high`-effort Codex call, a few minutes. This is the
 only thing that says whether any of them earned it.
 
 ## Announce

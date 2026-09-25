@@ -152,15 +152,15 @@ check "8d CODEX_CRITIC_MODEL honored"         'grep -qx "other-model" args.txt'
 run spec CODEX_CRITIC_MODEL=
 check "8e empty model omits -m"               '! grep -qx -- "-m" args.txt'
 
-echo "--- effort: medium on every round ---"
+echo "--- effort: high on every round ---"
 run spec CODEX_CRITIC_ROUND=1
-check "9a round 1 -> medium"                  'grep -qx "model_reasoning_effort=medium" args.txt'
+check "9a round 1 -> high"                    'grep -qx "model_reasoning_effort=high" args.txt'
 run spec CODEX_CRITIC_ROUND=2 CODEX_CRITIC_MAX_ROUNDS=2
-check "9b last round stays medium"            'grep -qx "model_reasoning_effort=medium" args.txt'
+check "9b last round stays high"              'grep -qx "model_reasoning_effort=high" args.txt'
 run spec CODEX_CRITIC_ROUND=2 CODEX_CRITIC_MAX_ROUNDS=3 CODEX_CRITIC_EFFORT=low
 check "9c explicit effort wins"               'grep -qx "model_reasoning_effort=low" args.txt'
 run review
-check "9d non-seam is medium too"             'grep -qx "model_reasoning_effort=medium" args.txt'
+check "9d non-seam is high too"               'grep -qx "model_reasoning_effort=high" args.txt'
 
 echo
 echo "codex-critic.test.sh: $PASS passed, $FAIL failed"

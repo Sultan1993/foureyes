@@ -112,7 +112,7 @@ missing header is indistinguishable from a seam that never ran.
 
 `node "$LEDGER" docs/foureyes/specs` reads these back and reports, per seam,
 how often Sol was acted on versus factually wrong. Without the log that number
-does not exist anywhere: every seam costs a few minutes at `medium` effort, and
+does not exist anywhere: every seam costs a few minutes at `high` effort, and
 nothing today records whether any of them ever earned it. This is the only
 instrument that can retire a seam.
 
@@ -147,11 +147,11 @@ which means you must read the verdict body yourself rather than trust the gate.
    call expands to nothing. The emptiness check above is on THIS command's output,
    not on a later expansion — an empty expansion downstream is your own bookkeeping
    slip, and reporting it as a broken install sends the user to fix the wrong thing.
-3. Every Codex call runs at `medium` effort — each is a fresh cold read, and at the
+3. Every Codex call runs at `high` effort — each is a fresh cold read, and at the
    doc seam the last round is the final word before Fable concludes. Do not set
    `CODEX_CRITIC_EFFORT` yourself; a user who exports it overrides it.
 3b. **Every** `"$WRAP"` call passes the Bash tool's `timeout: 600000` (10 min, the
-   tool maximum). The default is 120s and a `medium`-effort call with `--search`
+   tool maximum). The default is 120s and a `high`-effort call with `--search`
    routinely exceeds it — and a timeout arrives as a tool error, with no
    `VERDICT` and no `GATE:` line, so without this it silently looks like a critic
    that failed. If a call really does hit 10 minutes, that is a transient
@@ -255,7 +255,7 @@ a brief that specifies correctly. A named approach collapses the MENU (see 3); i
 never skips the check.
 
 **1. Both proposers, in ONE message (concurrent — they must not see each other):**
-Say in one line that Sol is proposing and may take a few minutes at `medium`
+Say in one line that Sol is proposing and may take a few minutes at `high`
 effort; a silent terminal reads as a hang.
 
 **Set the Bash tool's `timeout: 600000` on this call** (Step 0.3b). That is a

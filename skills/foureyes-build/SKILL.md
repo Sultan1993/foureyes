@@ -32,9 +32,9 @@ LEDGER=$(ls -d ~/.claude/plugins/cache/*/foureyes/*/scripts/sol-ledger.mjs 2>/de
   and finish. Read the trailing `GATE:` line; never reset the round to buy
   passes. Read stderr too: it warns when findings were in a format the wrapper
   could not count, meaning you must read the verdict body yourself.
-- Every round runs at `medium` effort. Do not set `CODEX_CRITIC_EFFORT` yourself.
+- Every round runs at `high` effort. Do not set `CODEX_CRITIC_EFFORT` yourself.
 - **Pass the Bash tool's `timeout: 600000`** (10 min, the tool maximum) on every
-  `"$WRAP"` call. The default is 120s and a `medium`-effort review of a real diff
+  `"$WRAP"` call. The default is 120s and a `high`-effort review of a real diff
   routinely exceeds it — and a timeout arrives as a tool error with no `VERDICT`
   and no `GATE:` line, so without this the review looks like it merely failed.
   If a call really does hit 10 minutes, retry per the rule below; after the

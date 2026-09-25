@@ -387,10 +387,10 @@ const ROSTER=[
  ['foureyes-investigator','Claude subagent','opus','high · agent file','read-only'],
  ['foureyes-review-critic','both families','opus + sol','high','read-only'],
  ['foureyes-refute-critic','both families','opus + sol','high','read-only'],
- ['foureyes-approach-critic','Codex prompt body','gpt-6-sol','medium · wrapper','read-only'],
- ['foureyes-investigate-critic','Codex prompt body','gpt-6-sol','medium · wrapper','read-only'],
- ['foureyes-spec-critic','Codex prompt body','gpt-6-sol','medium · wrapper','read-only'],
- ['foureyes-code-critic','Codex prompt body','gpt-6-sol','medium · wrapper','read-only']
+ ['foureyes-approach-critic','Codex prompt body','gpt-6-sol','high · wrapper','read-only'],
+ ['foureyes-investigate-critic','Codex prompt body','gpt-6-sol','high · wrapper','read-only'],
+ ['foureyes-spec-critic','Codex prompt body','gpt-6-sol','high · wrapper','read-only'],
+ ['foureyes-code-critic','Codex prompt body','gpt-6-sol','high · wrapper','read-only']
 ];
 const cls=s=>{const a=s.a.map(x=>A[x].c);return a.includes('hu')?'hu':(a.includes('ox')&&a.includes('vd'))?'both':a[0];};
 document.getElementById('cards').innerHTML=CMD.map(c=>`

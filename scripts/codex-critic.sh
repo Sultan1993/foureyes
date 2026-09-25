@@ -30,7 +30,8 @@ seam=""; case "$critic" in spec|plan|code) seam=1 ;; esac
 # Codex model the critics run on. "gpt-6-sol" is the current default on a
 # ChatGPT-account Codex and is verified working; it needs Codex CLI >= 0.153
 # (`codex update`) — an older CLI rejects the id with a 400. The skills still
-# call the Codex critic "Sol", after the model.
+# call the Codex critic "Sol". The name is permanent: it does not follow the
+# model id, so a future model change edits MODEL below and nothing else.
 # Override per-run with CODEX_CRITIC_MODEL; set it to empty ("") to let Codex use
 # whatever your account default is (safest if the id changes in a future release).
 MODEL="${CODEX_CRITIC_MODEL-gpt-6-sol}"
@@ -42,13 +43,13 @@ case "${CODEX_CRITIC_SEARCH:-1}" in 0|false|no) SEARCH="" ;; *) SEARCH="--search
 # Seam round budget.
 MAX_ROUNDS="${CODEX_CRITIC_MAX_ROUNDS:-2}"
 ROUND="${CODEX_CRITIC_ROUND:-1}"
-# Reasoning effort. Every round runs `medium` by default — gpt-6-sol at medium
-# is the chosen operating point; override with CODEX_CRITIC_EFFORT. Whatever the
+# Reasoning effort. Every round runs `high` by default — gpt-6-sol at high is
+# the chosen operating point; override with CODEX_CRITIC_EFFORT. Whatever the
 # level, it is the same on every round: each `codex exec` is a fresh process with
 # no memory of the last one, so a later round is a full cold review of the whole
 # document, and with a 2-round budget the last round is the final word before
 # the drafter concludes — never run it lower than the first.
-EFFORT="${CODEX_CRITIC_EFFORT:-medium}"
+EFFORT="${CODEX_CRITIC_EFFORT:-high}"
 # -----------------------------------------------------------------------------
 
 fail() { echo "VERDICT: NEEDS-HUMAN"; echo "codex-critic: $1" >&2; exit 2; }

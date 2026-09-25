@@ -42,7 +42,7 @@ state does not survive between Bash calls — read this once and paste it as a
 literal into every later command.
 
 **Every `"$WRAP"` call passes the Bash tool's `timeout: 600000`** (10 min, the
-tool maximum). The default is 120s and a `medium`-effort call over a real codebase
+tool maximum). The default is 120s and a `high`-effort call over a real codebase
 exceeds it easily; a timeout arrives as a tool error with no output at all, which
 looks exactly like a model that found nothing. Run it with the Bash tool's own
 `run_in_background`, never by appending `&` inside a backgrounded call — the
