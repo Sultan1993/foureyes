@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/Sultan1993/foureyes/compare/v1.3.0...v1.4.0) (2026-09-25)
+
+
+### Features
+
+* **critic:** Sol runs at high effort; the name Sol is permanent ([3d28636](https://github.com/Sultan1993/foureyes/commit/3d286368dc19173685f64aa5697e08c5e3dc1f50))
+
 ## [1.3.0](https://github.com/Sultan1993/foureyes/compare/v1.2.0...v1.3.0) (2026-09-24)
 
 
