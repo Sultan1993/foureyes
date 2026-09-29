@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/Sultan1993/foureyes/compare/v1.4.0...v1.4.1) (2026-09-29)
+
+
+### Bug Fixes
+
+* **critic:** upgrade Sol to gpt-6.1-sol at high effort ([3424acc](https://github.com/Sultan1993/foureyes/commit/3424acc1bd82413bda2aa695e025e5f3f56f6b8f))
+
 ## [1.4.0](https://github.com/Sultan1993/foureyes/compare/v1.3.0...v1.4.0) (2026-09-25)
 
 
