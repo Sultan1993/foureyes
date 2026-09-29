@@ -87,4 +87,5 @@ test('renderReport shows severity header, tag, and where-line', () => {
   assert.match(md, /\[Critical\] null deref crash/);
   assert.match(md, /both models/);
   assert.match(md, /a\.js:10/);
+  assert.match(md, /Codex \(gpt-6\.1-sol\)/);
 });

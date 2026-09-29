@@ -145,6 +145,7 @@ V "${CLEAN[@]}"
 run spec
 check "8a read-only sandbox"                  'grep -qx -- "-s" args.txt && grep -qx "read-only" args.txt'
 check "8b search on by default"               'grep -qx -- "--search" args.txt'
+check "8f default model is gpt-6.1-sol"       'grep -qx "gpt-6.1-sol" args.txt'
 run spec CODEX_CRITIC_SEARCH=0
 check "8c search disabled"                    '! grep -qx -- "--search" args.txt'
 run spec CODEX_CRITIC_MODEL=other-model
@@ -161,6 +162,7 @@ run spec CODEX_CRITIC_ROUND=2 CODEX_CRITIC_MAX_ROUNDS=3 CODEX_CRITIC_EFFORT=low
 check "9c explicit effort wins"               'grep -qx "model_reasoning_effort=low" args.txt'
 run review
 check "9d non-seam is high too"               'grep -qx "model_reasoning_effort=high" args.txt'
+check "9e non-seam model is gpt-6.1-sol"      'grep -qx "gpt-6.1-sol" args.txt'
 
 echo
 echo "codex-critic.test.sh: $PASS passed, $FAIL failed"
