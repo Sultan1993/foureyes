@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.2](https://github.com/Sultan1993/foureyes/compare/v1.4.1...v1.4.2) (2026-11-09)
+
+
+### Bug Fixes
+
+* **critic:** follow the user's docs lookup order before Context7 ([d976e47](https://github.com/Sultan1993/foureyes/commit/d976e4762d867517749ec9f80def3bc92fc76e32))
+
 ## [1.4.1](https://github.com/Sultan1993/foureyes/compare/v1.4.0...v1.4.1) (2026-09-29)
 
 
