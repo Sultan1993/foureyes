@@ -47,8 +47,10 @@ git show <sha>            # individual commits as needed
    Silent deviations are Critical.
 2. Acceptance criteria — every task's acceptance criteria actually met. Unmet
    criterion = Critical.
-3. Library correctness — verify external library/API calls via Context7
-   (resolve-library-id → query-docs), WebSearch fallback. Misuse Critical.
+3. Library correctness — verify external library/API calls against current docs:
+   the docs lookup order in your user instructions (AGENTS.md / CLAUDE.md) if
+   they set one, otherwise Context7 (resolve-library-id → query-docs), WebSearch
+   fallback. Misuse Critical.
 4. Cross-task integration — interactions a per-task review cannot see (does
    Task 5 wire to Task 2's interface?). Mismatches Critical/Important. Include
    parallel-wave defects: duplicated helpers, interface drift between

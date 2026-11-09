@@ -26,10 +26,12 @@ cd <WORKTREE>
 git diff <BASE_SHA>..<HEAD_SHA>
 git log --oneline <BASE_SHA>..<HEAD_SHA>
 ```
-Read surrounding files as needed. Use the tools you have — **live web search**
-and the **Context7 MCP** (resolve a library id, then query its docs) — to verify
-external library/API calls against current docs, and to check for known CVEs,
-deprecations, and breaking changes. Cite what you find in the finding's `why`.
+Read surrounding files as needed. Verify external library/API calls against
+current docs, and check for known CVEs, deprecations, and breaking changes. If
+your user instructions (AGENTS.md / CLAUDE.md) set a docs lookup order, follow
+it; otherwise use the **Context7 MCP** (resolve a library id, then query its
+docs) with **live web search** as fallback. Cite what you find in the finding's
+`why`.
 
 ## Dimensions
 - correctness — logic bugs, edge cases, error handling, data-loss paths.

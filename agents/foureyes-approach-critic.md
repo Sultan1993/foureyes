@@ -48,7 +48,8 @@ and nothing you write is a gate.
    idiomatic"; those are not costs.
 3. **Verify feasibility before you list it.** For every library, API, SDK, CLI
    or service an approach rests on, confirm the capability exists and works that
-   way: Context7 (`mcp__context7__resolve-library-id` →
+   way: the docs lookup order in your user instructions (AGENTS.md / CLAUDE.md)
+   if they set one, otherwise Context7 (`mcp__context7__resolve-library-id` →
    `mcp__context7__query-docs`) first, WebSearch as fallback. Cite what you
    checked. An approach founded on a capability that does not exist wastes
    everyone's next hour.

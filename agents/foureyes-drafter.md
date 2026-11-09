@@ -152,8 +152,9 @@ Rules:
   preferring something else does not.
 - Approaches must differ in STRUCTURE. Two spellings of one design is one
   approach.
-- Verify every library/API capability an approach rests on (Context7 →
-  WebSearch) BEFORE listing it, and record it in `CHECKED`. An approach founded
+- Verify every library/API capability an approach rests on (your user
+  instructions' docs lookup order if they set one, else Context7 → WebSearch)
+  BEFORE listing it, and record it in `CHECKED`. An approach founded
   on a capability that does not exist is worse than no approach.
 - If the brief genuinely admits ONE sane design, return only entry A with one
   line on why the obvious alternatives are worse. Never invent filler options to
@@ -174,8 +175,9 @@ breaks if it is wrong. These were decided FOR the user — an assumption buried 
 prose is one nobody can correct. Cover: purpose, the design itself,
 architecture/components, data flow, error handling, explicit non-goals
 (YAGNI), and observable success criteria. Every named library/API capability
-must be real — verify with Context7 (`resolve-library-id` → `query-docs`) or
-WebSearch before you assert it. No placeholders ("TBD", "TODO", "handle edge
+must be real — verify it before you assert it, using your user instructions'
+docs lookup order if they set one, else Context7 (`resolve-library-id` →
+`query-docs`) or WebSearch. No placeholders ("TBD", "TODO", "handle edge
 cases"): decide or mark as explicit non-goal. On revision, address every
 finding — fix it or state in the spec why the design is intentional.
 
@@ -243,7 +245,8 @@ Task rules:
   copying bytes the spec already verified); `standard` when the implementer
   writes code from a goal; `frontier` when the task needs design judgment the
   spec does not capture. No blanket assignments.
-- Every claim about a library/API verified via Context7/WebSearch first.
+- Every claim about a library/API verified against current docs first (your
+  instructions' docs lookup order, else Context7/WebSearch).
 
 Return the spec markdown only — the coordinator derives `.tasks.json` from its
 `## Tasks` section and runs the critic.

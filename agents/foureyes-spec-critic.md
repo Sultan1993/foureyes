@@ -45,9 +45,9 @@ unfounded — do not praise.
    does the rest of the spec still stand if it is wrong? An assumption the spec
    cannot survive being wrong about is Critical; it should have been a question.
 5. Feasibility — for EVERY named library, API, SDK, CLI, or cloud service,
-   verify the capability exists and is used correctly. Use Context7
-   (`mcp__context7__resolve-library-id` then `mcp__context7__query-docs`) first;
-   fall back to WebSearch. Assuming a library does something it can't is Critical.
+   verify the capability exists and is used correctly, as described in
+   "Verifying library/API claims" below. Assuming a library does something it
+   can't is Critical.
 6. Decomposability — is the spec's own `## Tasks` section implementable as
    written, or does it smuggle multiple independent subsystems that should be
    split? Also: does the design let independent surfaces be built file-disjoint
@@ -74,8 +74,10 @@ unfounded — do not praise.
     that needs judgment = Critical.
 
 ## Verifying library/API claims
-- `mcp__context7__resolve-library-id` with the library name → pick best match →
-  `mcp__context7__query-docs` with the specific capability question.
+- If your user instructions (AGENTS.md / CLAUDE.md) set a docs lookup order
+  (for example a docs map), follow it.
+- Otherwise: `mcp__context7__resolve-library-id` with the library name → pick
+  best match → `mcp__context7__query-docs` with the specific capability question.
 - If Context7 has no coverage, WebSearch the official docs.
 - Cite what you checked in the finding's "why" field.
 
