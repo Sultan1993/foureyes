@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.3](https://github.com/Sultan1993/foureyes/compare/v1.4.2...v1.4.3) (2026-11-14)
+
+
+### Bug Fixes
+
+* **build:** date the xhigh measurement behind the effort pin ([d275700](https://github.com/Sultan1993/foureyes/commit/d275700f6e91c62a0f50341fcc74dfa10e6558c0))
+
 ## [1.4.2](https://github.com/Sultan1993/foureyes/compare/v1.4.1...v1.4.2) (2026-11-09)
 
 
