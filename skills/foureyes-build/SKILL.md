@@ -209,10 +209,10 @@ needs it to detect an implementer that committed. Mark every task of the wave
   than the same one with a different model. The two files' bodies are byte-identical
   and a test enforces it; edit both or neither.
 
-  This table previously listed an effort column that nothing applied: every Claude
-  subagent inherited the session instead. Measured across 114 transcripts, that was
-  `xhigh` on 99.7% of turns — including Sonnet implementers, where high effort buys
-  Opus-class cost at lower fidelity.
+  Without the pin, a Claude subagent runs at the session's effort, whatever the user
+  has set — not the tier's. That is why the pin exists: when this table carried an
+  effort column with no pin behind it, 114 transcripts (August 2026) ran at `xhigh`
+  on 99.7% of turns, Sonnet implementers included.
 
   A task's `"model"` pin overrides its tier. Nothing else does: this table and the
   agents' pinned effort are the whole contract. There is deliberately no external
