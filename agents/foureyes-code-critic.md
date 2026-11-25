@@ -9,7 +9,7 @@ description: >
   acceptance criteria, library correctness, cross-task integration, security,
   test reality. Read-only; returns a structured VERDICT block.
 tools: Read, Grep, Glob, Bash, WebSearch, mcp__context7__resolve-library-id, mcp__context7__query-docs
-model: opus
+model: fable
 ---
 
 > **If you are a Claude subagent reading this, you were dispatched wrongly.**

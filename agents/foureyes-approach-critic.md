@@ -7,7 +7,7 @@ description: >
   wrapper resolves prompts as foureyes-<mode>-critic.md; the role is proposer.
   Read-only; one pass, never a loop.
 tools: Read, Grep, Glob, WebSearch, mcp__context7__resolve-library-id, mcp__context7__query-docs
-model: opus
+model: fable
 ---
 
 # Approach Proposer (SEAM 0 — direction)

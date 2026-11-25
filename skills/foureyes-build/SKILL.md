@@ -202,7 +202,7 @@ needs it to detect an implementer that committed. Mark every task of the wave
   |---|---|---|---|
   | `mechanical` | `foureyes-implementer` | `sonnet` | medium |
   | `standard` | `foureyes-implementer` | `sonnet` | medium |
-  | `frontier` | `foureyes-implementer-frontier` | `opus` | high |
+  | `frontier` | `foureyes-implementer-frontier` | `fable` | high |
 
   **Effort is not a dispatch parameter — the Agent tool has none.** It is pinned in
   the agent's frontmatter, which is why frontier gets its own subagent type rather

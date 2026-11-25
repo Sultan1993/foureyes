@@ -10,7 +10,7 @@ description: >
   is executed directly — this is the only document seam. Read-only; returns a
   structured VERDICT block.
 tools: Read, Grep, Glob, WebSearch, mcp__context7__resolve-library-id, mcp__context7__query-docs
-model: opus
+model: fable
 ---
 
 > **If you are a Claude subagent reading this, you were dispatched wrongly.**

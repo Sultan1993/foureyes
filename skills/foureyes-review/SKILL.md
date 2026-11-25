@@ -23,14 +23,14 @@ node lib. Do NOT use the Workflow tool (its sandbox can't run Codex).
   (default: all six — correctness, security, performance, tests, api-design,
   over-engineering).
 - Model flags (independent per side):
-  - `--claude-model <sonnet|opus|haiku>` — model for the Claude reviewer/refuter
-    (default: **opus**; pass `sonnet` for a cheaper review). Pass it as the
+  - `--claude-model <fable|opus|sonnet|haiku>` — model for the Claude reviewer/refuter
+    (default: **fable**; pass `sonnet` for a cheaper review). Pass it as the
     `Agent` tool's `model` on every review/refute dispatch.
   - `--codex-model <id>` — model for the Codex reviewer/refuter (default
-    `gpt-6.1-sol`). Export as `CODEX_CRITIC_MODEL=<id>` before each
+    `gpt-6.2-sol`). Export as `CODEX_CRITIC_MODEL=<id>` before each
     `codex-critic.sh` call.
   Example — Sonnet on Claude's side, Sol on Codex's: `--claude-model sonnet`;
-  default is Opus + Sol
+  default is Fable + Sol
   (leave `--codex-model` at its default).
 
 ## Step 0 — Resolve plugin paths
@@ -110,12 +110,12 @@ CONTEXT:
 <context or "(none)">
 ```
 Run BOTH concurrently (issue the Bash and Agent calls in ONE message):
-- Codex: `cd "$WT" && printf '%s' "$INPUT" | ${CODEX_MODEL:+CODEX_CRITIC_MODEL="$CODEX_MODEL"} "$WRAP" review > "$RUN/codex.out" 2>"$RUN/codex.err"` (set `CODEX_MODEL` from `--codex-model` if given; else omit → wrapper default gpt-6.1-sol).
-- Claude: `Agent` tool, `subagent_type: foureyes-review-critic`, `prompt` = the INPUT block, and `model: <--claude-model or opus>` — ALWAYS pass the model parameter explicitly (never rely on agent frontmatter resolution). (Its system prompt is the reviewer; the INPUT is the assignment.)
+- Codex: `cd "$WT" && printf '%s' "$INPUT" | ${CODEX_MODEL:+CODEX_CRITIC_MODEL="$CODEX_MODEL"} "$WRAP" review > "$RUN/codex.out" 2>"$RUN/codex.err"` (set `CODEX_MODEL` from `--codex-model` if given; else omit → wrapper default gpt-6.2-sol).
+- Claude: `Agent` tool, `subagent_type: foureyes-review-critic`, `prompt` = the INPUT block, and `model: <--claude-model or fable>` — ALWAYS pass the model parameter explicitly (never rely on agent frontmatter resolution). (Its system prompt is the reviewer; the INPUT is the assignment.)
 Parse each result to `{verdict, summary, findings}`:
 - Extract the first `{`…`}` JSON object (strip any stray prose/fence) and `JSON.parse`.
 - If Codex output is not valid JSON (e.g. `VERDICT: NEEDS-HUMAN`) → Codex is DOWN: set `codex = {findings: []}` and `note = "single-model, unverified (Codex unavailable)"`. Do the same defensively for Claude.
-Write `$RUN/claude.json` and `$RUN/codex.json` (each `{findings:[...]}`), and `$RUN/meta.json` = `{target, base, head, claudeModel:<--claude-model or "opus">, codexModel:<--codex-model or "gpt-6.1-sol">, note}` (so the report header names the models actually used).
+Write `$RUN/claude.json` and `$RUN/codex.json` (each `{findings:[...]}`), and `$RUN/meta.json` = `{target, base, head, claudeModel:<--claude-model or "fable">, codexModel:<--codex-model or "gpt-6.2-sol">, note}` (so the report header names the models actually used).
 
 ## Step 4 — Bucket
 ```bash
@@ -132,7 +132,7 @@ HEAD_SHA: <HEAD>
 FINDING: <the finding JSON>
 ```
 - `raisedBy == ["claude"]` → Codex refutes: `cd "$WT" && printf '%s' "$REFUTE_INPUT" | ${CODEX_MODEL:+CODEX_CRITIC_MODEL="$CODEX_MODEL"} "$WRAP" refute`
-- `raisedBy == ["codex"]` → Claude refutes: `Agent` tool, `subagent_type: foureyes-refute-critic`, `prompt` = REFUTE_INPUT, and `model: <--claude-model or opus>` — always explicit.
+- `raisedBy == ["codex"]` → Claude refutes: `Agent` tool, `subagent_type: foureyes-refute-critic`, `prompt` = REFUTE_INPUT, and `model: <--claude-model or fable>` — always explicit.
 
 (Use the SAME `--claude-model` / `--codex-model` choices as Step 3 so each side is consistent between review and refute.)
 Run them in parallel (batch the calls). Parse each → `{refuted, reason}`.

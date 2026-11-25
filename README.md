@@ -244,12 +244,12 @@ Optional environment variables, all with working defaults.
 | --- | --- | --- |
 | `CODEX_CRITIC_EFFORT` | `high` | reasoning depth — `minimal` … `high` … `xhigh` |
 | `CODEX_CRITIC_SEARCH` | `1` | live web search, so a critic can check a library claim against current docs |
-| `CODEX_CRITIC_MODEL` | `gpt-6.1-sol` | empty string uses your account default |
+| `CODEX_CRITIC_MODEL` | `gpt-6.2-sol` | empty string uses your account default |
 | `CODEX_CRITIC_MAX_ROUNDS` | `2` | passes per review stage |
 
 Claude-side effort is pinned per role in each agent's frontmatter, because the
 Agent tool has no effort parameter: mechanical and standard work runs on Sonnet at
-medium, design judgement on Opus at high.
+medium, design judgement on Fable at high.
 
 Specs are drafted on Claude's frontier model. If it is unavailable — a
 spent quota, most often — drafting falls back to Opus and says so in the

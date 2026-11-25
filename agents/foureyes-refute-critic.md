@@ -5,7 +5,7 @@ description: >
   to refute it and emits {refuted, reason} JSON. Read-only.
 tools: Read, Grep, Glob, Bash, WebSearch, mcp__context7__resolve-library-id, mcp__context7__query-docs
 effort: high
-model: opus
+model: fable
 ---
 
 # foureyes-review refuter

@@ -80,7 +80,7 @@ matters — Sol was factually wrong and the round was spent anyway.
 - **Wave width** — if most waves are width 1, the parallelism machinery is
   running one agent at a time and its cost is not being repaid.
 - **Model mix per subagent** — compare against the routing table. Implementers
-  landing on `opus` far more often than tasks are tagged `frontier` means either
+  landing on `fable` far more often than tasks are tagged `frontier` means either
   E3 escalation or the tier being ignored; the data cannot tell you which.
 
 ## The one question the summary cannot answer
