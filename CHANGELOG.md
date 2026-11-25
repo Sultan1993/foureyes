@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.4](https://github.com/Sultan1993/foureyes/compare/v1.4.3...v1.4.4) (2026-11-25)
+
+
+### Bug Fixes
+
+* **critic:** move Sol to gpt-6.2-sol and Claude's frontier roles to Fable ([b76b2ae](https://github.com/Sultan1993/foureyes/commit/b76b2ae4bc09588f72d081476930e53755439b40))
+
 ## [1.4.3](https://github.com/Sultan1993/foureyes/compare/v1.4.2...v1.4.3) (2026-11-14)
 
 
